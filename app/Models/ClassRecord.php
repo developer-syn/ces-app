@@ -115,7 +115,7 @@ class ClassRecord extends Model
     {
         // If you have a SchoolYear model and store an ID, use that.
         // Otherwise, you might remove or adjust this relationship.
-        return $this->belongsTo(SchoolYear::class);
+        return $this->belongsTo(SchoolYear::class, 'school_year', 'id');
     }
 
     /**

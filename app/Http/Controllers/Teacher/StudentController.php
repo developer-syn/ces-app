@@ -114,7 +114,7 @@ class StudentController extends Controller
             ->with('success', 'Student deleted successfully.');
     }
 
-    public function sf09($id)
+    public function show($id)
     {
         $student = Student::findOrFail($id);
 
@@ -122,7 +122,7 @@ class StudentController extends Controller
         // (Adjust logic as needed for your database structure)
         $grades = ClassRecord::where('student_id', $id)->get();
 
-        return view('teacher.students.sf-09', compact('student', 'grades'));
+        return view('teacher.students.sf09', compact('student', 'grades'));
     }
 
     public function sf10($id)
@@ -132,6 +132,6 @@ class StudentController extends Controller
         // SF10 details (transcript, etc.)
         // We'll fill this in once you provide details or data structure
         // For now, just pass the $student
-        return view('teacher.students.sf-10', compact('student'));
+        return view('teacher.students.sf10', compact('student'));
     }
 }
