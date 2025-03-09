@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
@@ -27,9 +27,23 @@ class StudentController extends Controller
             // Teachers only see their students
             $query->where('user_id', $user->id);
         }
-        // Admins see all students
-
-        $students = $query->get();
+        // Apply search filter
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where('name', 'like', "%{$searchTerm}%");
+        }
+        // Apply year level filter
+        if ($request->has('year_level')) {
+            $yearLevel = $request->input('year_level');
+            $query->where('year_level_id', $yearLevel);
+        }
+        // Apply school year filter
+        if ($request->has('school_year')) {
+            $schoolYear = $request->input('school_year');
+            $query->where('school_year_id', $schoolYear);
+        }
+        // Apply pagination to the filtered query
+        $students = $query->paginate(25)->withQueryString();
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
 
@@ -55,11 +69,13 @@ class StudentController extends Controller
     {
         // dd($request->all());
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'section' => 'required|string|max:255',
-            'birthdate' => 'required|date',
-            'year_level_id' => 'required|exists:year_levels,id',
-            'school_year_id' => 'required|exists:school_years,id',
+            'LRN_num'           => 'required|string|unique:students,LRN_num',
+            'name'              => 'required|string|max:255',
+            'gender'            => 'required|string|max:255',
+            'section'           => 'required|string|max:255',
+            'birthdate'         => 'required|date',
+            'year_level_id'     => 'required|exists:year_levels,id',
+            'school_year_id'    => 'required|exists:school_years,id',
             // other validations...
         ]);
 
@@ -86,11 +102,10 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student)
     {
-        if ($student->teacher_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
         $validated = $request->validate([
+            'LRN_num' => 'required|string||unique:students,LRN_num,' . $student->id,
             'name' => 'required|string|max:255',
+            'gender' => 'required|string|max:255',
             'section' => 'required|string|max:255',
             'birthdate' => 'required|date',
             'year_level_id' => 'required|exists:year_levels,id',

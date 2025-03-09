@@ -1,65 +1,305 @@
 <x-app-layout>
-
     <style>
         /* Basic reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
         }
 
-        /* Container to hold both columns side by side */
+        /* Container for screen display remains flexible, but we override for printing */
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             background: #fff;
-            padding: 20px;
-            border: 1px solid #ccc;
+        }
+
+        /* Print-specific adjustments */
+        @media print {
+
+            /* Ensure the printed page uses the desired size */
+            @page {
+                size: 11in 8.5in;
+                margin: 0;
+            }
+
+            .container {
+                width: 11in;
+                height: 8.5in;
+                margin: 0 auto;
+            }
         }
 
         /* Left column */
         .column-left {
-            flex: 1 1 45%;
-            /* Takes about half the container width */
+            flex: 1 1 40%;
             min-width: 280px;
-            border-right: 1px solid #ccc;
             padding-right: 20px;
         }
 
         /* Right column */
         .column-right {
-            flex: 1 1 45%;
+            flex: 1 1 60%;
             min-width: 280px;
-            padding-left: 20px;
+            padding-left: 130px;
         }
 
         /* Table styling */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
-        }
-
-        table thead tr {
-            background: #e0e0e0;
+            margin: 10px 0 20px 0;
         }
 
         table th,
         table td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            border: 1px solid #000;
+            padding: 6px 4px;
             text-align: center;
+            height: 30px;
+        }
+
+        table td:first-child {
+            text-align: left;
+            font-weight: normal;
+            padding-left: 10px;
         }
 
         /* Headings and spacing */
-        h2,
-        h3,
-        h4 {
+        h2 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        h3 {
+            margin: 15px 0 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Parent signature section */
+        .parent-signature {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .parent-signature h3 {
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .signature-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .signature-line span {
+            width: 80px;
+            font-weight: normal;
+            text-align: left;
+        }
+
+        .signature-line .line {
+            flex: 1;
+            padding-top: 10px;
+
+            border-bottom: 1px solid #000;
+        }
+
+        /* School header */
+        .school-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 10px;
-            margin-top: 10px;
+        }
+
+        .school-header img {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .school-header-text {
+            text-align: center;
+        }
+
+        .school-header-text h2 {
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        /* School details */
+        .school-details {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .school-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            width: 48%;
+        }
+
+        .school-detail .label {
+            margin-right: 5px;
+        }
+
+        .school-detail .line {
+            flex: 1;
+            padding-top: 10px;
+
+            padding-top: 10px;
+            border-bottom: 1px solid #000;
+        }
+
+        /* Report card header */
+        .report-card-header {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .report-card-header h3 {
+            margin-bottom: 5px;
+        }
+
+        /* Student info */
+        .student-info {
+            margin: 15px 0;
+        }
+
+        .student-info-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .student-info-row .label {
+            min-width: 50px;
+        }
+
+        .student-info-row .line {
+            flex: 1;
+            padding-top: 10px;
+
+            border-bottom: 1px solid #000;
+        }
+
+        .student-info-row .short-label {
+            min-width: 40px;
+            margin-left: 15px;
+        }
+
+        .student-info-row .short-line {
+            width: 120px;
+            border-bottom: 1px solid #000;
+        }
+
+        /* Message section */
+        .parent-message {
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .parent-message p {
+            margin-bottom: 5px;
+        }
+
+        /* Signature section */
+        .signature-section {
+            margin: 20px 0;
+        }
+
+        .signature-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .signature-box .line {
+            width: 250px;
+            padding-top: 10px;
+
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        /* Certificate section */
+        .certificate {
+            margin-top: 15px;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+        }
+
+        .certificate h3 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .certificate-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .certificate-row .label {
+            margin-right: 10px;
+        }
+
+        .certificate-row .line {
+            flex: 1;
+            padding-top: 10px;
+
+            border-bottom: 1px solid #000;
+        }
+
+        .certificate-row .label-right {
+            margin: 0 10px;
+        }
+
+        .certificate-signatures {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .cert-signature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+
+        .cert-signature .line {
+            width: 100%;
+            padding-top: 10px;
+
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .cancellation {
+            margin-top: 20px;
+        }
+
+        .cancellation h4 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         /* Smaller screen adjustments */
@@ -71,13 +311,11 @@
 
             .column-left,
             .column-right {
-                border: none;
                 padding: 0;
             }
         }
     </style>
     <div class="py-4">
-        {{-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8"> --}}
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="container">
@@ -87,11 +325,11 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Month</th>
+                                    <th></th>
                                     <th>Jun</th>
                                     <th>Jul</th>
                                     <th>Aug</th>
-                                    <th>Sep</th>
+                                    <th>Sept</th>
                                     <th>Oct</th>
                                     <th>Nov</th>
                                     <th>Dec</th>
@@ -119,7 +357,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td>Days Present</td>
+                                    <td>No. of Days Present</td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -134,7 +372,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td>Days Absent</td>
+                                    <td>No. of Times Absent</td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -151,42 +389,153 @@
                             </tbody>
                         </table>
 
-                        <h3>Parent/Guardian's Signature</h3>
-                        <p>1st Quarter: __________________________</p>
-                        <p>2nd Quarter: __________________________</p>
-                        <p>3rd Quarter: __________________________</p>
-                        <p>4th Quarter: __________________________</p>
+                        <div class="parent-signature">
+                            <h3>Parent/Guardian's Signature</h3>
+                            <div class="signature-line">
+                                <span>1<sup>st</sup> Quarter</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="signature-line">
+                                <span>2<sup>nd</sup> Quarter</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="signature-line">
+                                <span>3<sup>rd</sup> Quarter</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="signature-line">
+                                <span>4<sup>th</sup> Quarter</span>
+                                <div class="line"></div>
+                            </div>
+                        </div>
                     </section>
 
                     <!-- Right Column -->
                     <section class="column-right">
-                        <h2>Republic of the Philippines<br>
-                            Department of Education</h2>
-                        <p><strong>Region</strong>: ________ | <strong>Division</strong>: ________ |
-                            <strong>District</strong>: ________ | <strong>School</strong>: ________
-                        </p>
-                        <h3>LEARNER'S PROGRESS REPORT CARD</h3>
-                        <p><strong>School Year:</strong> 20XX - 20XX</p>
-                        <p><strong>Name:</strong> __________________________</p>
-                        <p><strong>Age:</strong> ______</p>
-                        <p><strong>Grade:</strong> ______</p>
-                        <p><strong>Section:</strong> ______</p>
-                        <p><strong>LRN:</strong> __________________________</p>
+                        <div class="school-header">
+                            <img src="/api/placeholder/60/60" alt="DepEd Seal" />
+                            <div class="school-header-text">
+                                <h2>Republic of the Philippines</h2>
+                                <h2>DEPARTMENT OF EDUCATION</h2>
+                            </div>
+                        </div>
 
-                        <p><em>Dear Parents,</em><br>
-                            This report card shows the ability and the progress your child has made in different
-                            learning areas.
-                            Kindly examine and see how your child is performing.</p>
+                        <div class="school-details">
+                            <div class="school-detail">
+                                <span class="label">Region</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="school-detail">
+                                <span class="label">Division</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="school-detail">
+                                <span class="label">District</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="school-detail">
+                                <span class="label">School</span>
+                                <div class="line"></div>
+                            </div>
+                        </div>
 
-                        <p><strong>Teacher:</strong> __________________________</p>
-                        <p><strong>Head Teacher/Principal:</strong> __________________________</p>
+                        <div class="report-card-header">
+                            <h3>LEARNER'S PROGRESS REPORT CARD</h3>
+                            <p>School Year: 2019-2020</p>
+                        </div>
 
-                        <h4>Certificate of Transfer</h4>
-                        <p><strong>Grade &amp; Section:</strong> ________</p>
-                        <p><strong>Eligible for Admission to Grade:</strong> ________</p>
-                        <p><strong>School:</strong> __________________________</p>
-                        <p><strong>Date:</strong> ________</p>
-                        <p><strong>Principal:</strong> __________________________</p>
+                        <div class="student-info">
+                            <div class="student-info-row">
+                                <span class="label">Name:</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="student-info-row">
+                                <span class="label">Age:</span>
+                                <div class="line" style="flex: 0.3;"></div>
+                                <span class="short-label">Sex:</span>
+                                <div class="line" style="flex: 0.7;"></div>
+                            </div>
+                            <div class="student-info-row">
+                                <span class="label">Grade:</span>
+                                <div class="line" style="flex: 0.2;"></div>
+                                <span class="short-label">Section:</span>
+                                <div class="line" style="flex: 0.3;"></div>
+                                <span class="short-label">LRN:</span>
+                                <div class="line" style="flex: 0.5;"></div>
+                            </div>
+                        </div>
+
+                        <div class="parent-message">
+                            <p><i>Dear Parent,</i></p>
+                            <p style="padding-left: 50px;"><i>This report card shows the ability and the progress your
+                            child has made </p>
+                            <p>in the different learning areas as well as his/her progress in core
+                                values.</i></p>
+                            <p style="padding-left: 50px;"><i>The school welcomes you should you desire to know more about your </p>
+                                <p>child's progress.</i></p>
+                        </div>
+
+                        <div class="signature-section">
+                            <div class="signature-box">
+                                <div class="line"></div>
+                                <p>Teacher</p>
+                            </div>
+                            <div class="signature-box">
+                                <div class="line"></div>
+                                <p>Head Teacher/ Principal</p>
+                            </div>
+                        </div>
+
+                        <div class="certificate">
+                            <h3>Certificate of Transfer</h3>
+                            <div class="certificate-row">
+                                <span class="label">Admitted to Grade</span>
+                                <div class="line" style="flex: 0.3;"></div>
+                                <span class="label-right">Section</span>
+                                <div class="line" style="flex: 0.4;"></div>
+                            </div>
+                            <div class="certificate-row">
+                                <span class="label">Room</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="certificate-row">
+                                <span class="label">Eligible for Admission to Grade</span>
+                                <div class="line"></div>
+                            </div>
+                            <div class="certificate-row">
+                                <span class="label">Approved:</span>
+                            </div>
+
+                            <div class="certificate-signatures">
+                                <div class="cert-signature">
+                                    <div class="line"></div>
+                                    <p>Head Teacher/ Principal</p>
+                                </div>
+                                <div class="cert-signature">
+                                    <div class="line"></div>
+                                    <p>Teacher</p>
+                                </div>
+                            </div>
+
+                            <div class="cancellation">
+                                <h4>Cancellation of Eligibility to Transfer</h4>
+                                <div class="certificate-row">
+                                    <span class="label">Admitted in</span>
+                                    <div class="line"></div>
+                                </div>
+                                <div class="certificate-row">
+                                    <span class="label">Date:</span>
+                                    <div class="line"></div>
+                                </div>
+
+                                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                                    <div class="cert-signature" style="width: 40%;">
+                                        <div class="line"></div>
+                                        <p>Principal</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </section>
                 </div>
             </div>

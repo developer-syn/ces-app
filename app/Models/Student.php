@@ -12,7 +12,9 @@ class Student extends Model
     protected $table = 'students';
     // Define fillable fields for mass assignment
     protected $fillable = [
+        'LRN_num',
         'name',
+        'gender',
         'section',
         'birthdate',
         'year_level_id',

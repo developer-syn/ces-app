@@ -63,7 +63,9 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id'); // Add user_id right after id
+            $table->string('LRN_num')->unique();
             $table->string('name');
+            $table->string('gender');
             $table->string('section');
             $table->date('birthdate');
             $table->foreignId('year_level_id')->constrained()->onDelete('cascade');

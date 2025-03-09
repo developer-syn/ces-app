@@ -11,6 +11,22 @@
                 <div class="p-6">
                     <form method="POST" action="{{ route('teacher.students.store') }}" class="space-y-6">
                         @csrf
+                        <!-- LRN_num Field -->
+                        <div>
+                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN number</label>
+                            <div class="mt-1">
+                                <input type="number"
+                                       id="LRN_num"
+                                       name="LRN_num"
+                                       required
+                                       class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Enter LRN number">
+                            </div>
+                            @error('LRN_num')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Name Field -->
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Student Name</label>
@@ -23,6 +39,24 @@
                                        placeholder="Enter student's name">
                             </div>
                             @error('name')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <!-- Gender Field -->
+                        <div>
+                            <label for="gender" class="block text-sm font-medium text-gray-700">Student Gender</label>
+                            <div class="mt-1">
+                                <select name="gender"
+                                        id="gender"
+                                        required
+                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="" disabled selected>--Select Gender--</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    {{-- <option value="other">Other</option> --}}
+                                </select>
+                            </div>
+                            @error('gender')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>

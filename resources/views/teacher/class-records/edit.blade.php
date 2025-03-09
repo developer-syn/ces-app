@@ -442,7 +442,17 @@
                     @endforeach
                 </table>
 
-                <button type="submit" class="btn btn-primary">Update Class Record</button>
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end gap-4">
+                    <a href="{{ route('teacher.class-records.index') }}"
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Save
+                    </button>
+                </div>
             </form>
         </div>
 

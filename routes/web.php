@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TeachersController;
 use App\Http\Controllers\Admin\TeacherController;
+use \App\Http\Controllers\Admin\SchoolInfoController;
 use App\Http\Controllers\Teacher\StudentController;
 use App\Http\Controllers\Teacher\YearLevelController;
 use App\Http\Controllers\Teacher\SubjectController;
@@ -12,7 +13,6 @@ use App\Http\Controllers\Teacher\QuarterController;
 use App\Http\Controllers\Teacher\SchoolYearController;
 use App\Http\Controllers\Teacher\ClassRecordController;
 use App\Http\Controllers\Teacher\CsvImportExportController;
-use \App\Http\Controllers\Admin\SchoolInfoController;
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('teachers', TeacherController::class);
