@@ -45,7 +45,7 @@
                                 {{ __('Students lists') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('teacher.year-levels-subjects-school-years-quarters')">
-                                {{ __('Subjects / Year Levels lists') }}
+                                {{ __('YSYQ Management') }}
                             </x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
@@ -55,10 +55,60 @@
                         {{ __('Class Records') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('teacher.summary_quarterly_grades.index')" :active="request()->routeIs('teacher.summary_quarterly_grades.index')">
+                        {{ __('Summary Quarterly Grades') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <div class="fixed top-20 right-4 z-50 space-y-4">
+                    @if (session('success'))
+                        <div id="success-alert" class="flex items-center p-4 max-w-md bg-green-50 border-l-4 border-green-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div id="error-alert" class="flex items-center p-4 max-w-md bg-red-50 border-l-4 border-red-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div id="validation-alert" class="flex items-center p-4 max-w-md bg-red-50 border-l-4 border-red-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <ul class="text-sm font-medium text-red-800">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
@@ -145,3 +195,18 @@
         </div>
     </div>
 </nav>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = ['success-alert', 'error-alert', 'validation-alert'];
+        alerts.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                setTimeout(() => {
+                    element.classList.remove('animate__fadeInRight');
+                    element.classList.add('animate__fadeOutRight');
+                    setTimeout(() => element.remove(), 1000);
+                }, 3000);
+            }
+        });
+    });
+</script>

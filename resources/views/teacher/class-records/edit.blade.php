@@ -1,7 +1,7 @@
 <x-app-layout>
     <style>
         .dashboard {
-            max-width: 1400px;
+            /* max-width: 1400px; */
             margin: 0 auto;
             background: white;
         }
@@ -46,6 +46,8 @@
             /* adjust as desired */
             height: auto;
             position: relative;
+            border-radius: 50%;
+
         }
 
         .deped-text {
@@ -188,7 +190,7 @@
         <div class="dashboard">
             <header class="header">
                 <div class="left">
-                    <img src="{{ asset('img/depedLogo.png') }}" alt="DepEd Logo" class="deped-logo">
+                    <img src="{{ asset('img/Seal_of_the_Department_of_Education_of_the_Philippines.png') }}" alt="DepEd Logo" class="deped-logo">
                 </div>
                 <div class="center">
                     <h1 class="title">Class Record</h1>
@@ -216,8 +218,8 @@
                 <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                 <input type="hidden" name="subject" value="{{ $classRecord->subject_id }}">
                 <input type="hidden" name="grade_section" value="{{ $classRecord->grade_section }}">
-                <input type="hidden" name="quarter" value="{{ $classRecord->quarter }}">
-                <input type="hidden" name="school_year" value="{{ $classRecord->school_year }}">
+                <input type="hidden" name="quarter_id" value="{{ $classRecord->quarter_id }}">
+                <input type="hidden" name="school_year_id" value="{{ $classRecord->school_year_id }}">
                 <input type="hidden" name="teacher" value="{{ $classRecord->teacher }}">
 
 
@@ -248,7 +250,7 @@
                         </div>
                         <div class="form-group">
                             <label>SCHOOL YEAR:</label>
-                            <select name="school_year" disabled @selected(true)>
+                            <select name="school_year_id" disabled @selected(true)>
                                 @foreach ($schoolYear as $year)
                                     <option value="{{ $year->id }}">{{ $year->name }}</option>
                                 @endforeach
@@ -261,23 +263,23 @@
                 <table class="grade-table w-full border-collapse mb-6">
                     <tr class="head-row bg-gray-100">
                         <th class="table-head" colspan="2">
-                            <select name="quarter" class="border-none bg-blue-50 text-center text-sm" disabled>
+                            <select name="quarter_id" class="border-none bg-blue-50 text-center text-sm" disabled>
                                 <option value="" disabled>--Select Quarter--</option>
                                 @foreach ($quarter as $q)
-                                    <option value="{{ $q->name }}"
-                                        {{ $classRecord->quarter == $q->name ? 'selected' : '' }}>
+                                    <option value="{{ $q->quarter_id }}"
+                                        {{ $classRecord->quarter_id == $q->name ? 'selected' : '' }}>
                                         {{ $q->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </th>
-                        <th class="table-head" colspan="5">GRADE & SECTION:</th>
-                        <th class="table-head" colspan="6">
+                        <th class="table-head" colspan="6">GRADE & SECTION:</th>
+                        <th class="table-head" colspan="5">
                             <input type="text" name="grade_section" value="{{ $classRecord->grade_section }}"
                                 placeholder="GRADE & SECTION" class="w-full border px-2 py-1 bg-blue-50 text-center" disabled>
                         </th>
-                        <th class="table-head" colspan="2">TEACHER:</th>
-                        <th class="table-head" colspan="10">
+                        <th class="table-head" colspan="5">TEACHER:</th>
+                        <th class="table-head" colspan="7">
                             <input type="text" name="teacher" value="{{ $classRecord->teacher }}"
                                 placeholder="TEACHER" class="w-full border px-2 py-1 bg-blue-50 text-center" disabled>
                         </th>

@@ -1,11 +1,10 @@
 <x-app-layout>
     <style>
         .dashboard {
-            max-width: 1400px;
+            /* max-width: 1400px; */
             margin: 0 auto;
             background: white;
         }
-
         .header {
             display: flex;
             /* horizontal layout */
@@ -22,6 +21,8 @@
 
         .left {
             /* no flex-grow; it will just size to its content */
+            position: absolute;
+            top: 120px;
         }
 
         .center {
@@ -33,19 +34,27 @@
         .right {
             /* no flex-grow; it will just size to its content */
             margin-left: auto;
+            position: absolute;
+
             /* ensures it’s pushed to the far right */
+            top: 120px;
+            right: 85px;
         }
 
         .deped-logo {
-            width: 80px;
+            width: 120px;
             /* adjust as desired */
             height: auto;
+            position: relative;
+            border-radius: 50%;
+
         }
 
         .deped-text {
             width: 200px;
             /* adjust as desired */
             height: auto;
+            position: relative;
         }
 
         .title {
@@ -63,6 +72,8 @@
 
         .form-container {
             margin-bottom: 20px;
+            padding-left: 150px;
+            padding-right: 20px;
         }
 
         .form-row {
@@ -128,6 +139,7 @@
             /* Ensures consistent spacing */
         }
 
+
         .name-column {
             min-width: 200px;
             text-align: left !important;
@@ -178,7 +190,7 @@
         <div class="dashboard">
             <header class="header">
                 <div class="left">
-                    <img src="{{ asset('img/depedLogo.png') }}" alt="DepEd Logo" class="deped-logo">
+                    <img src="{{ asset('img/Seal_of_the_Department_of_Education_of_the_Philippines.png') }}" alt="DepEd Logo" class="deped-logo">
                 </div>
                 <div class="center">
                     <h1 class="title">Class Record</h1>
@@ -188,53 +200,36 @@
                     <img src="{{ asset('img/deped.png') }}" alt="DepEd Text" class="deped-text">
                 </div>
             </header>
-
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-            <div class="form-container mb-6">
-                <div class="form-row flex flex-wrap gap-4">
+            <div class="form-container">
+                <div class="form-row">
                     <div class="form-group">
-                        <label class="block font-semibold">REGION:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->region }}" disabled
-                            class="border px-2 py-1">
+                        <label>REGION:</label>
+                        <input type="text" value="{{ $schoolInfo->first()->region }}" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="block font-semibold">DIVISION:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->division }}" disabled
-                            class="border px-2 py-1">
+                        <label>DIVISION:</label>
+                        <input type="text" value="{{ $schoolInfo->first()->division }}" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="block font-semibold">DISTRICT:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->district }}" disabled
-                            class="border px-2 py-1">
+                        <label>DISTRICT:</label>
+                        <input type="text" value="{{ $schoolInfo->first()->district }}" disabled>
                     </div>
                 </div>
-
-                <div class="form-row flex flex-wrap gap-4 mt-4">
-                    <div class="form-group">
-                        <label class="block font-semibold">SCHOOL NAME:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->school_name }}" disabled
-                            class="border px-2 py-1">
+                <div class="form-row">
+                    <div class="form-group school-name">
+                        <label>SCHOOL NAME:</label>
+                        <input type="text" value="{{ $schoolInfo->first()->school_name }}" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="block font-semibold">SCHOOL ID:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->school_id }}" disabled
-                            class="border px-2 py-1">
+                        <label>SCHOOL ID:</label>
+                        <input type="text" value="{{ $schoolInfo->first()->school_id }}" disabled>
                     </div>
                     <div class="form-group">
                         <!-- School Year Selection Form (GET) -->
                         <form method="GET" action="{{ route('teacher.class-records.create') }}">
                             <div class="form-group">
-                                <label class="block font-semibold">SCHOOL YEAR:</label>
-                                <select name="school_year" onchange="this.form.submit()"
-                                    class="border rounded px-2 py-1">
+                                <label>SCHOOL YEAR:</label>
+                                <select name="school_year" onchange="this.form.submit()">
                                     <option value="">-- Select School Year --</option>
                                     @foreach ($schoolYear as $year)
                                         <option value="{{ $year->id }}"
@@ -260,17 +255,17 @@
                     <table class="grade-table w-full border-collapse mb-6">
                         <tr class="head-row bg-gray-100">
                             <th class="table-head" colspan="2">
-                                <select name="quarter" class="border-none bg-blue-50 text-center text-sm">
+                                <select name="quarter_id" class="border-none bg-blue-50 text-center text-sm">
                                     <option value="" disabled selected>--Select Quarter--</option>
                                     @foreach ($quarter as $q)
-                                        <option value="{{ $q->name }}">{{ $q->name }}</option>
+                                        <option value="{{ $q->id }}">{{ $q->name }}</option>
                                     @endforeach
                                 </select>
                             </th>
                             <th class="table-head" colspan="5">GRADE & SECTION:</th>
                             <th class="table-head" colspan="6">
                                 <input type="text" name="grade_section"
-                                    value="{{ auth()->user()->year_level_id }} - {{ auth()->user()->section }}"
+                                    value="{{ auth()->user()->yearLevel->name }} - {{ auth()->user()->section }}"
                                     placeholder="GRADE & SECTION" class="w-full border px-2 py-1">
                             </th>
                             <th class="table-head" colspan="2">TEACHER:</th>
@@ -342,7 +337,7 @@
                             <td>50%</td>
                             <!-- Quarterly Assessment Global -->
                             <td>
-                                <input type="number" name="global_hqa" id="hqa" oninput="calculateGrades()">
+                                <input type="number" name="global_hqa" value="0" id="hqa" oninput="calculateGrades()">
                             </td>
                             <td>100.00</td>
                             <td>20%</td>
@@ -354,7 +349,7 @@
                             @php $index++; @endphp
                             <tr>
                                 <td>{{ $index }}</td>
-                                <td>{{ $student->name }}</td>
+                                <td class="text-left" style="text-align: left;">{{ $student->name }}</td>
                                 <input type="hidden" name="student_id[]" value="{{ $student->id }}">
                                 <!-- Written Works -->
                                 @for ($i = 1; $i <= 10; $i++)

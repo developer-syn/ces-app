@@ -10,12 +10,18 @@ class SchoolYear extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'current'
     ];
 
-    // Relationship: A YearLevel can have many Students
     public function students()
     {
         return $this->hasMany(Student::class);
     }
+
+    public static function getCurrentYear()
+    {
+        return self::where('current', true)->first();
+    }
 }
+

@@ -25,12 +25,6 @@
                     </a>
                 </div>
 
-                @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -73,8 +67,8 @@
                                             {{ $teacher->role }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $teacher->year_level_id }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" style="font-family: 'Times New Roman', Times, serif; font-weight: 700;">
+                                        {{ $teacher->yearLevel->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $teacher->section }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

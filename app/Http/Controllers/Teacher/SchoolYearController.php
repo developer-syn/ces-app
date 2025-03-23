@@ -12,18 +12,44 @@ class SchoolYearController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'current' => 'boolean', // Ensuring it is a boolean
         ]);
-        SchoolYear::create($request->only('name'));
-        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Year Level created successfully.');
+
+        $isCurrent = $request->has('current') ? true : false;
+
+        if ($isCurrent) {
+            SchoolYear::query()->update(['current' => false]); // Reset previous current year
+        }
+
+        SchoolYear::create([
+            'name' => $request->name,
+            'current' => $isCurrent,
+        ]);
+
+        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
+                         ->with('success', 'School Year created successfully.');
     }
 
     public function update(Request $request, SchoolYear $schoolYear)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'current' => 'boolean', // Ensuring it is a boolean
         ]);
-        $schoolYear->update($request->only('name'));
-        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Year Level updated successfully.');
+
+        $isCurrent = $request->has('current') ? true : false;
+
+        if ($isCurrent) {
+            SchoolYear::query()->update(['current' => false]); // Ensure only one is current
+        }
+
+        $schoolYear->update([
+            'name' => $request->name,
+            'current' => $isCurrent,
+        ]);
+
+        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
+                         ->with('success', 'School Year updated successfully.');
     }
 
     public function destroy(SchoolYear $schoolYear)

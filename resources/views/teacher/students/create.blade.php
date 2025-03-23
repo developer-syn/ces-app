@@ -42,41 +42,62 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <!-- Birthdate and Age Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Birthdate Field -->
+                            <div>
+                                <label for="birthdate" class="block text-sm font-medium text-gray-700">Birthdate</label>
+                                <div class="mt-1">
+                                    <input type="date"
+                                           id="birthdate"
+                                           name="birthdate"
+                                           required
+                                           class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           onchange="calculateAge()">
+                                </div>
+                                @error('birthdate')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <!-- Age Field -->
+                            <div>
+                                <label for="age" class="block text-sm font-medium text-gray-700">Student Age</label>
+                                <div class="mt-1">
+                                    <input type="number"
+                                           id="age"
+                                           name="age"
+                                           required
+                                           readonly
+                                           class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="Enter student's age">
+                                </div>
+                                @error('age')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Gender Field -->
                         <div>
                             <label for="gender" class="block text-sm font-medium text-gray-700">Student Gender</label>
-                            <div class="mt-1">
-                                <select name="gender"
-                                        id="gender"
-                                        required
-                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="" disabled selected>--Select Gender--</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    {{-- <option value="other">Other</option> --}}
-                                </select>
-                            </div>
-                            @error('gender')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                                <div class="mt-1">
+                                    <select name="gender"
+                                            id="gender"
+                                            required
+                                            class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="" disabled selected>--Select Gender--</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        {{-- <option value="other">Other</option> --}}
+                                    </select>
+                                </div>
+                                @error('gender')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                         </div>
 
-                        <!-- Birthdate Field -->
-                        <div>
-                            <label for="birthdate" class="block text-sm font-medium text-gray-700">Birthdate</label>
-                            <div class="mt-1">
-                                <input type="date"
-                                       id="birthdate"
-                                       name="birthdate"
-                                       required
-                                       class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            @error('birthdate')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        {{-- section --}}
+                        {{-- section Field --}}
                         <div>
                             <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
                             <div class="mt-1">
@@ -147,4 +168,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function calculateAge() {
+            const birthdate = document.getElementById('birthdate').value;
+            const birthDate = new Date(birthdate);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDifference = today.getMonth() - birthDate.getMonth();
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            document.getElementById('age').value = age;
+        }
+    </script>
 </x-app-layout>

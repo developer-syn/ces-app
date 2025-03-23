@@ -14,6 +14,7 @@ class Student extends Model
     protected $fillable = [
         'LRN_num',
         'name',
+        'age',
         'gender',
         'section',
         'birthdate',
@@ -22,17 +23,35 @@ class Student extends Model
         'user_id',
     ];
 
-    // Define relationship to YearLevel
     public function yearLevel()
     {
         return $this->belongsTo(YearLevel::class);
     }
+
+    public function quarter()
+    {
+        return $this->belongsTo(Quarter::class);
+    }
+
     public function schoolYear()
     {
         return $this->belongsTo(SchoolYear::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    public function classRecords()
+    {
+        return $this->hasMany(ClassRecord::class, 'student_id');
+    }
+
+    public function summaryQuarterlyGrades()
+    {
+        return $this->hasMany(SummaryQuarterlyGrade::class, 'student_id');
+    }
+
+
 }

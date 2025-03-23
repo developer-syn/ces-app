@@ -14,61 +14,75 @@ use App\Models\Quarter;
 
 class ClassRecordController extends Controller
 {
+
     public function index(Request $request)
-{
-    $query = ClassRecord::query();
+    {
+        $user = auth()->user();
 
-    // Only allow records created by the current user.
-    $query->where('user_id', auth()->user()->id);
+        // Base query for class records
+        $query = ClassRecord::query();
 
-    // 1) Search filter
-    if ($search = $request->input('search')) {
-        $query->where(function ($q) use ($search) {
-            $q->where('subject_id', 'like', "%{$search}%")
-              ->orWhere('grade_section', 'like', "%{$search}%")
-              ->orWhere('school_year', 'like', "%{$search}%");
-        });
+        // Filter records based on the user's role
+        if ($user->role === 'teacher') {
+            // Teachers can only view their own records
+            $query->where('user_id', $user->id);
+        } elseif ($user->role === 'admin') {
+            // Admin can view all records (no additional filtering needed)
+        }
+
+        // 1) Search filter
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('subject_id', 'like', "%{$search}%")
+                    ->orWhere('grade_section', 'like', "%{$search}%")
+                    ->orWhere('school_year', 'like', "%{$search}%");
+            });
+        }
+
+        // 2) Subject filter
+        if ($subjectId = $request->input('subject_id')) {
+            $query->where('subject_id', $subjectId);
+        }
+
+        // 3) Grade & Section filter
+        if ($gradeSection = $request->input('grade_section')) {
+            $query->where('grade_section', $gradeSection);
+        }
+
+        // 4) Quarter filter
+        if ($quarter = $request->input('quarter_id')) {
+            $query->where('quarter_id', $quarter);
+        }
+
+        // Finally, get the records
+        $classRecords = $query->get();
+
+        // For the subject filter dropdown
+        $subjects = Subject::select('id', 'name')->get();
+
+        // For the grade & section filter, get distinct grade_section values
+        $gradeSections = ClassRecord::distinct()->pluck('grade_section');
+
+        // For quarter, if you store "First Quarter", etc.
+        $quarters = Quarter::select('id', 'name')->get();
+
+        return view('teacher.class-records.index', [
+            'classRecords'  => $classRecords,
+            'subjects'      => $subjects,
+            'gradeSections' => $gradeSections,
+            'quarters'      => $quarters,
+        ]);
     }
-
-    // 2) Subject filter (assuming subject_id is integer in class_records)
-    if ($subjectId = $request->input('subject_id')) {
-        $query->where('subject_id', $subjectId);
-    }
-
-    // 3) Grade & Section filter
-    if ($gradeSection = $request->input('grade_section')) {
-        $query->where('grade_section', $gradeSection);
-    }
-
-    // 4) Quarter filter
-    if ($quarter = $request->input('quarter')) {
-        $query->where('quarter', $quarter);
-    }
-
-    // Finally, get the records.
-    $classRecords = $query->get();
-
-    // For the subject filter dropdown.
-    $subjects = \App\Models\Subject::select('id', 'name')->get();
-
-    // For the grade & section filter, get distinct grade_section values.
-    $gradeSections = ClassRecord::distinct()->pluck('grade_section');
-
-    // For quarter, if you store "First Quarter", etc.
-    $quarters = ["First Quarter", "Second Quarter", "Third Quarter", "Fourth Quarter"];
-
-    return view('teacher.class-records.index', [
-        'classRecords'  => $classRecords,
-        'subjects'      => $subjects,
-        'gradeSections' => $gradeSections,
-        'quarters'      => $quarters,
-    ]);
-}
 
 
 
     public function create(Request $request)
     {
+        // Restrict access to only teachers
+        if (auth()->user()->role !== 'teacher') {
+            abort(403, 'Unauthorized action. Only teachers can create class records.');
+        }
+
         // Retrieve all school years for the dropdown.
         $allSchoolYears = SchoolYear::all();
 
@@ -99,16 +113,11 @@ class ClassRecordController extends Controller
         ]);
     }
 
-
     public function store(Request $request)
     {
-        // Remove or comment out dd() so processing continues
-        // dd($request->all());
-
         // Validate all required fields.
         $validated = $request->validate([
-            'school_year'           => 'required|string',
-            'quarter'               => 'required|string',
+            'quarter_id'            => 'required|exists:quarters,id',
             'grade_section'         => 'required|string',
             'teacher'               => 'required|string',
             'subject'               => 'required|string',
@@ -126,7 +135,6 @@ class ClassRecordController extends Controller
             'quarterly_assessment'  => 'required|array',
         ]);
 
-
         // Global header scores.
         $hwwArray = array_values($validated['hww']);
         $hptArray = array_values($validated['hpt']);
@@ -138,6 +146,8 @@ class ClassRecordController extends Controller
 
         // Loop over each student.
         foreach ($validated['student_id'] as $studentId) {
+            // Retrieve the student to get the year level.
+            $student = Student::findOrFail($studentId);
 
             // Retrieve written works scores for this student.
             $wwScores = isset($validated['written_works'][$studentId])
@@ -184,8 +194,9 @@ class ClassRecordController extends Controller
                 'user_id'                   => $validated['user_id'],
                 'subject_id'                => $validated['subject'],
                 'grade_section'             => $validated['grade_section'],
-                'quarter'                   => $validated['quarter'],
-                'school_year'               => $validated['school_year'],
+                'quarter_id'                => $validated['quarter_id'],
+                'year_level_id'             => $student->year_level_id, // Use the student's year level
+                'school_year_id'            => $student->school_year_id, // Use the student's
                 'teacher'                   => $validated['teacher'],
                 'written_works_total'       => $totalWrittenWorks,
                 'written_works_ps'          => $psWrittenWorks,
@@ -218,63 +229,64 @@ class ClassRecordController extends Controller
             ->with('success', 'Class record created successfully.');
     }
 
-    public function show(Request $request, ClassRecord $classRecord)
+    public function showGroup(Request $request)
     {
-        // Retrieve all school years for the dropdown.
-        $allSchoolYears = SchoolYear::all();
+        // e.g., subject_id, grade_section, school_year
+        $subjectId     = $request->get('subject_id');
+        $gradeSection  = $request->get('grade_section');
+        $schoolYearId  = $request->get('school_year_id');
 
-        // Use the GET parameter if provided; otherwise, default to the class record's school_year_id.
-        $selectedYear = $request->input('school_year') ?? $classRecord->school_year_id;
+        // Fetch all records that match the group
+        $records = ClassRecord::where('subject_id', $subjectId)
+            ->where('grade_section', $gradeSection)
+            ->where('school_year_id', $schoolYearId)
+            ->where('user_id', auth()->id())
+            ->with(['subject', 'schoolYear'])
+            ->get();
 
-        // Filter students by the selected school_year_id and the current user.
-        $students = Student::where('school_year_id', $selectedYear)
-                           ->where('user_id', auth()->user()->id)
-                           ->get();
-
-        // Retrieve other necessary data.
-        $subject    = Subject::all();
-        $schoolInfo = SchoolInfo::all();
-        $quarter    = Quarter::all();
-
-        return view('teacher.class-records.show', [
-            'classRecord'  => $classRecord,
-            'schoolYear'   => $allSchoolYears,
-            'selectedYear' => $selectedYear,
-            'students'     => $students,
-            'subject'      => $subject,
-            'schoolInfo'   => $schoolInfo,
-            'quarter'      => $quarter,
-        ]);
+        // Pass them to a 'show-group' Blade view
+        return view('teacher.class-records.show-group', compact('records'));
     }
 
 
 
-
-    public function edit(ClassRecord $classRecord)
+    public function edit(Request $request, ClassRecord $classRecord)
     {
-        // We do NOT overwrite $classRecord. It's your "header" record for the group.
+        // Restrict access to only teachers
+        if (auth()->user()->role !== 'teacher') {
+            abort(403, 'Unauthorized action. Only teachers can edit class records.');
+        }
 
-        // Possibly fetch all users, subjects, school info, etc.
-        $user       = User::all();
-        $students   = Student::where('user_id', auth()->user()->id)->get();
+        // Get the selected school year id from the query string.
+        $selectedYear = $request->input('school_year_id'); // This will now be the school year's id
+
+        // If a school year is selected, filter students using school_year_id.
+        $students = [];
+        if ($selectedYear) {
+            $students = Student::where('school_year_id', $selectedYear)
+                ->where('user_id', auth()->user()->id)
+                ->get();
+        }
+
         $schoolYear = SchoolYear::all();
         $subject    = Subject::all();
         $schoolInfo = SchoolInfo::all();
         $quarter    = Quarter::all();
+        $newStudents = Student::all();
 
         // Retrieve all rows (per student) that match the current record's old group fields:
         // (subject_id, quarter, grade_section, school_year).
         $groupRecords = ClassRecord::where('subject_id', $classRecord->subject_id)
-            ->where('quarter', $classRecord->quarter)
+            ->where('quarter_id', $classRecord->quarter_id)
             ->where('grade_section', $classRecord->grade_section)
-            ->where('school_year', $classRecord->school_year)
+            ->where('school_year_id', $classRecord->school_year_id)
             ->get();
 
         return view('teacher.class-records.edit', compact(
             'classRecord',
             'groupRecords',
-            'user',
             'students',
+            'newStudents',
             'schoolYear',
             'subject',
             'schoolInfo',
@@ -294,8 +306,8 @@ class ClassRecordController extends Controller
             'user_id'         => 'required|exists:users,id',
             'subject'         => 'required|string',
             'grade_section'   => 'required|string',
-            'quarter'         => 'required|string',
-            'school_year'     => 'required|exists:school_years,id',
+            'quarter_id'      => 'required|exists:quarters,id',
+            'school_year_id'  => 'required|exists:school_years,id',
             'teacher'         => 'required|string',
             'hww'             => 'required|array|size:10',
             'hww.*'           => 'nullable|numeric|min:0',
@@ -315,21 +327,21 @@ class ClassRecordController extends Controller
 
         // 2) Store the old group fields (the ones used to locate existing rows).
         $oldSubject   = $classRecord->subject_id;
-        $oldQuarter   = $classRecord->quarter;
+        $oldQuarter   = $classRecord->quarter_id;
         $oldGradeSec  = $classRecord->grade_section;
-        $oldSchoolYear = $classRecord->school_year;
+        $oldSchoolYear = $classRecord->school_year_id;
 
         // 3) Update all rows in the OLD group with new header values.
         ClassRecord::where('subject_id', $oldSubject)
-            ->where('quarter', $oldQuarter)
+            ->where('quarter_id', $oldQuarter)
             ->where('grade_section', $oldGradeSec)
-            ->where('school_year', $oldSchoolYear)
+            ->where('school_year_id', $oldSchoolYear)
             ->update([
                 'user_id'       => $validated['user_id'],
                 'subject_id'    => $validated['subject'],
                 'grade_section' => $validated['grade_section'],
-                'quarter'       => $validated['quarter'],
-                'school_year'   => $validated['school_year'],
+                'quarter_id'    => $validated['quarter_id'],
+                'school_year_id'   => $validated['school_year_id'],
                 'teacher'       => $validated['teacher'],
                 'hww'           => $validated['hww'],
                 'hpt'           => $validated['hpt'],
@@ -345,14 +357,14 @@ class ClassRecordController extends Controller
 
         // 5) Now retrieve the UPDATED rows using the NEW group fields from $validated.
         $newSubject   = $validated['subject'];
-        $newQuarter   = $validated['quarter'];
+        $newQuarter   = $validated['quarter_id'];
         $newGradeSec  = $validated['grade_section'];
-        $newSchoolYear = $validated['school_year'];
+        $newSchoolYear = $validated['school_year_id'];
 
         $groupRecords = ClassRecord::where('subject_id', $newSubject)
-            ->where('quarter', $newQuarter)
+            ->where('quarter_id', $newQuarter)
             ->where('grade_section', $newGradeSec)
-            ->where('school_year', $newSchoolYear)
+            ->where('school_year_id', $newSchoolYear)
             ->get();
 
         // 6) Loop over each student. Update or create rows in the updated group.
@@ -430,8 +442,8 @@ class ClassRecordController extends Controller
                     'user_id'       => $validated['user_id'],
                     'subject_id'    => $newSubject,
                     'grade_section' => $newGradeSec,
-                    'quarter'       => $newQuarter,
-                    'school_year'   => $newSchoolYear,
+                    'quarter_id'    => $newQuarter,
+                    'school_year_id'   => $newSchoolYear,
                     'teacher'       => $validated['teacher'],
                     'hww'           => $hwwArray,
                     'hpt'           => $hptArray,
@@ -452,19 +464,19 @@ class ClassRecordController extends Controller
     {
         // Identify the grouping fields from the single record
         $subjectId   = $classRecord->subject_id;
-        $quarter     = $classRecord->quarter;
+        $quarter     = $classRecord->quarter_id;
         $gradeSection = $classRecord->grade_section;
-        $schoolYear  = $classRecord->school_year;
+        $schoolYear  = $classRecord->school_year_id;
 
         // Delete all rows that match this group
         ClassRecord::where('subject_id', $subjectId)
-            ->where('quarter', $quarter)
+            ->where('quarter_id', $quarter)
             ->where('grade_section', $gradeSection)
-            ->where('school_year', $schoolYear)
+            ->where('school_year_id', $schoolYear)
             ->delete();
 
         return redirect()
             ->route('teacher.class-records.index')
-            ->with('success', 'All records for this class group were deleted successfully.');
+            ->with('success', 'All records for this class quarter were deleted successfully.');
     }
 }

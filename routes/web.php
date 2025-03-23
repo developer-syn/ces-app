@@ -13,26 +13,35 @@ use App\Http\Controllers\Teacher\QuarterController;
 use App\Http\Controllers\Teacher\SchoolYearController;
 use App\Http\Controllers\Teacher\ClassRecordController;
 use App\Http\Controllers\Teacher\CsvImportExportController;
+use App\Http\Controllers\Teacher\ConfigurationsController;
+use App\Http\Controllers\Teacher\SummaryQuarterlyGradesController;
+use App\Http\Controllers\Teacher\PromoteStudentController;
+
+
+Route::get('/unauthorized', function () {
+    return response()->view('errors.403', ['message' => 'Unauthorized action.'], 403);
+})->name('errors.403');
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('teachers', TeacherController::class);
     Route::resource('school-infos', SchoolInfoController::class);
 });
 
-Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher','admin')->name('teacher.')->group(function () {
     // Class Records CRUD routes for teachers
     Route::resource('students', StudentController::class);
     Route::resource('year-levels', YearLevelController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('subjects', SubjectController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('quarters', QuarterController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('school-years', SchoolYearController::class)->except(['index', 'create', 'edit', 'show']);
-    Route::get('year-levels-subjects-school-years-quarters', [\App\Http\Controllers\Teacher\ConfigurationsController::class, 'index'])->name('year-levels-subjects-school-years-quarters');
+    Route::get('year-levels-subjects-school-years-quarters', [ConfigurationsController::class, 'index'])->name('year-levels-subjects-school-years-quarters');
     Route::resource('class-records', ClassRecordController::class);
+    Route::resource('summary_quarterly_grades', SummaryQuarterlyGradesController::class);
     Route::post('students/import', [CsvImportExportController::class, 'import'])->name('students.import');
     Route::post('students/delete-selected', [CsvImportExportController::class, 'deleteSelected'])->name('students.delete-selected');
-    Route::get('students/sf09', [StudentController::class, 'sf09'])->name('students.sf09');
+    // Route::get('students/sf09', [StudentController::class, 'sf09'])->name('teacher.students.sf09');
     Route::get('students/sf10', [StudentController::class, 'sf10'])->name('students.sf10');
-
+    Route::post('students/{student}/promote', [PromoteStudentController::class, 'promote'])->name('students.promote');
 });
 
 

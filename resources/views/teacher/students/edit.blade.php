@@ -14,7 +14,8 @@
                         @method('PUT')
                         <!-- Name Field -->
                         <div>
-                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN number</label>
+                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN
+                                number</label>
                             <div class="mt-1">
                                 <input type="number" id="LRN_num" name="LRN_num"
                                     value="{{ old('LRN_num', $student->LRN_num) }}" required
@@ -38,31 +39,55 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <!-- Birthdate and Age Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Birthdate Field -->
+                            <div>
+                                <label for="birthdate" class="block text-sm font-medium text-gray-700">Birthdate</label>
+                                <div class="mt-1">
+                                    <input type="date" id="birthdate" name="birthdate"
+                                        value="{{ old('birthdate', $student->birthdate) }}" required
+                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        onchange="calculateAge()">
+                                </div>
+                                @error('birthdate')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <!-- Age Field -->
+                            <div>
+                                <label for="age" class="block text-sm font-medium text-gray-700">Student
+                                    Age</label>
+                                <div class="mt-1">
+                                    <input type="number" id="age" name="age"
+                                        value="{{ old('age', $student->age) }}" required readonly
+                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Computed student's age">
+                                </div>
+                                @error('age')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
                         <!-- Gender Field -->
                         <div>
-                            <label for="gender" class="block text-sm font-medium text-gray-700">Student Gender</label>
+                            <label for="gender" class="block text-sm font-medium text-gray-700">Student
+                                Gender</label>
                             <div class="mt-1">
                                 <select name="gender" id="gender" required
                                     class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="" disabled>--Select Gender--</option>
-                                    <option value="male" {{ old('gender', $student->gender) == 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ old('gender', $student->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="male"
+                                        {{ old('gender', $student->gender) == 'male' ? 'selected' : '' }}>Male
+                                    </option>
+                                    <option value="female"
+                                        {{ old('gender', $student->gender) == 'female' ? 'selected' : '' }}>Female
+                                    </option>
                                     {{-- <option value="other" {{ old('gender', $student->gender) == 'other' ? 'selected' : '' }}>Other</option> --}}
                                 </select>
                             </div>
                             @error('gender')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <!-- Birthdate Field -->
-                        <div>
-                            <label for="birthdate" class="block text-sm font-medium text-gray-700">Birthdate</label>
-                            <div class="mt-1">
-                                <input type="date" id="birthdate" name="birthdate"
-                                    value="{{ old('birthdate', $student->birthdate) }}" required
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            @error('birthdate')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -75,29 +100,6 @@
                                     class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                             @error('section')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Year Level Field -->
-                        <div>
-                            <label for="year_level_id" class="block text-sm font-medium text-gray-700">Year
-                                Level</label>
-                            <div class="mt-1">
-                                <div class="mt-1">
-                                    <select id="year_level_id" name="year_level_id" required
-                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">--Select Year Level--</option>
-                                        @foreach ($yearLevels as $yearLevel)
-                                            <option value="{{ $yearLevel->id }}"
-                                                {{ old('year_level_id', $student->year_level_id) == $yearLevel->id ? 'selected' : '' }}>
-                                                {{ $yearLevel->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            @error('year_level_id')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -125,6 +127,29 @@
                             @enderror
                         </div>
 
+                        <!-- Year Level Field -->
+                        <div>
+                            <label for="year_level_id" class="block text-sm font-medium text-gray-700">Year
+                                Level</label>
+                            <div class="mt-1">
+                                <div class="mt-1">
+                                    <select id="year_level_id" name="year_level_id" required
+                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">--Select Year Level--</option>
+                                        @foreach ($yearLevels as $yearLevel)
+                                            <option value="{{ $yearLevel->id }}"
+                                                {{ old('year_level_id', $student->year_level_id) == $yearLevel->id ? 'selected' : '' }}>
+                                                {{ $yearLevel->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            @error('year_level_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Form Actions -->
                         <div class="flex items-center justify-end gap-4 pt-4">
                             <a href="{{ route('teacher.students.index') }}"
@@ -141,4 +166,17 @@
             </div>
         </div>
     </div>
+    <script>
+        function calculateAge() {
+            const birthdate = document.getElementById('birthdate').value;
+            const birthDate = new Date(birthdate);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDifference = today.getMonth() - birthDate.getMonth();
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            document.getElementById('age').value = age;
+        }
+    </script>
 </x-app-layout>

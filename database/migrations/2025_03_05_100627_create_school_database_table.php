@@ -43,6 +43,7 @@ return new class extends Migration
         Schema::create('school_years', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('current')->default(false);
             $table->timestamps();
         });
 
@@ -66,6 +67,7 @@ return new class extends Migration
             $table->string('LRN_num')->unique();
             $table->string('name');
             $table->string('gender');
+            $table->string('age');
             $table->string('section');
             $table->date('birthdate');
             $table->foreignId('year_level_id')->constrained()->onDelete('cascade');
@@ -81,12 +83,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             // $table->foreignId('subject_id')->constrained()->onDelete('cascade');
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-
+            // Add a foreign key constraint if you have a `year_levels` table
+            $table->foreignId('year_level_id')->constrained()->onDelete('cascade');
+            $table->foreignId('quarter_id')->constrained()->onDelete('cascade');
             // Basic info fields
             $table->string('grade_section');
-            $table->string('quarter');
             $table->string('subject_id');
-            $table->string('school_year');
+            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
             $table->string('teacher');
 
             // Written Works scores (10 items)
@@ -122,21 +125,26 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('school_forms', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->json('grades');
-            $table->timestamps();
-        });
-
-        Schema::create('student_grades', function (Blueprint $table) {
+        // 8. Store quarterly grades per subject for each student
+        Schema::create('summary_quarterly_grades', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->integer('quarter_1')->nullable();
-            $table->integer('quarter_2')->nullable();
-            $table->integer('quarter_3')->nullable();
-            $table->integer('quarter_4')->nullable();
+            $table->decimal('quarter_1', 5, 2)->nullable();
+            $table->decimal('quarter_2', 5, 2)->nullable();
+            $table->decimal('quarter_3', 5, 2)->nullable();
+            $table->decimal('quarter_4', 5, 2)->nullable();
+            $table->decimal('final_rating', 5, 2)->nullable();
+            $table->string('remarks')->nullable();
+            $table->timestamps();
+        });
+
+        // 9. Store overall school form (per student)
+        Schema::create('school_forms', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained()->onDelete('cascade');
+            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
+            $table->json('grades'); // JSON format: { "English": { "Q1": 85, "Q2": 88, "Q3": 90, "Q4": 87, "Final": 88, "Remarks": "Passed" }, ... }
             $table->timestamps();
         });
     }

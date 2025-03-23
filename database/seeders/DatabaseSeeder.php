@@ -15,23 +15,39 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        // First create the year level
-        $yearLevel = YearLevel::create([
-            'name' => '1',
-        ]);
+        // First create the year levels
+        $yearLevels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+        foreach ($yearLevels as $level) {
+            $yearLevel = YearLevel::create(['name' => $level]);
+        }
 
-        // First create the Subject
-        Subject::create([
-            'name' => 'English',
-        ]);
+        // Create multiple subjects
+        $subjects = [
+            'English', 'Filipino', 'Mathematics', 'Science', 
+            'Araling Panlipunan', 'EsP', 'EEP', 'MAPEH', 
+            'Music', 'Art', 'Physical Education', 'Health'
+        ];
+
+        foreach ($subjects as $subject) {
+            Subject::create(['name' => $subject]);
+        }
+
         // First create the school year
         SchoolYear::create([
             'name' => '2024 - 2025',
         ]);
-        // First create the year level
-        Quarter::create([
-            'name' => 'First Quarter',
-        ]);
+
+        // Create quarters
+        $quarters = [
+            'First Quarter',
+            'Second Quarter',
+            'Third Quarter',
+            'Fourth Quarter',
+        ];
+
+        foreach ($quarters as $quarter) {
+            Quarter::create(['name' => $quarter]);
+        }
 
         // Create admin user
         User::create([

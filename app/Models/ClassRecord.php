@@ -17,8 +17,9 @@ class ClassRecord extends Model
         'user_id',
         'subject_id',
         'grade_section',
-        'quarter',
-        'school_year',
+        'quarter_id',
+        'year_level_id',
+        'school_year_id',
         'teacher',
         // Written works scores (10 items)
         'written_work_1',
@@ -106,6 +107,20 @@ class ClassRecord extends Model
     {
         return $this->belongsTo(Subject::class);
     }
+    /**
+     * Get the quarter associated with the class record.
+     */
+    public function quarter()
+    {
+        return $this->belongsTo(Quarter::class, 'quarter_id', 'id');
+    }
+    /**
+     * Get the quarter associated with the class record.
+     */
+    public function year_level()
+    {
+        return $this->belongsTo(YearLevel::class, 'year_level_id', 'id');
+    }
 
     /**
      * (Optional) Get the school year associated with this record.
@@ -115,7 +130,7 @@ class ClassRecord extends Model
     {
         // If you have a SchoolYear model and store an ID, use that.
         // Otherwise, you might remove or adjust this relationship.
-        return $this->belongsTo(SchoolYear::class, 'school_year', 'id');
+        return $this->belongsTo(SchoolYear::class, 'school_year_id', 'id');
     }
 
     /**

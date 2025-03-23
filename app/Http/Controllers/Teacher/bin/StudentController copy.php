@@ -137,19 +137,13 @@ class StudentController extends Controller
             ->with('success', 'Student deleted successfully.');
     }
 
-    // school form 09 (sf09) report card of students
     public function show(Request $request, $id)
     {
         $student = Student::findOrFail($id);
-        $schoolInfo = SchoolInfo::all();    
+        $schoolInfo = SchoolInfo::all();
         $grades = [];
 
-        // Fetch class records for the current year level and school year
-        $classRecords = ClassRecord::where('student_id', $id)
-            ->where('year_level_id', $student->year_level_id)
-            ->where('school_year_id', $student->school_year_id)
-            ->with(['subject', 'quarter'])
-            ->get();
+        $classRecords = ClassRecord::where('student_id', $id)->get();
 
         // Group records by subject and quarter
         foreach ($classRecords as $record) {
@@ -200,19 +194,15 @@ class StudentController extends Controller
         return view('teacher.students.sf09', compact('student', 'schoolInfo', 'grades', 'generalAverage'));
     }
 
-    // school form 10 (sf10) report card of students from year 1 to 6
     public function sf10($id)
     {
         $student = Student::findOrFail($id);
 
-        // Fetch all class records grouped by year level and school year
-        $classRecords = ClassRecord::where('student_id', $id)
-            ->with(['subject', 'yearLevel', 'schoolYear', 'quarter'])
-            ->orderBy('year_level_id')
-            ->get()
-            ->groupBy('year_level_id');
-
-        return view('teacher.students.sf10', compact('student', 'classRecords'));
+        // SF10 details (transcript, etc.)
+        // We'll fill this in once you provide details or data structure
+        // For now, just pass the $student
+        return view('teacher.students.sf10', compact('student'));
     }
+
 
 }

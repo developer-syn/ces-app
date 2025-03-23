@@ -13,17 +13,17 @@ class RoleMiddleware
             return redirect('login');
         }
 
-        // Convert roles string to array (handles both 'admin' and 'admin,teacher' formats)
-        $rolesArray = explode(',', $roles);
-
+        $rolesArray = explode('|', $roles);
         $user = auth()->user();
 
-        foreach($rolesArray as $role) {
-            if($user->role === trim($role)) {
-                return $next($request);
-            }
+        // Check if the user's role matches any of the allowed roles
+        if (in_array($user->role, $rolesArray)) {
+            return $next($request);
         }
 
-        abort(403, 'Unauthorized action.');
+        // Pass a custom message to the 403 error page
+        return response()->view('errors.403', [
+            'message' => 'You do not have the required role to access this page.'
+        ], 403);
     }
 }
