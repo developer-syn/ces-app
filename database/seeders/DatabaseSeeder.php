@@ -23,9 +23,21 @@ class DatabaseSeeder extends Seeder
 
         // Create multiple subjects
         $subjects = [
-            'English', 'Filipino', 'Mathematics', 'Science', 
-            'Araling Panlipunan', 'EsP', 'EEP', 'MAPEH', 
-            'Music', 'Art', 'Physical Education', 'Health'
+            'Mother Tongue',
+            'Filipino',
+            'English',
+            'Mathematics',
+            'Science',
+            'Araling Panlipunan',
+            'EEP / TLE',
+            'MAPEH',
+            'Music',
+            'Arts',
+            'Physical Education',
+            'Health',
+            'Eduk. sa Pagpapakatao',
+            '*Arabic Language',
+            '*Islamic Values Education'
         ];
 
         foreach ($subjects as $subject) {
@@ -74,6 +86,8 @@ class DatabaseSeeder extends Seeder
             'region' => 'XIII',
             'division' => 'Agusan del Norte',
             'district' => 'Magallanes',
+            'principal_name' => 'Jean Ville E. Sulapas',
+            'logo_path' => asset('img/caloc-anLogo.png'),
         ]);
     }
 }

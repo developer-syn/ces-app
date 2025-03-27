@@ -1,0 +1,36 @@
+/* Set font size to 12px for the entire content */
+body {
+    font-size: 12px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.font-family {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Student info */
+.student-info {
+    /* margin: 15px 0; */
+    /* height: 50px; */
+}
+
+.student-info-row {
+    display: flex;
+    /* margin-bottom: 5px; */
+    align-items: center;
+}
+
+.student-info-row .label {
+    min-width: 50px;
+}
+
+.student-info-row .line {
+    flex: 1;
+    /* padding-top: 10px; */
+    border-bottom: 1px solid #000;
+}
+
+.student-info-row .short-label {
+    min-width: 40px;
+    margin-left: 15px;
+}

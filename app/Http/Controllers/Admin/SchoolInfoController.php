@@ -31,17 +31,45 @@ class SchoolInfoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'region'      => 'required|string|max:255',
-            'division'    => 'required|string|max:255',
-            'district'    => 'required|string|max:255',
-            'school_name' => 'required|string|max:255',
-            'school_id'   => 'required|string|max:255',
+            'region'         => 'required|string|max:255',
+            'division'       => 'required|string|max:255',
+            'district'       => 'required|string|max:255',
+            'school_name'    => 'required|string|max:255',
+            'school_id'      => 'required|string|max:255',
+            'principal_name' => 'required|string|max:255',
+            'logo_path'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        SchoolInfo::create($validated);
+        $logoPath = null;
+
+        // Handle file upload manually
+        if ($request->hasFile('logo_path')) {
+            $file = $request->file('logo_path');
+            $destinationPath = public_path('img'); // Save in the 'public/img' directory
+
+            // Create the directory if it doesn't exist
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move($destinationPath, $fileName);
+            $logoPath = 'img/' . $fileName; // Store the relative path
+        }
+
+        // Create the school info record
+        SchoolInfo::create([
+            'region'         => $validated['region'],
+            'division'       => $validated['division'],
+            'district'       => $validated['district'],
+            'school_name'    => $validated['school_name'],
+            'school_id'      => $validated['school_id'],
+            'principal_name' => $validated['principal_name'],
+            'logo_path'      => $logoPath,
+        ]);
 
         return redirect()->route('admin.school-infos.index')
-                         ->with('success', 'School info created successfully.');
+            ->with('success', 'School info created successfully.');
     }
 
     /**
@@ -66,17 +94,45 @@ class SchoolInfoController extends Controller
     public function update(Request $request, SchoolInfo $schoolInfo)
     {
         $validated = $request->validate([
-            'region'      => 'required|string|max:255',
-            'division'    => 'required|string|max:255',
-            'district'    => 'required|string|max:255',
-            'school_name' => 'required|string|max:255',
-            'school_id'   => 'required|string|max:255',
+            'region'            => 'required|string|max:255',
+            'division'          => 'required|string|max:255',
+            'district'          => 'required|string|max:255',
+            'school_name'       => 'required|string|max:255',
+            'school_id'         => 'required|string|max:255',
+            'principal_name'    => 'required|string|max:255',
+            'logo_path'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $schoolInfo->update($validated);
+        $logoPath = null;
+
+        // Handle file upload manually
+        if ($request->hasFile('logo_path')) {
+            $file = $request->file('logo_path');
+            $destinationPath = public_path('img'); // Save in the 'public/img' directory
+
+            // Create the directory if it doesn't exist
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move($destinationPath, $fileName);
+            $logoPath = 'img/' . $fileName; // Store the relative path
+        }
+
+        // Update the school info record
+        $schoolInfo->update([
+            'region'         => $validated['region'],
+            'division'       => $validated['division'],
+            'district'       => $validated['district'],
+            'school_name'    => $validated['school_name'],
+            'school_id'      => $validated['school_id'],
+            'principal_name' => $validated['principal_name'],
+            'logo_path'      => $logoPath, // Update the logo path
+        ]);
 
         return redirect()->route('admin.school-infos.index')
-                         ->with('success', 'School info updated successfully.');
+            ->with('success', 'School info updated successfully.');
     }
 
     /**
@@ -87,6 +143,6 @@ class SchoolInfoController extends Controller
         $schoolInfo->delete();
 
         return redirect()->route('admin.school-infos.index')
-                         ->with('success', 'School info deleted successfully.');
+            ->with('success', 'School info deleted successfully.');
     }
 }

@@ -1,390 +1,11 @@
 <x-app-layout>
+    <link rel="stylesheet" href="{{ asset('css/student/sf09.css') }}">
     <x-slot name="header">
         <div class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Student SF09 Report Card') }}
         </div>
     </x-slot>
-    <style>
-        /* Print-specific styles */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
 
-            #reportCardContainer,
-            #reportCardContainer * {
-                visibility: visible;
-            }
-
-            #reportCardContainer {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-
-            .page {
-                width: 29.7cm;
-                min-height: 21cm;
-                margin: 0 auto;
-                background: white;
-            }
-
-            @page {
-                size: A4 landscape;
-                margin: 0.5cm;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        /* Regular document styles */
-        #reportCardContainer {
-            background: white;
-            font-family: Arial, sans-serif;
-        }
-
-        .page {
-            /* border: 1px solid #ddd; */
-            margin-bottom: 20px;
-            padding-left: 80px;
-            padding-right: 80px;
-            width: 29.7cm;
-            min-height: 21cm;
-            margin: 0 auto 20px auto;
-            background: white;
-        }
-
-        /* Basic reset */
-        .page * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 13px;
-        }
-
-        /* Front page specific styles */
-        .front-container {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 100%;
-            margin: 0 auto;
-        }
-
-        .column-left {
-            flex: 1 1 50%;
-            min-width: 280px;
-            padding-right: 20px;
-
-        }
-
-        .column-right {
-            flex: 1 1 50%;
-            min-width: 280px;
-            padding-left: 20px;
-        }
-
-        /* Table styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0 20px 0;
-        }
-
-        table th,
-        table td {
-            border: 1px solid #000;
-            padding: 6px 4px;
-            text-align: center;
-            height: 30px;
-        }
-
-        table td:first-child {
-            text-align: left;
-            font-weight: normal;
-            padding-left: 10px;
-        }
-
-        /* Headings and spacing */
-        h2 {
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 15px;
-        }
-
-        h3 {
-            margin: 15px 0 10px 0;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Parent signature section */
-        .parent-signature {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        .parent-signature h3 {
-            text-align: center;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .signature-line {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .signature-line span {
-            width: 80px;
-            font-weight: normal;
-            text-align: left;
-        }
-
-        .signature-line .line {
-            flex: 1;
-            padding-top: 10px;
-            border-bottom: 1px solid #000;
-        }
-
-        /* School header */
-        .school-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .school-header img {
-            width: 60px;
-            height: 60px;
-            margin-right: 15px;
-        }
-
-        .school-header-text {
-            text-align: center;
-        }
-
-        .school-header-text h2 {
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        /* School details */
-        .school-details {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
-
-        .school-detail {
-            display: flex;
-            align-items: center;
-            /* margin-bottom: 5px; */
-            width: 48%;
-        }
-
-        .school-detail .label {
-            margin-right: 5px;
-        }
-
-        .school-detail .line {
-            flex: 1;
-            /* padding-top: 10px; */
-            border-bottom: 1px solid #000;
-        }
-
-        /* Report card header */
-        .report-card-header {
-            text-align: center;
-            /* margin: 15px 0; */
-        }
-
-        .report-card-header h3 {
-            /* margin-bottom: 5px; */
-        }
-
-        /* Student info */
-        .student-info {
-            margin: 15px 0;
-        }
-
-        .student-info-row {
-            display: flex;
-            margin-bottom: 5px;
-            align-items: center;
-        }
-
-        .student-info-row .label {
-            min-width: 50px;
-        }
-
-        .student-info-row .line {
-            flex: 1;
-            /* padding-top: 10px; */
-            border-bottom: 1px solid #000;
-        }
-
-        .student-info-row .short-label {
-            min-width: 40px;
-            margin-left: 15px;
-        }
-
-        /* Back page specific styles */
-        .back-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin: 0 auto;
-            max-width: 100%;
-        }
-
-        .progress-column {
-            width: 48%;
-        }
-
-        .values-column {
-            width: 48%;
-        }
-
-        .ratings-container {
-            display: flex;
-            margin-top: 20px;
-        }
-
-        .ratings-section {
-            width: 50%;
-        }
-
-        .ratings-section h4 {
-            margin-bottom: 5px;
-            text-align: center;
-        }
-
-        .ratings-table {
-            width: 90%;
-            margin: 0 auto;
-        }
-
-        .ratings-table td {
-            border: none;
-            text-align: left;
-            padding: 2px 5px;
-        }
-
-        /* Signature section */
-        .signature-section {
-            /* margin: 10px 0; */
-        }
-
-        .signature-box-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .signature-box-left {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: center;
-        }
-
-        .signature-box-left p {
-            margin-left: 30px;
-        }
-
-        .signature-box-right p {
-            margin-right: 80px;
-        }
-
-        .signature-box-right .line {
-            width: 200px;
-            /* padding-top: 30px; */
-            border-bottom: 1px solid #000;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        .signature-box-left .line {
-            width: 200px;
-            padding-top: 10px;
-            border-bottom: 1px solid #000;
-            margin-bottom: 5px;
-        }
-
-        /* Certificate section */
-        .certificate {
-            /* margin-top: 15px; */
-            /* border-top: 1px solid #ccc; */
-            /* padding-top: 15px; */
-        }
-
-        .certificate h3 {
-            text-align: center;
-            margin-top: 5px;
-        }
-
-        .certificate-row {
-            display: flex;
-            /* margin-bottom: 10px; */
-            align-items: center;
-        }
-
-        .certificate-row .label {
-            margin-right: 10px;
-        }
-
-        .certificate-row .line {
-            flex: 1;
-            padding-top: 10px;
-
-            border-bottom: 1px solid #000;
-        }
-
-        .certificate-row .label-right {
-            margin: 0 10px;
-        }
-
-        .certificate-signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-        }
-
-        .cert-signature {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 45%;
-        }
-
-        .cert-signature .line {
-            width: 100%;
-            padding-top: 10px;
-
-            border-bottom: 1px solid #000;
-            margin-bottom: 5px;
-        }
-
-        .cancellation {
-            margin-top: 20px;
-        }
-
-        .cancellation h4 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-    </style>
     <div class="py-4">
         <div class="mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -532,7 +153,7 @@
                                     <div class="student-info">
                                         <div class="student-info-row">
                                             <span class="label">Name:</span>
-                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $student->name ?? '' }}</div>
+                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ ucwords(strtolower($student->lastname)) }}, {{ ucwords(strtolower($student->firstname)) }}, {{ ucwords(strtolower($student->middlename)) }}</div>
                                         </div>
                                         <div class="student-info-row">
                                             <span class="label">Age:</span>
@@ -566,12 +187,12 @@
 
                                     <div class="signature-section">
                                         <div class="signature-box-right">
-                                            <div class="line"></div>
+                                            <div class="line text-center">{{ $student->user->name }}</div>
                                             <p>Teacher</p>
                                         </div>
                                         <div class="signature-box-left">
-                                            <div class="line"></div>
-                                            <p>Head Teacher/ Principal</p>
+                                            <div class="line text-center">{{ $schoolInfo->principal_name }}</div>
+                                            <p style="padding-left: 50px;">Principal</p>
                                         </div>
                                     </div>
 
@@ -660,7 +281,7 @@
                                         </thead>
                                         <tbody>
                                             @php
-                                                $mapehSubjects = ['music', 'art', 'physical education', 'health'];
+                                                $mapehSubjects = ['music', 'arts', 'physical education', 'health'];
                                             @endphp
 
                                             @foreach($grades as $subject => $quarters)
@@ -752,7 +373,6 @@
                                                 <td style="font-weight: bold; text-align: center;">{{ $generalAverage }}</td>
                                             </tr>
                                         </tbody>
-
                                     </table>
                                     <div style="margin-top: 10px;">
                                         <div style="padding: 5px; display: flex;">

@@ -7,7 +7,6 @@
     <div class="py-4">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
-
                 <!-- Top Bar with Actions and Filters -->
                 <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <!-- Left side - Add Button and Bulk Actions -->
@@ -20,7 +19,6 @@
                             </svg>
                             Add student
                         </a>
-
                         <!-- Bulk Actions -->
                         <div class="flex gap-2">
                             <button id="exportCsvButton"
@@ -31,7 +29,6 @@
                                 </svg>
                                 Export CSV
                             </button>
-
                             <button id="deleteSelectedButton"
                                 class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +91,7 @@
                                 </th>
                                 <th
                                     class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-                                    Name
+                                    Lastname, Firstname, Middlename, Suffix
                                 </th>
                                 <th
                                     class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
@@ -133,7 +130,9 @@
                                         <input type="checkbox" class="studentCheckbox" value="{{ $student->id }}">
                                     </td>
                                     <td class="border-t px-6 py-4">{{ $student->LRN_num }}</td>
-                                    <td class="border-t px-6 py-4">{{ $student->name }}</td>
+                                    <td class="border-t px-6 py-4">{{ ucwords(strtolower($student->lastname)) }},
+                                        {{ ucwords(strtolower($student->firstname)) }},
+                                        {{ ucwords(strtolower($student->middlename)) }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->age }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->gender }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->birthdate }}</td>
@@ -145,8 +144,7 @@
                                         {{ $student->schoolYear->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div x-data="{ open: false }"
-                                            class=" inline-block text-left overflow-visible">
+                                        <div x-data="{ open: false }" class=" inline-block text-left overflow-visible">
                                             <!-- Dropdown toggle button -->
                                             <button @click="open = !open"
                                                 class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none">
@@ -172,13 +170,16 @@
                                                         class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-100">
                                                         SF09
                                                     </a>
-                                                    <a href="{{ route('teacher.students.sf10', $student->id) }}"
+                                                    <a href="{{ route('teacher.school-forms-10.show', $student->id) }}"
                                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                         SF10
                                                     </a>
-                                                    <form action="{{ route('teacher.students.promote', $student->id) }}" method="POST">
+                                                    <form
+                                                        action="{{ route('teacher.students.promote', $student->id) }}"
+                                                        method="POST">
                                                         @csrf
-                                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-red-100">Promote</button>
+                                                        <button type="submit"
+                                                            class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green -100">Promote</button>
                                                     </form>
                                                     <form
                                                         action="{{ route('teacher.students.destroy', $student->id) }}"
@@ -368,33 +369,28 @@
                 const selectedYearLevel = yearLevelFilter.value;
                 const selectedSchoolYear = schoolYearFilter.value;
 
-                // Update URL with current filters and page
-                // Create a new URLSearchParams object from current URL
-                const currentUrl = new URL(window.location.href);
-                const searchParams = new URLSearchParams(currentUrl.search);
-                // Update search parameters
+                const urlParams = new URLSearchParams(window.location.search);
+
                 if (searchTerm) {
-                    searchParams.set('search', searchTerm);
+                    urlParams.set('search', searchTerm);
                 } else {
-                    searchParams.delete('search');
+                    urlParams.delete('search');
                 }
-                // Construct the new URL
-                // Preserve the current page if it exists
-                const currentPage = searchParams.get('page');
-                if (!currentPage) {
-                    searchParams.delete('page');
+
+                if (selectedYearLevel) {
+                    urlParams.set('year_level_id', selectedYearLevel);
+                } else {
+                    urlParams.delete('year_level_id');
                 }
-                // Build the new URL
-                const newURL =
-                    `${window.location.pathname}${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
-                // Always reload the page to reflect the current filter state
-                // Always reload if the URL has changed
-                if (window.location.href !== newURL) {
-                    window.location.href = newURL;
-                } else if (!searchTerm && !selectedYearLevel && !selectedSchoolYear) {
-                    // If all filters are cleared and URL hasn't changed, force a reload to show all records
-                    window.location.reload();
+
+                if (selectedSchoolYear) {
+                    urlParams.set('school_year_id', selectedSchoolYear);
+                } else {
+                    urlParams.delete('school_year_id');
                 }
+
+                const newURL = `${window.location.pathname}?${urlParams.toString()}`;
+                window.location.href = newURL;
             }
 
             // Update URL with current page when clicking pagination links
@@ -407,10 +403,10 @@
                         url.searchParams.set('search', searchInput.value);
                     }
                     if (yearLevelFilter?.value) {
-                        url.searchParams.set('year_level', yearLevelFilter.value);
+                        url.searchParams.set('year_level_id', yearLevelFilter.value);
                     }
                     if (schoolYearFilter?.value) {
-                        url.searchParams.set('school_year', schoolYearFilter.value);
+                        url.searchParams.set('school_year_id', schoolYearFilter.value);
                     }
                     window.location.href = url.toString();
                 });
@@ -433,10 +429,16 @@
                     .filter(checkbox => checkbox.checked)
                     .map(checkbox => {
                         const row = checkbox.closest('tr');
+                        const nameCell = row.cells[2].textContent.trim(); // Get the full name from column 2
+                        const nameParts = nameCell.split(',').map(part => part.trim()); // Split the name into parts
+
                         return {
                             id: checkbox.value,
                             LRN_num: row.cells[1].textContent.trim(),
-                            name: row.cells[2].textContent.trim(),
+                            lastname: nameParts[0] || '', // Extract lastname
+                            firstname: nameParts[1] || '', // Extract firstname
+                            middlename: nameParts[2] || '', // Extract middlename
+                            suffix: nameParts[3] || '', // Extract suffix
                             age: row.cells[3].textContent.trim(),
                             gender: row.cells[4].textContent.trim(),
                             birthdate: row.cells[5].textContent.trim(),
@@ -454,7 +456,7 @@
                         ...selectedStudents.map(student => [
                             `"{{ Auth::id() }}"`,
                             `"${student.LRN_num}"`,
-                            `"${student.name}"`,
+                            `"${student.lastname}, ${student.firstname}, ${student.middlename}, ${student.suffix}"`,
                             `"${student.age}"`,
                             `"${student.gender}"`,
                             `"${student.birthdate}"`,
@@ -526,8 +528,8 @@
             // Set initial filter values from URL
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) searchInput.value = urlParams.get('search');
-            if (urlParams.has('year_level')) yearLevelFilter.value = urlParams.get('year_level');
-            if (urlParams.has('school_year')) schoolYearFilter.value = urlParams.get('school_year');
+            if (urlParams.has('year_level_id')) yearLevelFilter.value = urlParams.get('year_level_id');
+            if (urlParams.has('school_year_id')) schoolYearFilter.value = urlParams.get('school_year_id');
         });
     </script>
 </x-app-layout>

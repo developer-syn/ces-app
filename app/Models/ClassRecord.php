@@ -117,7 +117,7 @@ class ClassRecord extends Model
     /**
      * Get the quarter associated with the class record.
      */
-    public function year_level()
+    public function yearLevel()
     {
         return $this->belongsTo(YearLevel::class, 'year_level_id', 'id');
     }

@@ -14,8 +14,10 @@ use App\Http\Controllers\Teacher\SchoolYearController;
 use App\Http\Controllers\Teacher\ClassRecordController;
 use App\Http\Controllers\Teacher\CsvImportExportController;
 use App\Http\Controllers\Teacher\ConfigurationsController;
+use App\Http\Controllers\Teacher\DashboardController;
 use App\Http\Controllers\Teacher\SummaryQuarterlyGradesController;
 use App\Http\Controllers\Teacher\PromoteStudentController;
+use App\Http\Controllers\Teacher\SchoolForm10Controller;
 
 
 Route::get('/unauthorized', function () {
@@ -30,6 +32,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher','admin')->name('teacher.')->group(function () {
     // Class Records CRUD routes for teachers
     Route::resource('students', StudentController::class);
+    Route::resource('school-forms-10', SchoolForm10Controller::class);
     Route::resource('year-levels', YearLevelController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('subjects', SubjectController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('quarters', QuarterController::class)->except(['index', 'create', 'edit', 'show']);
@@ -46,13 +49,15 @@ Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher','admin')->na
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // Route::get('/dashboard', function () {
+    //     return view('dashboard');
+    // })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+
 
     // Admin-only routes
     Route::middleware(['role:admin'])->group(function () {
@@ -64,10 +69,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/teacher', [TeachersController::class, 'index'])->name('teacher.dashboard');
     });
 });
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

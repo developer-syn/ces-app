@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->timestamps();
         });
+
         // create school_info table
         Schema::create('school_infos', function (Blueprint $table) {
             $table->id();
@@ -22,6 +23,8 @@ return new class extends Migration
             $table->string('district');
             $table->string('school_name');
             $table->string('school_id');
+            $table->string('principal_name');
+            $table->string('logo_path')->nullable();
             $table->timestamps();
         });
 
@@ -63,9 +66,12 @@ return new class extends Migration
         // 5. Create students table
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // Add user_id right after id
+            $table->unsignedBigInteger('user_id');
             $table->string('LRN_num')->unique();
-            $table->string('name');
+            $table->string('firstname');
+            $table->string('middlename')->nullable();
+            $table->string('lastname');
+            $table->string('suffix')->nullable();
             $table->string('gender');
             $table->string('age');
             $table->string('section');
@@ -153,6 +159,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('student_grades');
         Schema::dropIfExists('school_forms');
+        Schema::dropIfExists('school_infos');
         Schema::dropIfExists('class_records');
         Schema::dropIfExists('students');
         Schema::dropIfExists('subjects');

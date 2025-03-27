@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\Quarter;
 use App\Models\User;
 use App\Models\YearLevel;
+use App\Models\SchoolYear;
 
 class SummaryQuarterlyGradesController extends Controller
 {
@@ -17,8 +18,14 @@ class SummaryQuarterlyGradesController extends Controller
         $user = auth()->user();
 
         // Base query for students with their class records
-        $query = Student::with(['classRecords' => function ($query) {
-            $query->with('subject', 'quarter', 'user'); // Use 'user' instead of 'teacher'
+        $query = Student::with(['classRecords' => function ($query) use ($request) {
+            $query->with('quarter'); // Include related models
+
+            // Apply quarter filter directly to classRecords
+            if ($quarterId = $request->input('quarter_id')) {
+                $query->where('quarter_id', $quarterId);
+            }
+
         }]);
 
         // Filter records based on the user's role
@@ -46,11 +53,9 @@ class SummaryQuarterlyGradesController extends Controller
             });
         }
 
-        // 4) Quarter filter
-        if ($quarterId = $request->input('quarter_id')) {
-            $query->whereHas('classRecords', function ($q) use ($quarterId) {
-                $q->where('quarter_id', $quarterId);
-            });
+        // Apply school year filter directly to classRecords
+        if ($schoolYearId = $request->input('school_year_id')) {
+            $query->where('school_year_id', $schoolYearId);
         }
 
         // Fetch the filtered students
@@ -58,9 +63,13 @@ class SummaryQuarterlyGradesController extends Controller
 
         // Fetch dropdown data for filters
         $yearLevels = YearLevel::all();
-        $sections = Student::distinct()->pluck('section');
+        $sections = User::whereNotNull('section')
+            ->where('section', '!=', '')
+            ->distinct()
+            ->pluck('section');
         $teachers = User::where('role', 'teacher')->get();
         $quarters = Quarter::all();
+        $schoolYears = SchoolYear::all();
 
         return view('teacher.summary_quarterly_grades.index', [
             'students'          => $students,
@@ -68,59 +77,12 @@ class SummaryQuarterlyGradesController extends Controller
             'sections'          => $sections,
             'teachers'          => $teachers,
             'quarters'          => $quarters,
+            'schoolYears'       => $schoolYears,
             'selectedYear'      => $request->input('year_level_id'),
             'selectedSection'   => $request->input('section'),
-            'selectedTeacher'   => $request->input('teacher_id'),
+            'selectedTeacher'   => $request->input('user_id'),
             'selectedQuarter'   => $request->input('quarter_id'),
+            'selectedSchoolYear' => $request->input('school_year_id'),
         ]);
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

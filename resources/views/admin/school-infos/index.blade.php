@@ -6,12 +6,6 @@
     </x-slot>
 
     <div class="py-4">
-        @if (session('success'))
-            <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-6">
@@ -48,6 +42,14 @@
                                 </th>
                                 <th
                                     class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                                    Principal Name
+                                </th>
+                                <th
+                                    class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                                    logo
+                                </th>
+                                <th
+                                    class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
                                     Actions
                                 </th>
                             </tr>
@@ -61,6 +63,14 @@
                                     <td class="border-t border-gray-200 px-6 py-4">{{ $schoolInfo->region }}</td>
                                     <td class="border-t border-gray-200 px-6 py-4">{{ $schoolInfo->division }}</td>
                                     <td class="border-t border-gray-200 px-6 py-4">{{ $schoolInfo->district }}</td>
+                                    <td class="border-t border-gray-200 px-6 py-4">{{ $schoolInfo->principal_name }}</td>
+                                    <td class="border-t border-gray-200 px-6 py-4">
+                                        @if ($schoolInfo->logo_path)
+                                            <img src="{{ asset($schoolInfo->logo_path) }}" alt="Logo" class="w-12 h-12 object-cover rounded">
+                                        @else
+                                            <span class="text-gray-500">No Logo</span>
+                                        @endif
+                                    </td>
                                     <td class="border-t border-gray-200 px-6 py-4">
                                         <div class="flex space-x-2">
                                             <button type="button"
@@ -94,7 +104,7 @@
         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Add New School Information</h3>
-                <form action="{{ route('admin.school-infos.store') }}" method="POST">
+                <form action="{{ route('admin.school-infos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="space-y-4">
                         <!-- Form fields -->
@@ -124,7 +134,7 @@
                 <div class="mt-3">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Edit School Information</h3>
                     <form action="{{ route('admin.school-infos.update', $schoolInfo->id) }}" method="POST"
-                        id="editForm{{ $schoolInfo->id }}">
+                        id="editForm{{ $schoolInfo->id }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="space-y-4">

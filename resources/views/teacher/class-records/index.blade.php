@@ -16,7 +16,7 @@
                 </div>
 
                 <!-- Search and Filters -->
-                <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="mb-4 grid grid-cols-1 md:grid-cols-5 gap-4">
                     <!-- Search Input -->
                     <div>
                         <form action="{{ route('teacher.class-records.index') }}" method="GET" class="flex">
@@ -93,6 +93,26 @@
                             </select>
                         </form>
                     </div>
+                    <!-- school Year Filter -->
+                    <div>
+                        <form action="{{ route('teacher.class-records.index') }}" method="GET">
+                            <!-- Keep the other filters -->
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                            <input type="hidden" name="subject_id" value="{{ request('subject_id') }}">
+                            <input type="hidden" name="grade_section" value="{{ request('grade_section') }}">
+
+                            <select name="school_year_id" onchange="this.form.submit()"
+                                class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block w-full">
+                                <option value="">Filter by School Year</option>
+                                @foreach ($schoolYear as $sy)
+                                    <option value="{{ $sy->id }}"
+                                        {{ request('school_year_id') == $sy->id ? 'selected' : '' }}>
+                                        {{ $sy->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Records Table -->
@@ -133,7 +153,7 @@
                                         '|' .
                                         $rec->grade_section .
                                         '|' .
-                                        $rec->school_year;
+                                        $rec->school_year_id;
                                 });
                             @endphp
 
@@ -175,14 +195,6 @@
                                                  class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
                                                  style="overflow: visible;">
                                                 <div class="py-1">
-                                                    <!-- Optional "Show" link (comment out if not needed) -->
-
-                                                    {{-- <a href="{{ route('teacher.summary_quarterly_grades.index') }}"
-                                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        Summary Quarterly Grades
-                                                    </a> --}}
-
-
                                                     <!-- Edit link -->
                                                     <a href="{{ route('teacher.class-records.edit', $record) }}"
                                                        class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">

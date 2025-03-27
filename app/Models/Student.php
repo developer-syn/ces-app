@@ -13,7 +13,10 @@ class Student extends Model
     // Define fillable fields for mass assignment
     protected $fillable = [
         'LRN_num',
-        'name',
+        'firstname',
+        'middlename',
+        'lastname',
+        'suffix',
         'age',
         'gender',
         'section',

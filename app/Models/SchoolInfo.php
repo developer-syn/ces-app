@@ -15,5 +15,7 @@ class SchoolInfo extends Model
         'district',
         'school_name',
         'school_id',
+        'principal_name',
+        'logo_path',
     ];
 }

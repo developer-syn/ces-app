@@ -1,196 +1,11 @@
 <x-app-layout>
-    <style>
-        .dashboard {
-            /* max-width: 1400px; */
-            margin: 0 auto;
-            background: white;
-        }
-        .header {
-            display: flex;
-            /* horizontal layout */
-            align-items: center;
-            /* vertical centering */
-            justify-content: space-between;
-            padding: 0 20px;
-            /* adjust horizontal padding as needed */
-            width: 100%;
-            /* ensure it spans full width */
-            box-sizing: border-box;
-            /* so padding doesn’t overflow */
-        }
-
-        .left {
-            /* no flex-grow; it will just size to its content */
-            position: absolute;
-            top: 120px;
-        }
-
-        .center {
-            flex: 1;
-            /* this grows/shrinks to fill middle space */
-            text-align: center;
-        }
-
-        .right {
-            /* no flex-grow; it will just size to its content */
-            margin-left: auto;
-            position: absolute;
-
-            /* ensures it’s pushed to the far right */
-            top: 120px;
-            right: 85px;
-        }
-
-        .deped-logo {
-            width: 120px;
-            /* adjust as desired */
-            height: auto;
-            position: relative;
-            border-radius: 50%;
-
-        }
-
-        .deped-text {
-            width: 200px;
-            /* adjust as desired */
-            height: auto;
-            position: relative;
-        }
-
-        .title {
-            margin: 0;
-            font-size: 24px;
-            /* adjust as desired */
-        }
-
-        .subtitle {
-            margin: 0;
-            font-size: 14px;
-            /* adjust as desired */
-        }
-
-
-        .form-container {
-            margin-bottom: 20px;
-            padding-left: 150px;
-            padding-right: 20px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 10px;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group label {
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        .table-head input {
-            border: none;
-            background-color: #f1f4ff;
-        }
-
-        .school-name {
-            flex: 2;
-        }
-
-        .school-name input {
-            width: 100%;
-        }
-
-        .grade-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 20px;
-        }
-
-        .grade-table th,
-        .grade-table td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .grade-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        .grade-table td input {
-            width: 100%;
-            border: none;
-            padding: 0;
-            text-align: center;
-            font-size: inherit;
-            background: transparent;
-        }
-
-        .grade-table td {
-            padding: 0;
-            /* Ensures consistent spacing */
-        }
-
-
-        .name-column {
-            min-width: 200px;
-            text-align: left !important;
-        }
-
-        .header-row th {
-            background-color: #f2f2f2;
-        }
-
-        .subheader-row th {
-            background-color: #f8f8f8;
-        }
-
-        .highest-score-row {
-            background-color: #f2f2f2;
-        }
-
-        .gender-row {
-            background-color: #e6e6e6;
-        }
-
-        .gender-row td:first-child {
-            font-weight: bold;
-        }
-
-        .head-row .table-head {
-            font-weight: bold;
-            font-size: 12px;
-            padding: 1px;
-        }
-
-        .head-row .table-head input {
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        @media print {
-            body {
-                padding: 0;
-            }
-
-            .dashboard {
-                max-width: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/class-records/edit.css') }}">
     <section class="home p-6">
         <div class="dashboard">
             <header class="header">
                 <div class="left">
-                    <img src="{{ asset('img/Seal_of_the_Department_of_Education_of_the_Philippines.png') }}" alt="DepEd Logo" class="deped-logo">
+                    <img src="{{ asset('img/Seal_of_the_Department_of_Education_of_the_Philippines.png') }}"
+                        alt="DepEd Logo" class="deped-logo">
                 </div>
                 <div class="center">
                     <h1 class="title">Class Record</h1>
@@ -219,7 +34,7 @@
                 <input type="hidden" name="subject" value="{{ $classRecord->subject_id }}">
                 <input type="hidden" name="grade_section" value="{{ $classRecord->grade_section }}">
                 <input type="hidden" name="quarter_id" value="{{ $classRecord->quarter_id }}">
-                <input type="hidden" name="school_year_id" value="{{ $classRecord->school_year_id }}">
+                {{-- <input type="hidden" name="school_year_id" value="{{ $classRecord->school_year_id }}"> --}}
                 <input type="hidden" name="teacher" value="{{ $classRecord->teacher }}">
 
 
@@ -250,7 +65,7 @@
                         </div>
                         <div class="form-group">
                             <label>SCHOOL YEAR:</label>
-                            <select name="school_year_id" disabled @selected(true)>
+                            <select name="school_year_id">
                                 @foreach ($schoolYear as $year)
                                     <option value="{{ $year->id }}">{{ $year->name }}</option>
                                 @endforeach
@@ -276,7 +91,8 @@
                         <th class="table-head" colspan="6">GRADE & SECTION:</th>
                         <th class="table-head" colspan="5">
                             <input type="text" name="grade_section" value="{{ $classRecord->grade_section }}"
-                                placeholder="GRADE & SECTION" class="w-full border px-2 py-1 bg-blue-50 text-center" disabled>
+                                placeholder="GRADE & SECTION" class="w-full border px-2 py-1 bg-blue-50 text-center"
+                                disabled>
                         </th>
                         <th class="table-head" colspan="5">TEACHER:</th>
                         <th class="table-head" colspan="7">
@@ -367,12 +183,12 @@
                         @php $index++; @endphp
                         <tr>
                             <td>{{ $index }}</td>
-                            <td>{{ $detail->student->name }}</td>
+                            <td class="text-left" style="text-align: left; padding-left: 5px;">{{ ucwords(strtolower($detail->student->lastname)) }}, {{ ucwords(strtolower($detail->student->firstname)) }}, {{ ucwords(strtolower($detail->student->middlename)) }}</td>
                             <input type="hidden" name="student_id[]" value="{{ $detail->student_id }}">
                             <!-- Written Works for this student -->
                             @php
                                 // Define the helper function once
-                                $formatScore = function($score) {
+                                $formatScore = function ($score) {
                                     if ($score === null || $score == 0) {
                                         return '';
                                     }
@@ -384,16 +200,17 @@
                             @for ($i = 1; $i <= 10; $i++)
                                 @php
                                     // Retrieve the stored or old score value (using 0-based indexing)
-                                    $rawScore = old("written_works.$detail->student_id." . ($i - 1), $detail->{'written_work_' . $i});
+                                    $rawScore = old(
+                                        "written_works.$detail->student_id." . ($i - 1),
+                                        $detail->{'written_work_' . $i},
+                                    );
                                     // Format the score using our helper function
                                     $displayValue = $formatScore($rawScore);
                                 @endphp
 
                                 <td>
-                                    <input type="number"
-                                        name="written_works[{{ $detail->student_id }}][]"
-                                        id="ww{{ $index }}_{{ $i }}"
-                                        value="{{ $displayValue }}"
+                                    <input type="number" name="written_works[{{ $detail->student_id }}][]"
+                                        id="ww{{ $index }}_{{ $i }}" value="{{ $displayValue }}"
                                         oninput="calculateGrades({{ $index }})">
                                 </td>
                             @endfor
@@ -404,15 +221,16 @@
                             @for ($i = 1; $i <= 10; $i++)
                                 @php
                                     // Retrieve the stored or old value for performance task i
-                                    $rawScore = old("performance_tasks.$detail->student_id." . ($i - 1), $detail->{'performance_task_' . $i});
+                                    $rawScore = old(
+                                        "performance_tasks.$detail->student_id." . ($i - 1),
+                                        $detail->{'performance_task_' . $i},
+                                    );
                                     // Format the score: blank if 0 or null, otherwise trimmed version (e.g., "11.5" instead of "11.50")
                                     $displayValue = $formatScore($rawScore);
                                 @endphp
                                 <td>
-                                    <input type="number"
-                                        name="performance_tasks[{{ $detail->student_id }}][]"
-                                        id="pt{{ $index }}_{{ $i }}"
-                                        value="{{ $displayValue }}"
+                                    <input type="number" name="performance_tasks[{{ $detail->student_id }}][]"
+                                        id="pt{{ $index }}_{{ $i }}" value="{{ $displayValue }}"
                                         oninput="calculateGrades({{ $index }})">
                                 </td>
                             @endfor
@@ -440,6 +258,14 @@
                                     value="{{ old("quarterly_grade.$detail->student_id", $detail->quarterly_grade) }}"
                                     readonly>
                             </td>
+                            <!-- Remove Button -->
+                            <td>
+                                <button type="button"
+                                    class="remove-student-btn bg-red-500 text-white px-2 py-1 rounded"
+                                    onclick="removeStudent(this, {{ $detail->student_id }})">
+                                    X
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 </table>
@@ -447,11 +273,11 @@
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end gap-4">
                     <a href="{{ route('teacher.class-records.index') }}"
-                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                         Cancel
                     </a>
                     <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Save
                     </button>
                 </div>
@@ -459,6 +285,22 @@
         </div>
 
         <script>
+            function removeStudent(button, studentId) {
+                // Find the row containing the button
+                const row = button.closest('tr');
+
+                // Add a hidden input to mark the student for removal
+                const form = document.querySelector('form');
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'students_to_remove[]';
+                input.value = studentId;
+                form.appendChild(input);
+
+                // Remove the row from the table
+                row.remove();
+            }
+
             function updateGlobalTotals() {
                 let hwwTotal = 0,
                     hptTotal = 0;
@@ -510,6 +352,6 @@
                 document.getElementById(`quarterlyGrade${studentIndex}`).value = Math.round(initialGrade);
             }
         </script>
-        </div>
-    </section>
+    </div>
+</section>
 </x-app-layout>

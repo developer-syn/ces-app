@@ -35,7 +35,7 @@ class ClassRecordController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('subject_id', 'like', "%{$search}%")
                     ->orWhere('grade_section', 'like', "%{$search}%")
-                    ->orWhere('school_year', 'like', "%{$search}%");
+                    ->orWhere('school_year_id', 'like', "%{$search}%");
             });
         }
 
@@ -53,6 +53,10 @@ class ClassRecordController extends Controller
         if ($quarter = $request->input('quarter_id')) {
             $query->where('quarter_id', $quarter);
         }
+        // 5) schoo year filter
+        if ($schoolYear = $request->input('school_year_id')) {
+            $query->where('school_year_id', $schoolYear);
+        }
 
         // Finally, get the records
         $classRecords = $query->get();
@@ -65,12 +69,15 @@ class ClassRecordController extends Controller
 
         // For quarter, if you store "First Quarter", etc.
         $quarters = Quarter::select('id', 'name')->get();
+        
+        $schoolYear = SchoolYear::select('id', 'name')->get();
 
         return view('teacher.class-records.index', [
             'classRecords'  => $classRecords,
             'subjects'      => $subjects,
             'gradeSections' => $gradeSections,
             'quarters'      => $quarters,
+            'schoolYear'    => $schoolYear,
         ]);
     }
 
@@ -299,8 +306,6 @@ class ClassRecordController extends Controller
      */
     public function update(Request $request, ClassRecord $classRecord)
     {
-
-        // dd($request->all());
         // 1) Validation rules.
         $rules = [
             'user_id'         => 'required|exists:users,id',
@@ -367,7 +372,22 @@ class ClassRecordController extends Controller
             ->where('school_year_id', $newSchoolYear)
             ->get();
 
-        // 6) Loop over each student. Update or create rows in the updated group.
+        // 6) Identify students to be removed.
+        $existingStudentIds = $groupRecords->pluck('student_id')->toArray();
+        $updatedStudentIds = $validated['student_id'];
+
+        // Find students to remove (those in the database but not in the updated list).
+        $studentsToRemove = array_diff($existingStudentIds, $updatedStudentIds);
+
+        // Remove the students from the class record.
+        ClassRecord::where('subject_id', $newSubject)
+            ->where('quarter_id', $newQuarter)
+            ->where('grade_section', $newGradeSec)
+            ->where('school_year_id', $newSchoolYear)
+            ->whereIn('student_id', $studentsToRemove)
+            ->delete();
+
+        // 7) Loop over each student. Update or create rows in the updated group.
         foreach ($validated['student_id'] as $studentId) {
             // Written works.
             $wwScores = isset($validated['written_works'][$studentId])

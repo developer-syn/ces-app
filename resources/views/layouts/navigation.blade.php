@@ -60,6 +60,11 @@
                         {{ __('Summary Quarterly Grades') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('teacher.school-forms-10.index')" :active="request()->routeIs('teacher.school-forms-10.index')">
+                        {{ __('School Form 10') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->

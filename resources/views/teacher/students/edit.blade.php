@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Add New Student') }}
+            {{ __('Update Student') }}
         </h2>
     </x-slot>
 
@@ -26,16 +26,56 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
-                        <!-- Name Field -->
+
+                        <!-- firstname Field -->
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Student Name</label>
+                            <label for="firstname" class="block text-sm font-medium text-gray-700">Student firstname</label>
                             <div class="mt-1">
-                                <input type="text" id="name" name="name"
-                                    value="{{ old('name', $student->name) }}" required
+                                <input type="text" id="firstname" name="firstname"
+                                    value="{{ old('firstname', $student->firstname) }}" required
                                     class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Enter student's name">
+                                    placeholder="firstname">
                             </div>
-                            @error('name')
+                            @error('firstname')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <!-- middlename Field -->
+                        <div>
+                            <label for="middlename" class="block text-sm font-medium text-gray-700">Student middlename</label>
+                            <div class="mt-1">
+                                <input type="text" id="middlename" name="middlename"
+                                    value="{{ old('middlename', $student->middlename) }}"
+                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="middlename">
+                            </div>
+                            @error('middlename')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <!-- lastname Field -->
+                        <div>
+                            <label for="lastname" class="block text-sm font-medium text-gray-700">Student lastname</label>
+                            <div class="mt-1">
+                                <input type="text" id="lastname" name="lastname"
+                                    value="{{ old('lastname', $student->lastname) }}" required
+                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="lastname">
+                            </div>
+                            @error('lastname')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <!-- suffix Field -->
+                        <div>
+                            <label for="suffix" class="block text-sm font-medium text-gray-700">Student suffix</label>
+                            <div class="mt-1">
+                                <input type="text" id="suffix" name="suffix"
+                                    value="{{ old('suffix', $student->suffix) }}"
+                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="suffix">
+                            </div>
+                            @error('suffix')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -96,7 +136,7 @@
                             <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
                             <div class="mt-1">
                                 <input type="text" id="section" name="section"
-                                    value="{{ old('section', $student->section) }}" required readonly
+                                    value="{{ old('section', $student->section) }}" required
                                     class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                             @error('section')
@@ -158,7 +198,7 @@
                             </a>
                             <button type="submit"
                                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                Register Student
+                                Update Student
                             </button>
                         </div>
                     </form>

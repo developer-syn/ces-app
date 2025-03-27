@@ -21,7 +21,8 @@ class StudentController extends Controller
         $user = auth()->user();
 
         // Base query with relationships
-        $query = Student::with(['yearLevel', 'schoolYear']);
+        // $query = Student::with(['yearLevel', 'schoolYear']);
+        $query = Student::query();
 
         // Filter students based on role
         if ($user->role === 'teacher') {
@@ -36,17 +37,15 @@ class StudentController extends Controller
                   ->orWhere('LRN_num', 'like', "%{$searchTerm}%");
             });
         }
-        // Apply school year filter
-        if ($request->has('school_year')) {
-            $schoolYear = $request->input('school_year');
-            $query->where('school_year_id', $schoolYear);
+
+        if ($request->has('year_level_id')) {
+            $query->where('year_level_id', $request->input('year_level_id'));
         }
 
-        // Apply year level filter
-        if ($request->has('year_level')) {
-            $yearLevel = $request->input('year_level');
-            $query->where('year_level_id', $yearLevel);
+        if ($request->has('school_year_id')) {
+            $query->where('school_year_id', $request->input('school_year_id'));
         }
+
         // Apply pagination to the filtered query
         $students = $query->paginate(25)->withQueryString();
         $yearLevels = YearLevel::all();
@@ -75,7 +74,10 @@ class StudentController extends Controller
         // dd($request->all());
         $validated = $request->validate([
             'LRN_num'           => 'required|string|unique:students,LRN_num',
-            'name'              => 'required|string|max:255',
+            'firstname'         => 'required|string|max:255',
+            'middlename'        => 'nullable|max:255',
+            'lastname'          => 'required|string|max:255',
+            'suffix'            => 'nullable|max:255',
             'gender'            => 'required|string|max:255',
             'age'               => 'required|string|max:255',
             'section'           => 'required|string|max:255',
@@ -110,13 +112,17 @@ class StudentController extends Controller
     {
         // dd($request->all());
         $validated = $request->validate([
-            'LRN_num' => 'required|string||unique:students,LRN_num,' . $student->id,
-            'name' => 'required|string|max:255',
-            'gender' => 'required|string|max:255',
-            'age' => 'required|string|max:255',
-            'section' => 'required|string|max:255',
-            'birthdate' => 'required|date',
-            'year_level_id' => 'required|exists:year_levels,id',
+            'LRN_num'           => 'required|string||unique:students,LRN_num,' . $student->id,
+            'firstname'         => 'required|string|max:255',
+            'middlename'        => 'nullable|max:255',
+            'lastname'          => 'required|string|max:255',
+            'suffix'            => 'nullable|max:255',
+            'gender'            => 'required|string|max:255',
+            'age'               => 'required|string|max:255',
+            'section'           => 'required|string|max:255',
+            'birthdate'         => 'required|date',
+            'year_level_id'     => 'required|exists:year_levels,id',
+            'school_year_id'    => 'required|exists:school_years,id',
             // add other validations as needed
         ]);
 
@@ -141,7 +147,7 @@ class StudentController extends Controller
     public function show(Request $request, $id)
     {
         $student = Student::findOrFail($id);
-        $schoolInfo = SchoolInfo::all();    
+        $schoolInfo = SchoolInfo::get()->first();
         $grades = [];
 
         // Fetch class records for the current year level and school year

@@ -23,17 +23,46 @@ class StudentImport implements ToModel, WithHeadingRow
             return null;
         }
 
+        // Handle custom date format for birthdate
+        $birthdate = null;
+        if (!empty($row['birthdate'])) {
+            $acceptedFormats = ['Y-m-d', 'd/m/Y', 'm/d/Y', 'Y/m/d']; // Add all acceptable formats here
+            foreach ($acceptedFormats as $format) {
+                try {
+                    $birthdate = Carbon::createFromFormat($format, $row['birthdate'])->format('Y-m-d');
+                    break; // Exit the loop if a valid format is found
+                } catch (\Exception $e) {
+                    // Continue to the next format if the current one fails
+                }
+            }
+
+            // If no valid format was found, flash an error and skip the row
+            if (!$birthdate) {
+                session()->flash('error', 'Invalid date format for birthdate: ' . $row['birthdate']);
+                return null;
+            }
+        }
+
+        // Split the name into parts
+        $nameParts = array_map('trim', explode(',', $row['name'])); // Split and trim each part
+        $lastname = $nameParts[0] ?? ''; // Extract lastname
+        $firstname = $nameParts[1] ?? ''; // Extract firstname
+        $middlename = $nameParts[2] ?? ''; // Extract middlename
+        $suffix = $nameParts[3] ?? ''; // Extract suffix
+
         return new Student([
             'user_id'           => Auth::id(),
             'LRN_num'           => $row['lrn_num'],
-            'name'              => $row['name'],
+            'lastname'          => $lastname,
+            'firstname'         => $firstname,
+            'middlename'        => $middlename,
+            'suffix'            => $suffix,
             'age'               => $row['age'],
             'gender'            => $row['gender'],
-            'birthdate'         => Carbon::parse($row['birthdate'])->format('Y-m-d'),
+            'birthdate'         => $birthdate,
             'section'           => $row['section'],
             'year_level_id'     => $row['year_level_id'],
             'school_year_id'    => $row['school_year_id'],
         ]);
     }
 }
-
