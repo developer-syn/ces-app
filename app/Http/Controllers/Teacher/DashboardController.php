@@ -9,80 +9,71 @@ use App\Models\User;
 use App\Models\ClassRecord;
 use App\Models\YearLevel;
 use App\Models\Subject;
+use App\Models\ActivityLog;
 
 class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $totalStudents = Student::count();
+        $user = auth()->user(); // Get the logged-in user
+
         $totalTeachers = User::where('role', 'teacher')->count();
-        $totalClasses = ClassRecord::distinct('subject_id')->count();
         $totalSubjects = Subject::count();
 
-        // Count students per year level
-        $studentsPerYearLevel = YearLevel::withCount('students')->get();
+        if ($user->role === 'admin') {
+            // Admin sees total class records across all subjects
+            $totalClasses = ClassRecord::distinct('subject_id')->count();
 
-        $recentActivities = [
-            'Promoted John Doe to Grade 5',
-            'Added a new teacher: Jane Smith',
-            'Updated class schedule for Grade 6',
-        ];
+            // Admin sees all students per grade level & section
+            $studentsPerGrade = Student::select('year_level_id', 'section')
+                ->selectRaw('COUNT(*) as student_count')
+                ->groupBy('year_level_id', 'section')
+                ->orderBy('year_level_id')
+                ->orderBy('section')
+                ->get()
+                ->groupBy('year_level_id');
 
-        return view('dashboard', compact('totalStudents', 'totalTeachers', 'totalClasses', 'studentsPerYearLevel', 'recentActivities', 'totalSubjects'));
-    }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+            // Admin sees all class records
+            $classRecords = ClassRecord::with(['user', 'subject', 'student'])
+                ->orderBy('year_level_id')
+                ->orderBy('grade_section')
+                ->get();
+        } else {
+            // Teacher sees only their assigned class records
+            $totalClasses = ClassRecord::where('user_id', $user->id)
+                ->distinct('subject_id')
+                ->count();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+            // Teacher sees only their assigned students
+            $studentsPerGrade = Student::where('user_id', $user->id)
+                ->select('year_level_id', 'section')
+                ->selectRaw('COUNT(*) as student_count')
+                ->groupBy('year_level_id', 'section')
+                ->orderBy('year_level_id')
+                ->orderBy('section')
+                ->get()
+                ->groupBy('year_level_id');
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+            // Teacher sees only their assigned class records
+            $classRecords = ClassRecord::where('user_id', $user->id)
+                ->with(['user', 'subject', 'student'])
+                ->orderBy('year_level_id')
+                ->orderBy('grade_section')
+                ->get();
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // ✅ Admin sees all logs, teachers see only their own logs
+        $recentActivities = ($user->role === 'admin')
+            ? ActivityLog::latest()->limit(10)->get()
+            : ActivityLog::where('user_id', $user->id)->latest()->limit(10)->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('dashboard', compact(
+            'totalTeachers',
+            'totalClasses',
+            'studentsPerGrade',
+            'classRecords',
+            'recentActivities',
+            'totalSubjects'
+        ));
     }
 }

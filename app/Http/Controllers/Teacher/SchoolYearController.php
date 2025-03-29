@@ -12,10 +12,10 @@ class SchoolYearController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'current' => 'boolean', // Ensuring it is a boolean
+            'current' => 'nullable|string|in:yes,no', // Allow "yes" or "no"
         ]);
 
-        $isCurrent = $request->has('current') ? true : false;
+        $isCurrent = $request->current === 'yes'; // Convert "yes" to true, "no" to false
 
         if ($isCurrent) {
             SchoolYear::query()->update(['current' => false]); // Reset previous current year
@@ -23,21 +23,21 @@ class SchoolYearController extends Controller
 
         SchoolYear::create([
             'name' => $request->name,
-            'current' => $isCurrent,
+            'current' => $isCurrent, // Boolean value
         ]);
 
         return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
-                         ->with('success', 'School Year created successfully.');
+            ->with('success', 'School Year created successfully.');
     }
 
     public function update(Request $request, SchoolYear $schoolYear)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'current' => 'boolean', // Ensuring it is a boolean
+            'current' => 'nullable|string|in:yes,no', // Allow "yes" or "no"
         ]);
 
-        $isCurrent = $request->has('current') ? true : false;
+        $isCurrent = $request->current === 'yes'; // Convert "yes" to boolean
 
         if ($isCurrent) {
             SchoolYear::query()->update(['current' => false]); // Ensure only one is current
@@ -45,12 +45,13 @@ class SchoolYearController extends Controller
 
         $schoolYear->update([
             'name' => $request->name,
-            'current' => $isCurrent,
+            'current' => $isCurrent, // Boolean value
         ]);
 
         return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
-                         ->with('success', 'School Year updated successfully.');
+            ->with('success', 'School Year updated successfully.');
     }
+
 
     public function destroy(SchoolYear $schoolYear)
     {

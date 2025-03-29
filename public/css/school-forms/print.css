@@ -1,0 +1,84 @@
+/*
+ * Print styles for School Form 10
+ *
+ * This CSS file contains styles specifically for printing the School Form 10 (SF10-ES).
+ * It ensures that the form prints properly and hides elements that should not be printed.
+ */
+
+/* Print-specific styles */
+@media print {
+    /* Hide elements that shouldn't be printed */
+    #printButton,
+    header,
+    nav,
+    .hidden-print,
+    [x-data="{ open: false }"] {
+        display: none !important;
+    }
+
+    /* Ensure the form prints on white background with black text */
+    body {
+        background-color: white !important;
+        color: black !important;
+        font-size: 12px;
+    }
+
+    /* Remove shadows and adjust borders for better printing */
+    .shadow-sm {
+        box-shadow: none !important;
+    }
+
+    /* Ensure all content is visible and properly sized */
+    .max-w-7xl {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Fix page breaks */
+    .py-6, .py-2 {
+        page-break-inside: avoid;
+        margin: 0;
+        padding: 0.5cm 0;
+    }
+
+    /* Adjust layout for print */
+    .grid {
+        display: grid !important;
+    }
+
+    /* Ensure images print clearly */
+    img {
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    /* Make sure tables and grids print properly */
+    table, .grid {
+        page-break-inside: avoid;
+    }
+
+    /* Force page breaks between major sections */
+    .page-break-after {
+        page-break-after: always;
+    }
+
+    /* Ensure proper scaling for the document */
+    @page {
+        size: letter portrait;
+        margin: 0.5cm;
+    }
+}
+
+/* Non-print styling for the print button */
+.print-button {
+    transition: background-color 0.3s;
+}
+
+.print-button:hover {
+    cursor: pointer;
+}
+
+.print-button:active {
+    transform: translateY(1px);
+}

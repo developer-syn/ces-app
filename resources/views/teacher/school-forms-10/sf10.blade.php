@@ -1,9 +1,19 @@
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/school-forms/index.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/school-forms/print.css') }}">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('School Form 10') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('School Form 10') }}
+            </h2>
+            <!-- Print Button -->
+            <button id="printButton" class="print-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Print Form
+            </button>
+        </div>
     </x-slot>
     <div class="font-family">
         <div class="py-6">
@@ -38,7 +48,7 @@
                                 <span class="label">FIRST NAME:</span>
                                 <div class="line">&nbsp;&nbsp;&nbsp;{{ strtoupper($student->firstname) }}</div>
                                 <span class="label">NAME EXTN. (Jr,I,II):</span>
-                                <div class="line">&nbsp;&nbsp;&nbsp{{ strtoupper($student->suffix) }};</div>
+                                <div class="line">&nbsp;&nbsp;&nbsp;{{ strtoupper($student->suffix) }}</div>
                                 <span class="label">MIDDLE NAME:</span>
                                 <div class="line">&nbsp;&nbsp;&nbsp;{{ strtoupper($student->middlename) }}</div>
                             </div>
@@ -135,13 +145,15 @@
                     <!-- Scholastic Record -->
                     <div class="border border-gray-300">
                         <h2 class="border border-black bg-gray-400 text-center font-bold">SCHOLASTIC RECORD</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                             {{-- year level 1 or grade 1 --}}
                             @include('teacher.school-forms-10.grade-level.grade5')
 
                             {{-- year level 2 or grade 2 --}}
                             @include('teacher.school-forms-10.grade-level.grade6')
                         </div>
+                    </div>
+                    <div class="border border-gray-300">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             {{-- year level 3 or grade 3 --}}
                             @include('teacher.school-forms-10.grade-level.grade7')
@@ -194,4 +206,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Include JavaScript for print functionality -->
+    <script src="{{ asset('js/school-forms/print.js') }}"></script>
 </x-app-layout>

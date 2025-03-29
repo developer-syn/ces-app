@@ -122,37 +122,24 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <form action="{{ route('teacher.school-years.update', $schoolYear->id) }}"
-                                                method="POST" class="gap-2">
+                                            <form action="{{ route('teacher.school-years.update', $schoolYear->id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="text" name="name" value="{{ $schoolYear->name }}"
-                                                    class="rounded-md border-gray-300 text-sm" required>
+
+                                                <input type="text" name="name" value="{{ $schoolYear->name }}" class="rounded-md border-gray-300 text-sm" required>
 
                                                 <label class="flex items-center">
-                                                    <input type="hidden" name="current" value="0">
-                                                    <!-- Ensures unchecked checkboxes send 0 -->
-                                                    <input type="checkbox" name="current" value="1"
-                                                        {{ $schoolYear->current ? 'checked' : '' }}>
+                                                    <input type="hidden" name="current" value="no">
+                                                    <!-- Ensures unchecked checkboxes send "no" -->
+                                                    <input type="checkbox" name="current" value="yes" {{ $schoolYear->current ? 'checked' : '' }}>
                                                     <span class="ml-2 text-sm mt-2">Current</span>
                                                 </label>
 
-                                                <button type="submit"
-                                                    class="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition mt-2">
-                                                    update
+                                                <button type="submit" class="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition mt-2">
+                                                    Update
                                                 </button>
                                             </form>
 
-                                            <form action="{{ route('teacher.school-years.destroy', $schoolYear->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition mt-2"
-                                                    onclick="return confirm('Are you sure you want to delete this year level?')">
-                                                    Delete
-                                                </button>
-                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach

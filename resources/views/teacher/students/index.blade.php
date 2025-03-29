@@ -17,7 +17,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
-                            Add student
+                            Register student
                         </a>
                         <!-- Bulk Actions -->
                         <div class="flex gap-2">

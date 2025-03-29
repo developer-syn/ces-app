@@ -16,7 +16,7 @@ class AppLayout extends Component
     public function __construct()
     {
         // Fetch the first schoolInfo record (adjust this logic as needed)
-        $this->schoolInfo = SchoolInfo::first();
+        $this->schoolInfo = SchoolInfo::get('logo_path')->first();
     }
 
     /**

@@ -153,10 +153,19 @@ return new class extends Migration
             $table->json('grades'); // JSON format: { "English": { "Q1": 85, "Q2": 88, "Q3": 90, "Q4": 87, "Final": 88, "Remarks": "Passed" }, ... }
             $table->timestamps();
         });
+
+        Schema::create('activity_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('action');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('activity_logs');
         Schema::dropIfExists('student_grades');
         Schema::dropIfExists('school_forms');
         Schema::dropIfExists('school_infos');

@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\SchoolYear;
 use App\Models\Quarter;
+use App\Services\ActivityLogService;
 
 class ClassRecordController extends Controller
 {
@@ -69,7 +70,7 @@ class ClassRecordController extends Controller
 
         // For quarter, if you store "First Quarter", etc.
         $quarters = Quarter::select('id', 'name')->get();
-        
+
         $schoolYear = SchoolYear::select('id', 'name')->get();
 
         return view('teacher.class-records.index', [
@@ -227,8 +228,11 @@ class ClassRecordController extends Controller
                 $data["performance_task_{$i}"] = $ptScores[$i - 1];
             }
 
-            // Create the ClassRecord.
-            ClassRecord::create($data);
+            // Create the ClassRecord and store the instance.
+            $classRecord = ClassRecord::create($data);
+
+            // ✅ Log the action
+            ActivityLogService::log('Added Class Record', "User ID: " . auth()->id() . " created class record for subject: {$classRecord->subject->name}");
         }
 
         return redirect()
@@ -470,7 +474,10 @@ class ClassRecordController extends Controller
                     'global_hqa'    => $globalHqa,
                 ];
                 $newData = array_merge($newData, $detailData);
-                ClassRecord::create($newData);
+                $classRecord = ClassRecord::create($newData);
+
+                // Log the action for the newly created record
+                ActivityLogService::log('Updated Class Record', "User ID: " . auth()->id() . " updated or added class record for subject ID: {$classRecord->newSubject}, grade section: {$classRecord->newGradeSec}, quarter ID: {$classRecord->newQuarter}, school year ID: {$classRecord->newSchoolYear}");
             }
         }
 

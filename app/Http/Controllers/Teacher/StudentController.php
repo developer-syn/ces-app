@@ -11,6 +11,7 @@ use App\Models\ClassRecord;
 use App\Models\SchoolInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ActivityLogService;
 
 
 
@@ -32,9 +33,12 @@ class StudentController extends Controller
         // Apply search filter
         if ($request->has('search')) {
             $searchTerm = $request->input('search');
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('LRN_num', 'like', "%{$searchTerm}%");
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('firstname', 'like', "%{$searchTerm}%")
+                    ->orWhere('LRN_num', 'like', "%{$searchTerm}%")
+                    ->orWhere('middlename', 'like', "%{$searchTerm}%")
+                    ->orWhere('lastname', 'like', "%{$searchTerm}%")
+                    ->orWhere('suffix', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -71,7 +75,6 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
             'LRN_num'           => 'required|string|unique:students,LRN_num',
             'firstname'         => 'required|string|max:255',
@@ -84,16 +87,23 @@ class StudentController extends Controller
             'birthdate'         => 'required|date',
             'year_level_id'     => 'required|exists:year_levels,id',
             'school_year_id'    => 'required|exists:school_years,id',
-            // other validations...
         ]);
 
         $validated['user_id'] = Auth::id();
 
-        Student::create($validated);
+        // ✅ Store the student and assign it to a variable
+        $student = Student::create($validated);
+
+        // ✅ Log the action with correct variable reference
+        ActivityLogService::log(
+            'Added Student',
+            "Added {$student->firstname} {$student->middlename} {$student->lastname} to Grade {$student->year_level_id} - Section {$student->section}"
+        );
 
         return redirect()->route('teacher.students.index')
             ->with('success', 'Student created successfully.');
     }
+
 
 
     // For methods like edit, update, destroy, verify the student belongs to the teacher:
@@ -110,9 +120,8 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student)
     {
-        // dd($request->all());
         $validated = $request->validate([
-            'LRN_num'           => 'required|string||unique:students,LRN_num,' . $student->id,
+            'LRN_num'           => 'required|string|unique:students,LRN_num,' . $student->id,
             'firstname'         => 'required|string|max:255',
             'middlename'        => 'nullable|max:255',
             'lastname'          => 'required|string|max:255',
@@ -123,10 +132,23 @@ class StudentController extends Controller
             'birthdate'         => 'required|date',
             'year_level_id'     => 'required|exists:year_levels,id',
             'school_year_id'    => 'required|exists:school_years,id',
-            // add other validations as needed
         ]);
 
+        // ✅ Get old values before updating
+        $oldSection = $student->section;
+        $oldYearLevel = $student->year_level_id;
+
+        // ✅ Update the student record
         $student->update($validated);
+
+        // ✅ Log the action
+        ActivityLogService::log(
+            'Updated Student',
+            'Updated ' . $student->firstname . ' ' . $student->middlename . ' ' . $student->lastname .
+            ': Grade ' . $oldYearLevel . ' → ' . $student->year_level_id .
+            ', Section ' . $oldSection . ' → ' . $student->section
+        );
+
 
         return redirect()->route('teacher.students.index')
             ->with('success', 'Student updated successfully.');
@@ -220,5 +242,4 @@ class StudentController extends Controller
 
         return view('teacher.students.sf10', compact('student', 'classRecords'));
     }
-
 }
