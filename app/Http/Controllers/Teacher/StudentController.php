@@ -6,6 +6,7 @@ use App\Models\YearLevel;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\Quarter;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\ClassRecord;
 use App\Models\SchoolInfo;
@@ -19,19 +20,19 @@ class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth()->user();
-
-        // Base query with relationships
-        // $query = Student::with(['yearLevel', 'schoolYear']);
+        $user = Auth::user();
         $query = Student::query();
 
-        // Filter students based on role
+        // If user is a teacher, they can only see their students
         if ($user->role === 'teacher') {
-            // Teachers only see their students
             $query->where('user_id', $user->id);
+        } elseif ($user->role === 'admin' && $request->has('user_id') && $request->input('user_id') !== '') {
+            // Admins can filter by teacher
+            $query->where('user_id', $request->input('user_id'));
         }
+
         // Apply search filter
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $searchTerm = $request->input('search');
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('firstname', 'like', "%{$searchTerm}%")
@@ -42,25 +43,24 @@ class StudentController extends Controller
             });
         }
 
-        if ($request->has('year_level_id')) {
+        // Apply year level and school year filters
+        if ($request->filled('year_level_id')) {
             $query->where('year_level_id', $request->input('year_level_id'));
         }
 
-        if ($request->has('school_year_id')) {
+        if ($request->filled('school_year_id')) {
             $query->where('school_year_id', $request->input('school_year_id'));
         }
 
-        // Apply pagination to the filtered query
+        // Paginate results
         $students = $query->paginate(25)->withQueryString();
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
+        $teachers = User::where('role', 'teacher')->get();
 
-        return view('teacher.students.index', compact(
-            'students',
-            'yearLevels',
-            'schoolYears',
-        ));
+        return view('teacher.students.index', compact('students', 'yearLevels', 'schoolYears', 'teachers'));
     }
+
 
     // Show the form for creating a new student
     public function create()
@@ -68,7 +68,8 @@ class StudentController extends Controller
         // Retrieve year levels for the dropdown selection
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
-        $user = auth()->user(); // Get the authenticated user instead of all users
+         // Get the authenticated user instead of all users
+        $user = auth()->user();
 
         return view('teacher.students.create', compact('yearLevels', 'schoolYears', 'user'));
     }
@@ -83,10 +84,10 @@ class StudentController extends Controller
             'suffix'            => 'nullable|max:255',
             'gender'            => 'required|string|max:255',
             'age'               => 'required|string|max:255',
-            'section'           => 'required|string|max:255',
+            'section'           => 'nullable|string|max:255',
             'birthdate'         => 'required|date',
-            'year_level_id'     => 'required|exists:year_levels,id',
-            'school_year_id'    => 'required|exists:school_years,id',
+            'year_level_id'     => 'nullable|exists:year_levels,id',
+            'school_year_id'    => 'nullable|exists:school_years,id',
         ]);
 
         $validated['user_id'] = Auth::id();
@@ -128,10 +129,10 @@ class StudentController extends Controller
             'suffix'            => 'nullable|max:255',
             'gender'            => 'required|string|max:255',
             'age'               => 'required|string|max:255',
-            'section'           => 'required|string|max:255',
+            'section'           => 'nullable|string|max:255',
             'birthdate'         => 'required|date',
-            'year_level_id'     => 'required|exists:year_levels,id',
-            'school_year_id'    => 'required|exists:school_years,id',
+            'year_level_id'     => 'nullable|exists:year_levels,id',
+            'school_year_id'    => 'nullable|exists:school_years,id',
         ]);
 
         // ✅ Get old values before updating
@@ -145,8 +146,8 @@ class StudentController extends Controller
         ActivityLogService::log(
             'Updated Student',
             'Updated ' . $student->firstname . ' ' . $student->middlename . ' ' . $student->lastname .
-            ': Grade ' . $oldYearLevel . ' → ' . $student->year_level_id .
-            ', Section ' . $oldSection . ' → ' . $student->section
+                ': Grade ' . $oldYearLevel . ' → ' . $student->year_level_id .
+                ', Section ' . $oldSection . ' → ' . $student->section
         );
 
 
@@ -226,20 +227,5 @@ class StudentController extends Controller
         $generalAverage = !empty($finalGrades) ? round(array_sum($finalGrades) / count($finalGrades)) : null;
 
         return view('teacher.students.sf09', compact('student', 'schoolInfo', 'grades', 'generalAverage'));
-    }
-
-    // school form 10 (sf10) report card of students from year 1 to 6
-    public function sf10($id)
-    {
-        $student = Student::findOrFail($id);
-
-        // Fetch all class records grouped by year level and school year
-        $classRecords = ClassRecord::where('student_id', $id)
-            ->with(['subject', 'yearLevel', 'schoolYear', 'quarter'])
-            ->orderBy('year_level_id')
-            ->get()
-            ->groupBy('year_level_id');
-
-        return view('teacher.students.sf10', compact('student', 'classRecords'));
     }
 }

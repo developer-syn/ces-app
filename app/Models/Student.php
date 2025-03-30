@@ -56,5 +56,8 @@ class Student extends Model
         return $this->hasMany(SummaryQuarterlyGrade::class, 'student_id');
     }
 
-
+    public function enrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
 }

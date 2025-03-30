@@ -15,7 +15,6 @@ use App\Services\ActivityLogService;
 
 class ClassRecordController extends Controller
 {
-
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -123,12 +122,13 @@ class ClassRecordController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         // Validate all required fields.
         $validated = $request->validate([
             'quarter_id'            => 'required|exists:quarters,id',
             'grade_section'         => 'required|string',
             'teacher'               => 'required|string',
-            'subject'               => 'required|string',
+            'subject_id'            => 'required|exists:subjects,id',
             'hww'                   => 'required|array|size:10',
             'hww.*'                 => 'nullable|numeric|min:0',
             'hpt'                   => 'required|array|size:10',
@@ -137,7 +137,6 @@ class ClassRecordController extends Controller
             'student_id'            => 'required|array',
             'student_id.*'          => 'exists:students,id',
             'user_id'               => 'required|exists:users,id',
-            // Written works, performance tasks, and quarterly assessment per student:
             'written_works'         => 'required|array',
             'performance_tasks'     => 'required|array',
             'quarterly_assessment'  => 'required|array',
@@ -200,7 +199,7 @@ class ClassRecordController extends Controller
             $data = [
                 'student_id'                => $studentId,
                 'user_id'                   => $validated['user_id'],
-                'subject_id'                => $validated['subject'],
+                'subject_id'                => $validated['subject_id'],
                 'grade_section'             => $validated['grade_section'],
                 'quarter_id'                => $validated['quarter_id'],
                 'year_level_id'             => $student->year_level_id, // Use the student's year level
@@ -232,7 +231,7 @@ class ClassRecordController extends Controller
             $classRecord = ClassRecord::create($data);
 
             // ✅ Log the action
-            ActivityLogService::log('Added Class Record', "User ID: " . auth()->id() . " created class record for subject: {$classRecord->subject->name}");
+            ActivityLogService::log('Added Class Record', "User: " . auth()->user()->name . " - created class record for subject: {$classRecord->subject->name}");
         }
 
         return redirect()
@@ -474,10 +473,11 @@ class ClassRecordController extends Controller
                     'global_hqa'    => $globalHqa,
                 ];
                 $newData = array_merge($newData, $detailData);
+
                 $classRecord = ClassRecord::create($newData);
 
                 // Log the action for the newly created record
-                ActivityLogService::log('Updated Class Record', "User ID: " . auth()->id() . " updated or added class record for subject ID: {$classRecord->newSubject}, grade section: {$classRecord->newGradeSec}, quarter ID: {$classRecord->newQuarter}, school year ID: {$classRecord->newSchoolYear}");
+                ActivityLogService::log('Updated Class Record', "User: " . auth()->id()->name . " - updated or added class record for subject ID: {$classRecord->newSubject}, grade section: {$classRecord->newGradeSec}, quarter ID: {$classRecord->newQuarter}, school year ID: {$classRecord->newSchoolYear}");
             }
         }
 

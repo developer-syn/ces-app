@@ -76,18 +76,18 @@
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="credential" name="credential"
-                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 <label for="credential" class="text-sm font-medium text-gray-700">Kinder Progress
                                     Report</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="kinder" name="kinder"
-                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 <label for="kinder" class="text-sm font-medium text-gray-700">ECCD Checklist</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="eccd" name="eccd"
-                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 <label for="eccd" class="text-sm font-medium text-gray-700">Kindergarten Certificate
                                     of
                                     Completion</label>

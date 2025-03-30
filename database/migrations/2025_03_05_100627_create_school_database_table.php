@@ -28,7 +28,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 2. Create users table
+        // 2. Create users(teacher) table
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -74,11 +74,11 @@ return new class extends Migration
             $table->string('suffix')->nullable();
             $table->string('gender');
             $table->string('age');
-            $table->string('section');
+            $table->string('section')->nullable();
             $table->date('birthdate');
-            $table->foreignId('year_level_id')->constrained()->onDelete('cascade');
-            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('year_level_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('school_year_id')->nullable()->constrained()->onDelete('cascade');
+            // $table->foreign('user_id')->nullable()->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -94,7 +94,7 @@ return new class extends Migration
             $table->foreignId('quarter_id')->constrained()->onDelete('cascade');
             // Basic info fields
             $table->string('grade_section');
-            $table->string('subject_id');
+            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
             $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
             $table->string('teacher');
 
@@ -124,9 +124,9 @@ return new class extends Migration
             $table->decimal('quarterly_grade', 5, 2)->nullable();
 
             // Global header fields for highest possible scores
-            $table->json('hww')->nullable();
-            $table->json('hpt')->nullable();
-            $table->decimal('global_hqa', 5, 2)->nullable();
+            $table->json('hww')->nullable(); // high scores limit 15 points (1, 2, 3 and 4)
+            $table->json('hpt')->nullable();// high scores limit 15 points (1, 2, 3 and 4)
+            $table->decimal('global_hqa', 5, 2)->nullable(); // global highest possible average (HQA) for all subjects 50 points
 
             $table->timestamps();
         });
@@ -161,19 +161,29 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('student_enrollments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained()->onDelete('cascade');
+            $table->foreignId('year_level_id')->constrained();
+            $table->foreignId('school_year_id')->constrained();
+            $table->foreignId('teacher_id')->nullable()->constrained('users');
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('activity_logs');
+        Schema::dropIfExists('student_enrollments');
         Schema::dropIfExists('student_grades');
+        Schema::dropIfExists('class_records');
+        Schema::dropIfExists('activity_logs');
         Schema::dropIfExists('school_forms');
         Schema::dropIfExists('school_infos');
-        Schema::dropIfExists('class_records');
+        Schema::dropIfExists('school_years');
+        Schema::dropIfExists('year_levels');
         Schema::dropIfExists('students');
         Schema::dropIfExists('subjects');
-        Schema::dropIfExists('school_years');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('year_levels');
     }
 };

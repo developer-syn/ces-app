@@ -139,7 +139,16 @@
                                                     Update
                                                 </button>
                                             </form>
-
+                                            <form action="{{ route('teacher.school-years.destroy', $schoolYear->id) }}"
+                                                method="POST" class="mt-2">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                                    onclick="return confirm('Are you sure you want to delete this subject?')">
+                                                    Delete
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach

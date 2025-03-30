@@ -6,74 +6,93 @@ use App\Models\YearLevel;
 use App\Models\SchoolYear;
 use App\Models\ClassRecord;
 use App\Models\Student;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\StudentEnrollment;
 
 class PromoteStudentController extends Controller
 {
     public function promote(Request $request, Student $student)
     {
-        // Ensure the student is eligible for promotion
+
+        $query = Student::with(['enrollments.yearLevel', 'enrollments.schoolYear', 'enrollments.teacher']);
+
+        // Apply filters
+        if ($request->has('year_level_id') && $request->year_level_id) {
+            $query->whereHas('enrollments', function ($q) use ($request) {
+                $q->where('year_level_id', $request->year_level_id);
+            });
+        }
+
+        if ($request->has('school_year_id') && $request->school_year_id) {
+            $query->whereHas('enrollments', function ($q) use ($request) {
+                $q->where('school_year_id', $request->school_year_id);
+            });
+        }
+
+        if ($request->has('user_id') && $request->user_id) {
+            $query->whereHas('enrollments', function ($q) use ($request) {
+                $q->where('user_id', $request->user_id);
+            });
+        }
+
+        $students = $query->get();
+
+        // Get filter options
+        $yearLevels = YearLevel::all();
+        $schoolYears = SchoolYear::all();
+        $teachers = User::where('role', 'teacher')->get();
+        // Get the current year level
         $currentYearLevel = $student->year_level_id;
 
         // Find the next year level
         $nextYearLevel = YearLevel::where('id', '>', $currentYearLevel)->orderBy('id')->first();
-
         if (!$nextYearLevel) {
-            return redirect()->back()->with('error', 'The student is already in the highest year level.');
+            return back()->with('error', 'The student is already in the highest year level.');
         }
 
-        // Check if all grades are completed for 1st to 4th quarters
+        // Ensure all grades for 1st to 4th quarters are completed
         $quarters = [1, 2, 3, 4];
         $completedQuarters = ClassRecord::where('student_id', $student->id)
             ->whereIn('quarter_id', $quarters)
-            ->whereNotNull('quarterly_grade') // Ensure the quarterly grade is not null
+            ->whereNotNull('quarterly_grade')
             ->distinct('quarter_id')
             ->pluck('quarter_id')
             ->toArray();
 
-        // Ensure all quarters (1 to 4) are present in the completed quarters
         if (array_diff($quarters, $completedQuarters)) {
-            return redirect()->back()->with('error', 'The student cannot be promoted because not all grades for 1st to 4th quarters are completed.');
+            return back()->with('error', 'The student cannot be promoted as not all quarter grades are completed.');
         }
-        
-        // Find the next school year
+
+        // Get or create the next school year
         $currentSchoolYear = $student->school_year_id;
         $nextSchoolYear = SchoolYear::where('id', '>', $currentSchoolYear)->orderBy('id')->first();
-
-        // Automatically create the next school year if it doesn't exist
         if (!$nextSchoolYear) {
             $currentSchoolYearRecord = SchoolYear::find($currentSchoolYear);
-
-            if ($currentSchoolYearRecord) {
-                // Generate the next school year name (e.g., "2024 - 2025" -> "2025 - 2026")
-                preg_match('/(\d{4})\s*-\s*(\d{4})/', $currentSchoolYearRecord->name, $matches);
-
-                if (count($matches) === 3) {
-                    $startYear = (int) $matches[1] + 1;
-                    $endYear = (int) $matches[2] + 1;
-                    $nextSchoolYearName = "$startYear - $endYear";
-
-                    // Create the next school year
-                    $nextSchoolYear = SchoolYear::create([
-                        'name' => $nextSchoolYearName,
-                        'current' => false, // Set as non-current by default
-                    ]);
-                } else {
-                    return redirect()->back()->with('error', 'Failed to generate the next school year.');
-                }
+            if ($currentSchoolYearRecord && preg_match('/(\d{4})\s*-\s*(\d{4})/', $currentSchoolYearRecord->name, $matches)) {
+                $nextSchoolYearName = (intval($matches[1]) + 1) . ' - ' . (intval($matches[2]) + 1);
+                $nextSchoolYear = SchoolYear::create(['name' => $nextSchoolYearName, 'current' => false]);
             } else {
-                return redirect()->back()->with('error', 'Current school year record not found.');
+                return back()->with('error', 'Failed to determine the next school year.');
             }
         }
 
-        // Update the student's year level and school year
-        $student->update([
+        // Assign the student to a new teacher
+        $nextTeacher = User::find($request->input('user_id'));
+        if (!$nextTeacher) {
+            return back()->with('error', 'The selected teacher does not exist.');
+        }
+
+        // Create a new enrollment record instead of modifying the student record
+        StudentEnrollment::create([
+            'student_id' => $student->id,
             'year_level_id' => $nextYearLevel->id,
             'school_year_id' => $nextSchoolYear->id,
+            'user_id' => $nextTeacher->id,
         ]);
 
-        return redirect()->route('teacher.students.index')
-            ->with('success', 'Student promoted to ' . $nextYearLevel->name . ' for the school year ' . $nextSchoolYear->name . ' successfully.');
+        return redirect()->route('teacher.students.index', compact('students', 'yearLevels', 'schoolYears', 'teachers'))
+            ->with('success', "Student promoted to {$nextYearLevel->name} for the school year {$nextSchoolYear->name} and assigned to {$nextTeacher->name} successfully.");
     }
 }

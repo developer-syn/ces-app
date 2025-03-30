@@ -42,8 +42,6 @@ Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher','admin')->na
     Route::resource('summary_quarterly_grades', SummaryQuarterlyGradesController::class);
     Route::post('students/import', [CsvImportExportController::class, 'import'])->name('students.import');
     Route::post('students/delete-selected', [CsvImportExportController::class, 'deleteSelected'])->name('students.delete-selected');
-    // Route::get('students/sf09', [StudentController::class, 'sf09'])->name('teacher.students.sf09');
-    Route::get('students/sf10', [StudentController::class, 'sf10'])->name('students.sf10');
     Route::post('students/{student}/promote', [PromoteStudentController::class, 'promote'])->name('students.promote');
 });
 
@@ -53,11 +51,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Route::get('/dashboard', function () {
-    //     return view('dashboard');
-    // })->name('dashboard');
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-
 
     // Admin-only routes
     Route::middleware(['role:admin'])->group(function () {

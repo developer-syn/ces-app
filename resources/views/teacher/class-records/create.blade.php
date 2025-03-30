@@ -89,7 +89,7 @@
                             </th>
                             <th class="table-head" colspan="4">SUBJECT:</th>
                             <th class="table-head" colspan="4">
-                                <select name="subject" class="border-none bg-blue-50 text-center text-sm">
+                                <select name="subject_id" class="border-none bg-blue-50 text-center text-sm">
                                     <option value="" disabled selected>--Select Subject--</option>
                                     @foreach ($subject as $subj)
                                         <option value="{{ $subj->id }}">{{ $subj->name }}</option>
