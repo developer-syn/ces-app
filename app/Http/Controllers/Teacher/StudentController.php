@@ -68,7 +68,7 @@ class StudentController extends Controller
         // Retrieve year levels for the dropdown selection
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
-         // Get the authenticated user instead of all users
+        // Get the authenticated user instead of all users
         $user = auth()->user();
 
         return view('teacher.students.create', compact('yearLevels', 'schoolYears', 'user'));

@@ -1,84 +1,72 @@
 /*
- * Print styles for School Form 10
- *
- * This CSS file contains styles specifically for printing the School Form 10 (SF10-ES).
- * It ensures that the form prints properly and hides elements that should not be printed.
+ * Print styles for School Form 10 (SF10-ES)
+ * Optimized for legal-size paper (8.5" x 14") with paired table layout
  */
 
-/* Print-specific styles */
+/* Hide non-essential elements */
 @media print {
-    /* Hide elements that shouldn't be printed */
+    @page {
+        size: legal portrait;
+        margin: 0.2in;
+        /* Reduce margins */
+    }
+
     #printButton,
     header,
     nav,
     .hidden-print,
-    [x-data="{ open: false }"] {
+    [x-data="{ open: false }"],
+    .print-button {
         display: none !important;
     }
 
-    /* Ensure the form prints on white background with black text */
-    body {
-        background-color: white !important;
-        color: black !important;
-        font-size: 12px;
+    * {
+        font-size: 9px;
+        /* Decrease font size slightly */
+        line-height: 1.1;
+        /* Reduce line spacing */
     }
 
-    /* Remove shadows and adjust borders for better printing */
-    .shadow-sm {
-        box-shadow: none !important;
+    .print-button {
+        display: none;
+        /* Hide print button */
     }
 
-    /* Ensure all content is visible and properly sized */
-    .max-w-7xl {
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    .header-section img {
+        max-width: 60px;
+        /* Reduce logo size */
     }
 
-    /* Fix page breaks */
-    .py-6, .py-2 {
-        page-break-inside: avoid;
-        margin: 0;
-        padding: 0.5cm 0;
+    .border {
+        border-width: 0.5px;
+        /* Reduce border thickness */
     }
 
-    /* Adjust layout for print */
-    .grid {
-        display: grid !important;
-    }
-
-    /* Ensure images print clearly */
-    img {
-        print-color-adjust: exact !important;
-        -webkit-print-color-adjust: exact !important;
-    }
-
-    /* Make sure tables and grids print properly */
-    table, .grid {
+    .content {
         page-break-inside: avoid;
     }
 
-    /* Force page breaks between major sections */
-    .page-break-after {
-        page-break-after: always;
+    .grid,
+    .flex {
+        gap: 2px !important;
+        /* Reduce grid and flex gaps */
     }
 
-    /* Ensure proper scaling for the document */
-    @page {
-        size: letter portrait;
-        margin: 0.5cm;
+    table {
+        font-size: 8px;
+        /* Decrease table font size */
+        border-collapse: collapse;
     }
-}
 
-/* Non-print styling for the print button */
-.print-button {
-    transition: background-color 0.3s;
-}
+    td,
+    th {
+        padding: 2px;
+        /* Reduce table cell padding */
+    }
 
-.print-button:hover {
-    cursor: pointer;
-}
-
-.print-button:active {
-    transform: translateY(1px);
+    /* Force page breaks */
+    .page-break {
+        page-break-before: always;
+        margin-top: 1cm;
+    }
 }

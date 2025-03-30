@@ -167,7 +167,7 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('year_level_id')->constrained();
             $table->foreignId('school_year_id')->constrained();
-            $table->foreignId('teacher_id')->nullable()->constrained('users');
+            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

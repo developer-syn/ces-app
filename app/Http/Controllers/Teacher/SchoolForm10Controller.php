@@ -138,8 +138,6 @@ class SchoolForm10Controller extends Controller
     }
 
 
-
-
     /**
      * Show the form for editing the specified resource.
      */

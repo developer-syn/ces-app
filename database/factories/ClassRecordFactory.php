@@ -45,12 +45,12 @@ class ClassRecordFactory extends Factory
 
         $writtenWorks = [];
         foreach ($wwHighestScores as $column => $maxScore) {
-            $writtenWorks["written_work_{$column}"] = $maxScore > 0 ? $this->faker->numberBetween(8, $maxScore) : 0;
+            $writtenWorks["written_work_{$column}"] = $maxScore > 0 ? $this->faker->numberBetween(10, $maxScore) : 0;
         }
 
         $performanceTasks = [];
         foreach ($ptHighestScores as $column => $maxScore) {
-            $performanceTasks["performance_task_{$column}"] = $maxScore > 0 ? $this->faker->numberBetween(8, $maxScore) : 0;
+            $performanceTasks["performance_task_{$column}"] = $maxScore > 0 ? $this->faker->numberBetween(10, $maxScore) : 0;
         }
 
         $writtenWorksTotal = array_sum(array_values($writtenWorks));
