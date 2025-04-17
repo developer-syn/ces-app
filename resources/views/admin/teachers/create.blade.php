@@ -33,8 +33,8 @@
 
                         <!-- Year Level Field -->
                         <div>
-                            <x-input-label for="role" :value="__('Year Level Assigned')" class="mt-4" />
-                            <select id="role" name="year_level_id" class="block mt-1 w-full rounded-md" required
+                            <x-input-label for="year_level_id" :value="__('Year Level Assigned')" class="mt-4" />
+                            <select id="year_level_id" name="year_level_id" class="block mt-1 w-full rounded-md"
                                 autofocus>
                                 <option value="" disabled selected>Select a Year Level</option>
                                 @foreach ($yearLevels as $yearLevel)
@@ -44,13 +44,26 @@
                             <x-input-error :messages="$errors->get('year_level_id')" class="mt-2" />
                         </div>
 
+                        <!-- School Information Field -->
+                        <div>
+                            <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
+                            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md"
+                                autofocus>
+                                <option value="" disabled selected>Select a School Name</option>
+                                @foreach ($school_infos as $school_info)
+                                    <option value="{{ $school_info->id }}">{{ $school_info->school_name }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
+                        </div>
+
                         <div>
                             <x-input-label for="section" :value="__('Section')" />
                             <x-text-input id="section" class="block mt-1 w-full" type="text" name="section"
-                                :value="old('section')" required autofocus autocomplete="name" />
+                                :value="old('section')" autofocus autocomplete="name" />
                             <x-input-error :messages="$errors->get('section')" class="mt-2" />
                         </div>
-                        
+
                         <!-- Email Address -->
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Email')" />

@@ -14,7 +14,7 @@
                 <div class="overflow-hidden shadow-xl sm:rounded-lg">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <form method="GET" action="{{ route('teacher.summary_quarterly_grades.index') }}"
-                            class="space-y-4 md:space-y-0 md:grid md:grid-cols-6 md:gap-6">
+                            class="space-y-4 md:space-y-0 md:grid md:grid-cols-5 md:gap-6">
 
                             @if (auth()->user()->role === 'admin')
                                 <!-- Year Level Filter -->
@@ -33,22 +33,6 @@
                                     </select>
                                 </div>
 
-                                <!-- Section Filter -->
-                                <div class="flex flex-col">
-                                    <label for="section"
-                                        class="block text-sm font-medium text-gray-700 mb-1">Section</label>
-                                    <select name="section" id="section"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">All Sections</option>
-                                        @foreach ($sections as $section)
-                                            <option value="{{ $section }}"
-                                                {{ request('section') == $section ? 'selected' : '' }}>
-                                                {{ $section }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
                                 <!-- Teacher Filter -->
                                 <div class="flex flex-col">
                                     <label for="user_id"
@@ -59,7 +43,7 @@
                                         @foreach ($teachers as $teacher)
                                             <option value="{{ $teacher->id }}"
                                                 {{ request('user_id') == $teacher->id ? 'selected' : '' }}>
-                                                {{ $teacher->name }}
+                                                {{ $teacher->name }} ({{ $teacher->section }})
                                             </option>
                                         @endforeach
                                     </select>

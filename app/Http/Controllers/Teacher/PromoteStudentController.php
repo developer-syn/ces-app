@@ -15,7 +15,6 @@ class PromoteStudentController extends Controller
 {
     public function promote(Request $request, Student $student)
     {
-
         $query = Student::with(['enrollments.yearLevel', 'enrollments.schoolYear', 'enrollments.teacher']);
 
         // Apply filters
@@ -43,8 +42,15 @@ class PromoteStudentController extends Controller
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
         $teachers = User::where('role', 'teacher')->get();
-        // Get the current year level
-        $currentYearLevel = $student->year_level_id;
+
+        // Get the current enrollment (latest one)
+        $currentEnrollment = $student->enrollments()->latest()->first();
+        if (!$currentEnrollment) {
+            return back()->with('error', 'Student has no enrollment records.');
+        }
+
+        $currentYearLevel = $currentEnrollment->year_level_id;
+        $schoolInfoId = $currentEnrollment->school_info_id;
 
         // Find the next year level
         $nextYearLevel = YearLevel::where('id', '>', $currentYearLevel)->orderBy('id')->first();
@@ -66,7 +72,7 @@ class PromoteStudentController extends Controller
         }
 
         // Get or create the next school year
-        $currentSchoolYear = $student->school_year_id;
+        $currentSchoolYear = $currentEnrollment->school_year_id;
         $nextSchoolYear = SchoolYear::where('id', '>', $currentSchoolYear)->orderBy('id')->first();
         if (!$nextSchoolYear) {
             $currentSchoolYearRecord = SchoolYear::find($currentSchoolYear);
@@ -84,12 +90,13 @@ class PromoteStudentController extends Controller
             return back()->with('error', 'The selected teacher does not exist.');
         }
 
-        // Create a new enrollment record instead of modifying the student record
+        // Create a new enrollment record
         StudentEnrollment::create([
             'student_id' => $student->id,
             'year_level_id' => $nextYearLevel->id,
             'school_year_id' => $nextSchoolYear->id,
             'user_id' => $nextTeacher->id,
+            'school_info_id' => $schoolInfoId,
         ]);
 
         return redirect()->route('teacher.students.index', compact('students', 'yearLevels', 'schoolYears', 'teachers'))

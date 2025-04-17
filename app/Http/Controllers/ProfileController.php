@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\SchoolInfo;
 
 class ProfileController extends Controller
 {
@@ -16,8 +17,11 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $school_infos = SchoolInfo::all();
+
         return view('profile.edit', [
             'user' => $request->user(),
+            'school_infos' => $school_infos,
         ]);
     }
 
@@ -26,6 +30,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        // dd($request->all());
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {

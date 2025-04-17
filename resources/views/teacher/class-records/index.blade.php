@@ -61,17 +61,28 @@
                             <input type="hidden" name="quarter_id" value="{{ request('quarter_id') }}">
 
                             <select name="grade_section" onchange="this.form.submit()"
-                                class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block w-full">
+                                class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block w-full"
+                                @if (auth()->user()->role === 'teacher') disabled @endif>
                                 <option value="">Filter by Grade & Section</option>
-                                @foreach ($gradeSections as $gs)
-                                    <option value="{{ $gs }}"
-                                        {{ request('grade_section') == $gs ? 'selected' : '' }}>
-                                        {{ $gs }}
+
+                                @if (auth()->user()->role === 'admin')
+                                    @foreach ($gradeSections as $gs)
+                                        <option value="{{ $gs->grade_section }}"
+                                            {{ request('grade_section') == $gs->grade_section ? 'selected' : '' }}>
+                                            {{ $gs->grade_section }} ({{ $gs->user->name }})
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="{{ auth()->user()->id }}" selected>
+                                        {{ auth()->user()->name }} ({{ auth()->user()->yearLevel->name }} -
+                                        {{ auth()->user()->section }})
                                     </option>
-                                @endforeach
+                                @endif
                             </select>
                         </form>
                     </div>
+
+
 
                     <!-- Quarter Filter -->
                     <div>
@@ -153,7 +164,7 @@
                                         '|' .
                                         $rec->grade_section .
                                         '|' .
-                                        $rec->school_year_id;
+                                    $rec->school_year_id;
                                 });
                             @endphp
 
@@ -183,32 +194,33 @@
                                                 class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none">
                                                 Actions
                                                 <svg class="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
-                                                     viewBox="0 0 20 20" fill="currentColor">
+                                                    viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd"
-                                                          d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 01.02-1.06z"
-                                                          clip-rule="evenodd" />
+                                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 01.02-1.06z"
+                                                        clip-rule="evenodd" />
                                                 </svg>
                                             </button>
 
                                             <!-- Dropdown menu -->
                                             <div x-show="open" @click.away="open = false"
-                                                 class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                                                 style="overflow: visible;">
+                                                class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                                                style="overflow: visible;">
                                                 <div class="py-1">
                                                     <!-- Edit link -->
                                                     <a href="{{ route('teacher.class-records.edit', $record) }}"
-                                                       class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
+                                                        class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
                                                         Update Record
                                                     </a>
 
                                                     <!-- Delete form -->
-                                                    <form action="{{ route('teacher.class-records.destroy', $record) }}"
-                                                          method="POST" class="block"
-                                                          onsubmit="return confirm('Are you sure you want to delete this record?')">
+                                                    <form
+                                                        action="{{ route('teacher.class-records.destroy', $record) }}"
+                                                        method="POST" class="block"
+                                                        onsubmit="return confirm('Are you sure you want to delete this record?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
-                                                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
+                                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
                                                             Delete Record
                                                         </button>
                                                     </form>
@@ -228,6 +240,10 @@
                         </tbody>
                     </table>
                 </div> <!-- end overflow-x-auto -->
+                <!-- Pagination -->
+                <div class="mt-4">
+                    {{ $classRecords->links() }}
+                </div>
             </div> <!-- end p-6 -->
         </div> <!-- end bg-white -->
     </div> <!-- end py-4 -->

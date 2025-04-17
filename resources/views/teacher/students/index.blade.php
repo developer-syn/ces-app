@@ -54,34 +54,38 @@
                         </div>
 
                         <!-- School Year Filter -->
-                        <select id="schoolYearFilter"
+                        <select id="schoolYearFilter" name="school_year_id"
                             class="border rounded-lg px-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">All School Years</option>
                             @foreach ($schoolYears as $schoolYear)
                                 <option value="{{ $schoolYear->id }}"
-                                    {{ $schoolYear->id == ($currentSchoolYear->id ?? '') ? 'selected' : '' }}>
+                                    {{ request('school_year_id') == $schoolYear->id ? 'selected' : '' }}>
                                     {{ $schoolYear->name }}
                                 </option>
                             @endforeach
                         </select>
 
                         <!-- Year Level Filter -->
-                        <select id="yearLevelFilter"
+                        <select id="yearLevelFilter" name="year_level_id"
                             class="border rounded-lg px-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">All Year Levels</option>
                             @foreach ($yearLevels as $yearLevel)
-                                <option value="{{ $yearLevel->id }}">{{ $yearLevel->name }}</option>
+                                <option value="{{ $yearLevel->id }}"
+                                    {{ request('year_level_id') == $yearLevel->id ? 'selected' : '' }}>
+                                    {{ $yearLevel->name }}
+                                </option>
                             @endforeach
                         </select>
 
-                        <select id="teacherFilter"
+                        <!-- Teacher Filter -->
+                        <select id="teacherFilter" name="user_id"
                             class="border rounded-lg px-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             @if (auth()->user()->role === 'teacher') disabled @endif>
-
                             @if (auth()->user()->role === 'admin')
                                 <option value="">All Teachers</option>
                                 @foreach ($teachers as $teacher)
-                                    <option value="{{ $teacher->id }}">
+                                    <option value="{{ $teacher->id }}"
+                                        {{ request('user_id') == $teacher->id ? 'selected' : '' }}>
                                         {{ $teacher->name }}
                                     </option>
                                 @endforeach
@@ -91,12 +95,11 @@
                                 </option>
                             @endif
                         </select>
-
                     </div>
                 </div>
 
                 <!-- Table -->
-                <div class="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
+                <div class="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative" style="height: 400px;">
                     <table class="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative">
                         <thead>
                             <tr class="text-left">
@@ -145,7 +148,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($students as $student)
                                 @php
-                                    $latestEnrollment = $student->enrollments->sortByDesc('created_at')->first();
+                                    $studentEnrollment = $student->enrollments->sortByDesc('created_at')->first();
                                 @endphp
                                 <tr class="hover:bg-gray-50">
                                     <td class="border-t px-6 py-4">
@@ -154,16 +157,19 @@
                                     <td class="border-t px-6 py-4">{{ $student->LRN_num }}</td>
                                     <td class="border-t px-6 py-4">{{ ucwords(strtolower($student->lastname)) }},
                                         {{ ucwords(strtolower($student->firstname)) }},
-                                        {{ ucwords(strtolower($student->middlename)) }}</td>
+                                        {{ ucwords(strtolower($student->middlename ?? '-')) }},
+                                        {{ ucwords(strtolower($student->suffix ?? '-')) }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->age }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->gender }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->birthdate }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->section }}</td>
-                                    <td class="border-t px-6 py-4" data-year-level="{{ $student->year_level_id }}">
-                                        {{ $student->yearLevel->name ?? 'N/A' }}
+                                    <td class="border-t px-6 py-4"
+                                        data-year-level="{{ $studentEnrollment->year_level_id ?? ($student->yearLevel->id ?? '') }}">
+                                        {{ $studentEnrollment->yearLevel->name ?? ($student->yearLevel->name ?? '-') }}
                                     </td>
-                                    <td class="border-t px-6 py-4" data-school-year="{{ $student->school_year_id }}">
-                                        {{ $student->schoolYear->name ?? 'N/A' }}
+                                    <td class="border-t px-6 py-4"
+                                        data-school-year="{{ $studentEnrollment->school_year_id ?? ($student->schoolYear->id ?? '') }}">
+                                        {{ $studentEnrollment->schoolYear->name ?? ($student->schoolYear->name ?? '-') }}
                                     </td>
                                     <td class="px-6 py-4">
                                         <div x-data="{ open: false }" class=" inline-block text-left overflow-visible">
@@ -184,18 +190,85 @@
                                                 class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
                                                 style="overflow: visible;">
                                                 <div class="py-1">
-                                                    <a href="{{ route('teacher.students.edit', $student->id) }}"
+
+                                                    <a href="{{ route('teacher.students.edit', $studentEnrollment->student_id) }}"
                                                         class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
                                                         Edit
                                                     </a>
-                                                    <a href="{{ route('teacher.students.show', $student->id) }}"
-                                                        class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-100">
-                                                        SF09
-                                                    </a>
-                                                    <a href="{{ route('teacher.school-forms-10.show', $student->id) }}"
+
+                                                    {{-- @foreach ($student->enrollments->sortBy('school_year_id') as $enrollment)
+                                                        @php
+                                                            $hasRecords = $enrollment->attendanceCoreValues()->exists();
+                                                        @endphp
+
+                                                        <a href="{{ route('teacher.attendance-core-values.create', [
+                                                            'enrollment' => $enrollment->id,
+                                                            'year_level' => $enrollment->year_level_id,
+                                                            'school_year' => $enrollment->school_year_id,
+                                                        ]) }}"
+                                                            class="flex justify-between items-center px-4 py-2 text-sm hover:bg-gray-50 {{ $hasRecords ? 'text-green-700' : 'text-yellow-700' }}">
+                                                            <span>
+                                                                Attendance&CoreValues
+                                                                ({{ $enrollment->yearLevel->name }} -
+                                                                {{ $enrollment->schoolYear->name }})
+                                                            </span>
+                                                            @if ($hasRecords)
+                                                                <svg class="w-4 h-4 ml-2 text-green-500"
+                                                                    fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                        clip-rule="evenodd" />
+                                                                </svg>
+                                                            @endif
+                                                        </a>
+                                                    @endforeach --}}
+                                                    <select onchange="window.location.href = this.value" class="block w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                        <option value="" selected disabled>Select Attendance&CoreValues</option>
+                                                        @foreach ($student->enrollments->sortBy('school_year_id') as $enrollment)
+                                                            @php
+                                                                $hasRecords = $enrollment->attendanceCoreValues()->exists();
+                                                            @endphp
+
+                                                            <option value="{{ route('teacher.attendance-core-values.create', [
+                                                                'enrollment' => $enrollment->id,
+                                                                'year_level' => $enrollment->year_level_id,
+                                                                'school_year' => $enrollment->school_year_id,
+                                                            ]) }}" class="{{ $hasRecords ? 'text-green-700' : 'text-yellow-700' }}">
+                                                                Attendance&CoreValues ({{ $enrollment->yearLevel->name }} - {{ $enrollment->schoolYear->name }})
+                                                                @if ($hasRecords) ✓ @endif
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    {{-- @foreach ($student->enrollments->sortBy('year_level_id') as $enrollment)
+                                                        <a href="{{ route('teacher.students.show', [
+                                                            $studentEnrollment->student->id,
+                                                            'yearLevel' => $enrollment->year_level_id,
+                                                            'schoolYear' => $enrollment->school_year_id,
+                                                        ]) }}"
+                                                            class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-100">
+                                                            SF09 - Grade {{ $enrollment->yearLevel->name }}
+                                                            ({{ $enrollment->schoolYear->name }})
+                                                        </a>
+                                                    @endforeach --}}
+                                                    <select onchange="window.location.href = this.value" class="block w-full px-4 py-2 text-sm text-white-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-white-100 mt-1">
+                                                        <option value="" selected disabled>Select SF9 Record</option>
+                                                        @foreach ($student->enrollments->sortBy('year_level_id') as $enrollment)
+                                                            <option value="{{ route('teacher.students.show', [
+                                                                $studentEnrollment->student->id,
+                                                                'yearLevel' => $enrollment->year_level_id,
+                                                                'schoolYear' => $enrollment->school_year_id,
+                                                            ]) }}">
+                                                                SF09 - Grade {{ $enrollment->yearLevel->name }} ({{ $enrollment->schoolYear->name }})
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    <a href="{{ route('teacher.school-forms-10.show', ['student_id' => $student->id]) }}"
                                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                         SF10
                                                     </a>
+
                                                     <form
                                                         action="{{ route('teacher.students.promote', $student->id) }}"
                                                         method="POST">
@@ -219,6 +292,7 @@
                                                             Promote
                                                         </button>
                                                     </form>
+
                                                     <form
                                                         action="{{ route('teacher.students.destroy', $student->id) }}"
                                                         method="POST" class="block"
@@ -389,5 +463,7 @@
             </div>
         </div>
     </div>
+
+
     <script src="{{ asset('js/students/index.js') }}"></script>
 </x-app-layout>

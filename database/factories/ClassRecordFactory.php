@@ -17,30 +17,35 @@ class ClassRecordFactory extends Factory
 
     public function definition()
     {
+        // Get a random teacher or create one if none exists
+        $teacher = User::where('role', 'teacher')->inRandomOrder()->first() ?? User::factory()->create(['role' => 'teacher']);
+
+        // Get ordered YearLevels and SchoolYears
+        // $yearLevels = YearLevel::orderBy('id')->get();
+        // $schoolYears = SchoolYear::orderBy('id')->get();
+
+        // Get or create a student
+        $student = Student::inRandomOrder()->first();
+
+        // Get the student's year level
+        // $yearLevel = YearLevel::find($student->year_level_id);
+
+        // Match school year index based on year level index
+        // $yearLevelIndex = $yearLevels->search(function ($yl) use ($yearLevel) {
+        //     return $yl->id === $yearLevel->id;
+        // });
+
+        // $matchedSchoolYear = $schoolYears[$yearLevelIndex] ?? $schoolYears->first();
+
+        // Scores setup
         $wwHighestScores = [
-            1 => 15,
-            2 => 15,
-            3 => 15,
-            4 => 15,
-            5 => 0,
-            6 => 0,
-            7 => 0,
-            8 => 0,
-            9 => 0,
-            10 => 0
+            1 => 15, 2 => 15, 3 => 15, 4 => 15,
+            5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0
         ];
 
         $ptHighestScores = [
-            1 => 15,
-            2 => 15,
-            3 => 15,
-            4 => 15,
-            5 => 0,
-            6 => 0,
-            7 => 0,
-            8 => 0,
-            9 => 0,
-            10 => 0
+            1 => 15, 2 => 15, 3 => 15, 4 => 15,
+            5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0
         ];
 
         $writtenWorks = [];
@@ -74,14 +79,14 @@ class ClassRecordFactory extends Factory
         $quarterlyGrade = $initialGrade;
 
         return array_merge([
-            'user_id' => User::where('role', 'teacher')->inRandomOrder()->first()->id ?? User::factory()->create()->id,
-            'student_id' => Student::inRandomOrder()->first()->id ?? Student::factory()->create()->id,
-            'year_level_id' => YearLevel::inRandomOrder()->first()->id ?? YearLevel::factory()->create()->id,
+            'user_id' => $teacher->id,
+            'student_id' => $student->id,
+            'year_level_id' => $student->yearLevel->id,
             'quarter_id' => Quarter::inRandomOrder()->first()->id ?? Quarter::factory()->create()->id,
             'subject_id' => Subject::inRandomOrder()->first()->id ?? Subject::factory()->create()->id,
-            'school_year_id' => SchoolYear::inRandomOrder()->first()->id ?? SchoolYear::factory()->create()->id,
-            'grade_section' => $this->faker->randomElement(['A', 'B', 'C']),
-            'teacher' => $this->faker->name,
+            'school_year_id' => $student->schoolYear->id,
+            'grade_section' => $student->yearLevel->name . ' - ' . ($student->section),
+            'teacher' => $teacher->name ?? $this->faker->name,
             'written_works_total' => $writtenWorksTotal,
             'written_works_ps' => $wwPS,
             'written_works_ws' => $wwWS,

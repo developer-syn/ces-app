@@ -21,11 +21,19 @@ class DashboardController extends Controller
         $totalSubjects = Subject::count();
 
         if ($user->role === 'admin') {
-            // Admin sees total class records across all subjects
-            $totalClasses = ClassRecord::distinct('subject_id')->count();
+            // Admin sees only teachers in their school
+            $totalTeachers = User::where('role', 'teacher')
+                ->where('school_info_id', $user->school_info_id)
+                ->count();
 
-            // Admin sees all students per grade level & section
-            $studentsPerGrade = Student::select('year_level_id', 'section')
+            // Admin sees total class records for their school only
+            $totalClasses = ClassRecord::whereHas('user', function ($q) use ($user) {
+                $q->where('school_info_id', $user->school_info_id);
+            })->distinct('subject_id')->count();
+
+            // Admin sees students per grade level & section in their school
+            $studentsPerGrade = Student::where('school_info_id', $user->school_info_id)
+                ->select('year_level_id', 'section')
                 ->selectRaw('COUNT(*) as student_count')
                 ->groupBy('year_level_id', 'section')
                 ->orderBy('year_level_id')
@@ -33,8 +41,11 @@ class DashboardController extends Controller
                 ->get()
                 ->groupBy('year_level_id');
 
-            // Admin sees all class records
+            // Admin sees class records within their school
             $classRecords = ClassRecord::with(['user', 'subject', 'student'])
+                ->whereHas('user', function ($q) use ($user) {
+                    $q->where('school_info_id', $user->school_info_id);
+                })
                 ->orderBy('year_level_id')
                 ->orderBy('grade_section')
                 ->get();
@@ -64,8 +75,11 @@ class DashboardController extends Controller
 
         // ✅ Admin sees all logs, teachers see only their own logs
         $recentActivities = ($user->role === 'admin')
-            ? ActivityLog::latest()->limit(10)->get()
+            ? ActivityLog::whereHas('user', function ($q) use ($user) {
+                $q->where('school_info_id', $user->school_info_id);
+            })->latest()->limit(10)->get()
             : ActivityLog::where('user_id', $user->id)->latest()->limit(10)->get();
+
 
         return view('dashboard', compact(
             'totalTeachers',

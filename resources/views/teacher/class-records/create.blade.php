@@ -160,6 +160,9 @@
                         <!-- Detail rows for each student -->
                         @php $index = 0; @endphp
                         @foreach ($students as $student)
+                            @php
+                                $studentEnrollment = $student->enrollments->sortByDesc('created_at')->first();
+                            @endphp
                             @php $index++; @endphp
                             <tr>
                                 <td>{{ $index }}</td>

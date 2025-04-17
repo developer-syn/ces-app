@@ -25,14 +25,23 @@ class SummaryQuarterlyGradesController extends Controller
             if ($quarterId = $request->input('quarter_id')) {
                 $query->where('quarter_id', $quarterId);
             }
-
         }]);
 
-        // Filter records based on the user's role
+        // Ensure that admins and teachers can only view records from their own school
         if ($user->role === 'teacher') {
             // Teachers can only view their own students
             $query->whereHas('classRecords', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
+                $q->where('user_id', $user->id) // Ensure the teacher is the one associated with the class record
+                    ->whereHas('user', function ($query) use ($user) {
+                        $query->where('school_info_id', $user->school_info_id); // Teacher's school info
+                    });
+            });
+        } elseif ($user->role === 'admin') {
+            // Admin can view all records within their own school only
+            $query->whereHas('classRecords', function ($q) use ($user) {
+                $q->whereHas('user', function ($query) use ($user) {
+                    $query->where('school_info_id', $user->school_info_id); // Admin's school info
+                });
             });
         }
 
@@ -58,8 +67,8 @@ class SummaryQuarterlyGradesController extends Controller
             $query->where('school_year_id', $schoolYearId);
         }
 
-        // Fetch the filtered students
-        $students = $query->get();
+        // Apply pagination: adjust the number (25) as desired.
+        $students = $query->paginate(25);
 
         // Fetch dropdown data for filters
         $yearLevels = YearLevel::all();

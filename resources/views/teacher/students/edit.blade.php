@@ -190,6 +190,22 @@
                             @enderror
                         </div>
 
+                        <!-- School Information Field -->
+                        <div>
+                            <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
+                            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md"
+                                required>
+                                <option value="" disabled selected>Select a School Name</option>
+                                @foreach ($school_infos as $school_info)
+                                    <option value="{{ $school_info->id }}"
+                                        {{ old('school_info_id', $student->school_info_id ?? '') == $school_info->id ? 'selected' : '' }}>
+                                        {{ $school_info->school_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
+                        </div>
+
                         <!-- Form Actions -->
                         <div class="flex items-center justify-end gap-4 pt-4">
                             <a href="{{ route('teacher.students.index') }}"

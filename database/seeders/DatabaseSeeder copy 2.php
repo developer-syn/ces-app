@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Subject;
-use App\Models\Quarter;
-use App\Models\Student;
 use App\Models\SchoolInfo;
 use App\Models\SchoolYear;
+use App\Models\Subject;
+use App\Models\User;
+use App\Models\Quarter;
 use App\Models\YearLevel;
+use App\Models\Student;
 use App\Models\ClassRecord;
 use App\Models\StudentEnrollment;
 use Illuminate\Database\Seeder;
@@ -85,7 +85,6 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'school_info_id' => 1,
         ]);
-
         // Create teachers
         $teachers = [];
         $yearLevels = YearLevel::all();
@@ -158,7 +157,6 @@ class DatabaseSeeder extends Seeder
         /**
          * ✅ One student from Year Level 1 to 6 (promoted with complete grades)
          */
-
         $singleStudent = Student::factory()->create([
             'firstname' => 'Promoted',
             'lastname' => 'Student',
@@ -167,19 +165,17 @@ class DatabaseSeeder extends Seeder
         foreach ($orderedYearLevels as $index => $yearLevel) {
             $randomSection = $sections[array_rand($sections)];
             $teacher = $teachers[$yearLevel->id][$randomSection] ?? null;
-
+            $schoolInfo = $student->school_info_id;
 
             if ($teacher) {
-                $schoolYear = $schoolYears[$index] ?? end($schoolYears);
+                $schoolYear = $schoolYears[$index] ?? end($schoolYears); // fallback
 
                 StudentEnrollment::create([
                     'student_id' => $singleStudent->id,
-                    'age' => $singleStudent->age,
-                    'section' => $singleStudent->section,
                     'year_level_id' => $yearLevel->id,
                     'school_year_id' => $schoolYear->id,
                     'user_id' => $teacher->id,
-                    'school_info_id' => $teacher->schoolInfo->id,
+                    'school_info_id' => $schoolInfo->id,
                 ]);
 
                 foreach ($subjects as $subject) {

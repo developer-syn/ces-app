@@ -38,6 +38,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->foreignId('year_level_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('school_info_id')->nullable()->contrained()->onDelete('set null');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -66,7 +68,7 @@ return new class extends Migration
         // 5. Create students table
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('LRN_num')->unique();
             $table->string('firstname');
             $table->string('middlename')->nullable();
@@ -78,21 +80,17 @@ return new class extends Migration
             $table->date('birthdate');
             $table->foreignId('year_level_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('school_year_id')->nullable()->constrained()->onDelete('cascade');
-            // $table->foreign('user_id')->nullable()->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('school_info_id')->nullable()->contrained()->onDelete('set null');
             $table->timestamps();
         });
 
         // 6. Create related tables
         Schema::create('class_records', function (Blueprint $table) {
             $table->id();
-            // Foreign keys (assuming related tables exist)
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            // $table->foreignId('subject_id')->constrained()->onDelete('cascade');
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            // Add a foreign key constraint if you have a `year_levels` table
             $table->foreignId('year_level_id')->constrained()->onDelete('cascade');
             $table->foreignId('quarter_id')->constrained()->onDelete('cascade');
-            // Basic info fields
             $table->string('grade_section');
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
             $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
@@ -125,7 +123,7 @@ return new class extends Migration
 
             // Global header fields for highest possible scores
             $table->json('hww')->nullable(); // high scores limit 15 points (1, 2, 3 and 4)
-            $table->json('hpt')->nullable();// high scores limit 15 points (1, 2, 3 and 4)
+            $table->json('hpt')->nullable(); // high scores limit 15 points (1, 2, 3 and 4)
             $table->decimal('global_hqa', 5, 2)->nullable(); // global highest possible average (HQA) for all subjects 50 points
 
             $table->timestamps();
@@ -165,15 +163,55 @@ return new class extends Migration
         Schema::create('student_enrollments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
+            $table->string('age')->nullable();
+            $table->string('section')->nullable();
             $table->foreignId('year_level_id')->constrained();
             $table->foreignId('school_year_id')->constrained();
             $table->foreignId('user_id')->nullable()->constrained('users');
+            $table->foreignId('school_info_id')->nullable()->contrained()->onDelete('set null');
+            $table->timestamps();
+        });
+
+        Schema::create('attendance_core_values', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_enrollment_id')->constrained('student_enrollments')->onDelete('cascade');
+
+            // Attendance Columns (School Days and Present Days)
+            $months = ['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'];
+            foreach ($months as $month) {
+                $table->integer("{$month}_days")->default(0);
+                $table->integer("{$month}_present")->default(0);
+            }
+            $table->integer('total_days')->virtualAs(
+                'jun_days + jul_days + aug_days + sept_days + oct_days + nov_days + dec_days + jan_days + feb_days + mar_days + apr_days'
+            );
+            $table->integer('total_present')->virtualAs(
+                'jun_present + jul_present + aug_present + sept_present + oct_present + nov_present + dec_present + jan_present + feb_present + mar_present + apr_present'
+            );
+
+            // Core Values Columns
+            $coreValues = [
+                'maka_diyos',    // 1. Maka-Diyos
+                'makatao',       // 2. Makatao
+                'maka_kalikasan', // 3. Maka-kalikasan
+                'makabansa'      // 4. Makabansa
+            ];
+
+            foreach ($coreValues as $value) {
+                for ($q = 1; $q <= 4; $q++) {
+                    $table->enum("{$value}_q{$q}", ['AO', 'SO', 'RO', 'NO'])
+                        ->nullable()
+                        ->comment("Quarter {$q} rating");
+                }
+            }
+
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('attendance_core_values');
         Schema::dropIfExists('student_enrollments');
         Schema::dropIfExists('student_grades');
         Schema::dropIfExists('class_records');

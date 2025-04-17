@@ -11,9 +11,13 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between">
-                        {{-- <h2 class="font-bold text-xl mb-4">Student Report Card (SF09)</h2> --}}
+                        <button class="bg-blue-600 text-white px-2 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                            <a href="{{ url()->previous() }}">
+                                Go Back
+                            </a>
+                        </button>
                         <button onclick="printReportCard()"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                            class="bg-blue-600 text-white px-2 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
                             <i class="fas fa-print mr-2"></i> Print Report Card
                         </button>
                     </div>
@@ -49,48 +53,24 @@
                                         <tbody>
                                             <tr>
                                                 <td>No. of School Days</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
+                                                @foreach(['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'] as $month)
+                                                <td>{{ $attendance->{$month.'_days'} ?? 0 }}</td>
+                                                @endforeach
+                                                <td>{{ $attendance->total_days ?? 0 }}</td>
                                             </tr>
                                             <tr>
                                                 <td>No. of Days Present</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
+                                                @foreach(['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'] as $month)
+                                                <td>{{ $attendance->{$month.'_present'} ?? 0 }}</td>
+                                                @endforeach
+                                                <td>{{ $attendance->total_present ?? 0 }}</td>
                                             </tr>
                                             <tr>
                                                 <td>No. of Times Absent</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
+                                                @foreach(['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'] as $month)
+                                                <td>{{ ($attendance->{$month.'_days'} ?? 0) - ($attendance->{$month.'_present'} ?? 0) }}</td>
+                                                @endforeach
+                                                <td>{{ ($attendance->total_days ?? 0) - ($attendance->total_present ?? 0) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -129,31 +109,31 @@
                                     <div class="school-details">
                                         <div class="school-detail">
                                             <span class="label">Region</span>
-                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $schoolInfo->first()->region }}</div>
+                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->schoolInfo->region ?? 'N/A' }}</div>
                                         </div>
                                         <div class="school-detail">
                                             <span class="label">Division</span>
-                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $schoolInfo->first()->division }}</div>
+                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $student->schoolInfo->division ?? 'N/A' }}</div>
                                         </div>
                                         <div class="school-detail">
                                             <span class="label">District</span>
-                                            <div class="line">&nbsp;&nbsp;{{ $schoolInfo->first()->district }}</div>
+                                            <div class="line">&nbsp;&nbsp;{{ $student->schoolInfo->district ?? 'N/A' }}</div>
                                         </div>
                                         <div class="school-detail">
                                             <span class="label">School</span>
-                                            <div class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $schoolInfo->first()->school_name }}</div>
+                                            <div class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $student->schoolInfo->school_name ?? 'N/A' }}</div>
                                         </div>
                                     </div>
 
                                     <div class="report-card-header">
                                         <h3>LEARNER'S PROGRESS REPORT CARD</h3>
-                                        <p>School Year: {{ $student->schoolYear->name ?? date('Y') . '-' . (date('Y') + 1) }}</p>
+                                        <p>School Year: {{ $enrollment->schoolYear->name }}</p>
                                     </div>
 
                                     <div class="student-info">
                                         <div class="student-info-row">
                                             <span class="label">Name:</span>
-                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ ucwords(strtolower($student->lastname)) }}, {{ ucwords(strtolower($student->firstname)) }}, {{ ucwords(strtolower($student->middlename)) }}</div>
+                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ ucwords(strtolower($student->lastname)) }}, {{ ucwords(strtolower($student->firstname)) }} {{ ucwords(strtolower($student->middlename)) }}</div>
                                         </div>
                                         <div class="student-info-row">
                                             <span class="label">Age:</span>
@@ -165,12 +145,12 @@
                                             <span class="label">Grade:</span>
                                             <div class="line"
                                                 style="flex: 0.2; font-family:'Times New Roman', Times, serif; font-weight:800;">
-                                                &nbsp;&nbsp;&nbsp;{{ $student->yearLevel->name ?? '' }}
+                                                &nbsp;&nbsp;&nbsp;{{ $enrollment->yearLevel->name ?? '' }}
                                             </div>
                                             <span class="short-label">Section:</span>
-                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $student->section ?? '' }}</div>
+                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->section ?? '' }}</div>
                                             <span class="short-label">LRN:</span>
-                                            <div class="line" style="flex: 0.5;">&nbsp;&nbsp;&nbsp;{{ $student->LRN_num }}</div>
+                                            <div class="line" style="flex: 0.5;">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->LRN_num }}</div>
                                         </div>
                                     </div>
 
@@ -187,11 +167,11 @@
 
                                     <div class="signature-section">
                                         <div class="signature-box-right">
-                                            <div class="line text-center">{{ $student->user->name }}</div>
+                                            <div class="line text-center">{{ $enrollment->teacher->name }}</div>
                                             <p>Teacher</p>
                                         </div>
                                         <div class="signature-box-left">
-                                            <div class="line text-center">{{ $schoolInfo->principal_name }}</div>
+                                            <div class="line text-center">{{ $student->schoolInfo->principal_name ?? '-' }}</div>
                                             <p style="padding-left: 50px;">Principal</p>
                                         </div>
                                     </div>
@@ -252,7 +232,7 @@
                         <!-- Back Page -->
                         <div class="page">
                             <h2 style="font-weight: bold; text-align: left;">
-                                GRADE {{ $student->yearLevel->name ?? 'GRADE -' }}</h2>
+                                GRADE {{ $enrollment->yearLevel->name ?? 'GRADE -' }}</h2>
                             <div class="back-container mt-4">
                                 <!-- Learning Progress and Achievement Section -->
                                     <div class="progress-column">
@@ -410,18 +390,15 @@
 
                                 <!-- Learner's Observed Values Section -->
                                 <div class="values-column">
-                                    <h3
-                                        style="text-align: center; margin-bottom: 15px; font-size: 14px; text-transform: uppercase;">
-                                        REPORT ON LEARNER'S OBSERVED VALUES</h3>
+                                    <h3 style="text-align: center; margin-bottom: 15px; font-size: 14px; text-transform: uppercase;">
+                                        REPORT ON LEARNER'S OBSERVED VALUES
+                                    </h3>
                                     <table>
                                         <thead>
                                             <tr style="background: #eef3ff;">
-                                                <th rowspan="2" style="width: 25%; text-align: center;">Core Values
-                                                </th>
-                                                <th rowspan="2" style="width: 30%; text-align: center;">Behavior
-                                                    Statements</th>
-                                                <th colspan="4" style="width: 40%; text-align: center;">Quarter
-                                                </th>
+                                                <th rowspan="2" style="width: 25%; text-align: center;">Core Values</th>
+                                                <th rowspan="2" style="width: 30%; text-align: center;">Behavior Statements</th>
+                                                <th colspan="4" style="width: 40%; text-align: center;">Quarter</th>
                                             </tr>
                                             <tr style="background: #eef3ff;">
                                                 <th style="text-align: center;">1</th>
@@ -431,45 +408,17 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @foreach($coreValues as $key => $value)
                                             <tr>
-                                                <td style="padding: 5px;">1. Maka-Diyos</td>
-                                                <td style="padding: 5px; font-size: 12px;">Expresses one's spiritual
-                                                    beliefs while respecting the spiritual beliefs of others</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
+                                                <td style="padding: 5px;">{{ $loop->iteration }}. {{ ucfirst(str_replace('_', '-', $key)) }}</td>
+                                                <td style="padding: 5px; font-size: 12px;">{{ $value['statement'] }}</td>
+                                                @foreach(['q1', 'q2', 'q3', 'q4'] as $quarter)
+                                                <td style="text-align: center;">{{ $value['quarters'][$quarter] ?? '' }}</td>
+                                                @endforeach
                                             </tr>
+                                            @endforeach
                                             <tr>
-                                                <td style="padding: 5px;">2. Makatao</td>
-                                                <td style="padding: 5px; font-size: 12px;">Shows adherence to ethical
-                                                    principles by upholding truth</td>
                                                 <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 5px;">3. Maka-kalikasan</td>
-                                                <td style="padding: 5px; font-size: 12px;">Cares for the environment
-                                                    and utilizes resources wisely, judiciously, and economically</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 5px; vertical-align: top;" rowspan="2">4.
-                                                    Makabansa</td>
-                                                <td style="padding: 5px; font-size: 12px;">Demonstrates pride in being
-                                                    a Filipino; exercises the rights and responsibilities of a Filipino
-                                                    citizen</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
                                                 <td style="padding: 5px; font-size: 12px;">Demonstrates appropriate
                                                     behavior in carrying out activities in the school, community, and
                                                     country</td>
@@ -483,52 +432,30 @@
 
                                     <div class="ratings-container">
                                         <div class="ratings-section">
-                                            <h4
-                                                style="margin-bottom: 10px; text-align: center; font-weight:800; font-size: 12px">
-                                                Marking</h4>
-                                            <table class="ratings-table">
-                                                <tr>
-                                                    <td style="width: 30%; border: none; text-align: left;">AO</td>
-                                                    <td style="width: 70%; border: none; text-align: left;">Always
-                                                        Observed</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="border: none; text-align: left;">SO</td>
-                                                    <td style="border: none; text-align: left;">Sometimes Observed</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="border: none; text-align: left;">RO</td>
-                                                    <td style="border: none; text-align: left;">Rarely Observed</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="border: none; text-align: left;">NO</td>
-                                                    <td style="border: none; text-align: left;">Not Observed</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                        <div class="ratings-section">
-                                            <h4
-                                                style="margin-bottom: 10px; text-align: center; font-weight:800; font-size: 12px">
-                                                Non-numerical Rating</h4>
-                                            <table class="ratings-table">
-                                                <tr>
-                                                    <td style="width: 30%; border: none; text-align: left;">AO</td>
-                                                    <td style="width: 70%; border: none; text-align: left;">Always
-                                                        Observed</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="border: none; text-align: left;">SO</td>
-                                                    <td style="border: none; text-align: left;">Sometimes Observed</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="border: none; text-align: left;">RO</td>
-                                                    <td style="border: none; text-align: left;">Rarely Observed</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="border: none; text-align: left;">NO</td>
-                                                    <td style="border: none; text-align: left;">Not Observed</td>
-                                                </tr>
-                                            </table>
+                                            <div class="grid grid-cols-2">
+                                                <h4 style="margin-bottom: 10px; text-align: center; font-weight:800; font-size: 12px">
+                                                    Marking
+                                                </h4>
+                                                <h4 style="margin-bottom: 10px; text-align: center; font-weight:800; font-size: 12px">
+                                                    Non-numerical Rating
+                                                </h4>
+                                            </div>
+                                            <div class="grid grid-cols-2">
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">AO</p>
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">Always Observed</p>
+                                            </div>
+                                            <div class="grid grid-cols-2">
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">SO</p>
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">Sometimes Observed</p>
+                                            </div>
+                                            <div class="grid grid-cols-2">
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">RO</p>
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">Rarely Observed</p>
+                                            </div>
+                                            <div class="grid grid-cols-2">
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">NO</p>
+                                                <p style="margin-bottom: 10px; text-align: center; font-size: 12px">Not Observed</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

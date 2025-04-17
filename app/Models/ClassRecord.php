@@ -141,4 +141,9 @@ class ClassRecord extends Model
     {
         return $this->belongsTo(SchoolInfo::class);
     }
+
+    public function enrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
 }

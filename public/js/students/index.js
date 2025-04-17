@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchInput');
     const teacherFilter = document.getElementById('teacherFilter');
     const yearLevelFilter = document.getElementById('yearLevelFilter');
@@ -12,44 +12,64 @@ document.addEventListener('DOMContentLoaded', function() {
     // Filter Table Function
     function filterTable() {
         const searchTerm = searchInput.value.toLowerCase();
-        const selectedTeacher = teacherFilter ? teacherFilter.value : ''; // Only apply if it exists
+        const selectedTeacher = teacherFilter ? teacherFilter.value : '';
         const selectedYearLevel = yearLevelFilter.value;
         const selectedSchoolYear = schoolYearFilter.value;
 
-        const urlParams = new URLSearchParams(window.location.search);
+        const urlParams = new URLSearchParams();
 
         if (searchTerm) {
             urlParams.set('search', searchTerm);
-        } else {
-            urlParams.delete('search');
         }
 
         if (selectedYearLevel) {
             urlParams.set('year_level_id', selectedYearLevel);
-        } else {
-            urlParams.delete('year_level_id');
         }
 
         if (selectedSchoolYear) {
             urlParams.set('school_year_id', selectedSchoolYear);
-        } else {
-            urlParams.delete('school_year_id');
         }
 
         // Only apply teacher filter for admins
-        if (teacherFilter && selectedTeacher) {
+        if (teacherFilter && selectedTeacher && teacherFilter.disabled === false) {
             urlParams.set('user_id', selectedTeacher);
-        } else {
-            urlParams.delete('user_id');
         }
 
+        // Get current page if it exists
+        const currentPage = new URLSearchParams(window.location.search).get('page');
+        if (currentPage) {
+            urlParams.set('page', currentPage);
+        }
+
+        // Reload the page with new filters
         window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
     }
+
+    // Event listeners for search and filters
+    let filterTimeout;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(filterTable, 1000); // Debounce search
+    });
+
+    // Add event listeners for filters
+    [teacherFilter, yearLevelFilter, schoolYearFilter].forEach(filter => {
+        if (filter) {
+            filter.addEventListener('change', () => {
+                // Reset to first page when changing filters
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.delete('page');
+                window.history.replaceState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+
+                filterTable();
+            });
+        }
+    });
 
 
     // Update URL with current page when clicking pagination links
     document.querySelectorAll('.pagination a').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const url = new URL(this.href);
             // Preserve existing filters
@@ -71,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Select All Checkbox Functionality
-    selectAllCheckbox.addEventListener('change', function() {
+    selectAllCheckbox.addEventListener('change', function () {
         studentCheckboxes.forEach(checkbox => {
             const row = checkbox.closest('tr');
             if (row.style.display !== 'none') {
@@ -81,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Export CSV Functionality
-    exportCsvButton.addEventListener('click', function() {
+    exportCsvButton.addEventListener('click', function () {
         const selectedStudents = Array.from(studentCheckboxes)
             .filter(checkbox => checkbox.checked)
             .map(checkbox => {
@@ -113,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'year_level_id', 'school_year_id'
                 ].join(','),
                 ...selectedStudents.map(student => [
-                    `"{{ Auth::id() }}"`,
+                    `"{{ Auth::id(user_id) }}"`,
                     `"${student.LRN_num}"`,
                     `"${student.lastname}, ${student.firstname}, ${student.middlename}, ${student.suffix}"`,
                     `"${student.age}"`,
@@ -143,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Delete Selected Functionality
-    deleteSelectedButton.addEventListener('click', function() {
+    deleteSelectedButton.addEventListener('click', function () {
         const selectedStudents = Array.from(studentCheckboxes)
             .filter(checkbox => checkbox.checked)
             .map(checkbox => checkbox.value);
@@ -151,16 +171,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedStudents.length > 0) {
             if (confirm('Are you sure you want to delete the selected students?')) {
                 fetch('/teacher/students/delete-selected', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .content,
-                        },
-                        body: JSON.stringify({
-                            students: selectedStudents
-                        })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .content,
+                    },
+                    body: JSON.stringify({
+                        students: selectedStudents
                     })
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -174,13 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Event listeners for search and filters
-    let filterTimeout;
-    searchInput.addEventListener('input', () => {
-        clearTimeout(filterTimeout);
-        filterTimeout = setTimeout(filterTable, 1000); // Debounce search
-    });
-
     teacherFilter.addEventListener('change', filterTable);
     yearLevelFilter.addEventListener('change', filterTable);
     schoolYearFilter.addEventListener('change', filterTable);
@@ -188,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set initial filter values from URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('search')) searchInput.value = urlParams.get('search');
-    if (urlParams.has('user_id')) teacherFilter.value = urlParams.get('user_id');
+    if (urlParams.has('user_id') && teacherFilter) teacherFilter.value = urlParams.get('user_id');
     if (urlParams.has('year_level_id')) yearLevelFilter.value = urlParams.get('year_level_id');
     if (urlParams.has('school_year_id')) schoolYearFilter.value = urlParams.get('school_year_id');
 });

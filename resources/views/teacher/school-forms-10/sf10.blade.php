@@ -124,18 +124,22 @@
                 <div class="bg-white border border-gray-300">
                     <h2 class="border border-black bg-gray-400 text-center font-bold">SCHOLASTIC RECORD</h2>
                     <div class="grid grid-cols-2 md:grid-cols-2 gap-x-6">
-                        {{-- year level 1 or grade 1 --}}
-                        @include('teacher.school-forms-10.grade-level.grade1')
+                        @foreach ([1, 2, 3, 4] as $yearLevelId)
+                            @php
+                                // Get data for the current year level or use defaults
+                                $yearData = $gradesByYearLevel[$yearLevelId] ?? [
+                                    'grades' => [],
+                                    'generalAverage' => null,
+                                    'enrollment' => null,
+                                ];
+                            @endphp
 
-                        {{-- year level 2 or grade 2 --}}
-                        @include('teacher.school-forms-10.grade-level.grade2')
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-2 gap-x-6 mt-4">
-                        {{-- year level 3 or grade 3 --}}
-                        @include('teacher.school-forms-10.grade-level.grade3')
-
-                        {{-- year level 4 or grade 4 --}}
-                        @include('teacher.school-forms-10.grade-level.grade4')
+                            @includeIf("teacher.school-forms-10.grade-level.grade{$yearLevelId}", [
+                                'grades' => $yearData['grades'],
+                                'generalAverage' => $yearData['generalAverage'],
+                                'enrollment' => $yearData['enrollment'],
+                            ])
+                        @endforeach
                     </div>
                 </div>
                 <p class="text-right">SFRT 2017</p>
@@ -154,11 +158,22 @@
                         <div class="border border-gray-300">
                             <h2 class="border border-black bg-gray-400 text-center font-bold">SCHOLASTIC RECORD</h2>
                             <div class="grid grid-cols-2 md:grid-cols-2 gap-x-6">
-                                {{-- year level 1 or grade 1 --}}
-                                @include('teacher.school-forms-10.grade-level.grade5')
+                                @foreach ([5, 6] as $yearLevelId)
+                                    @php
+                                        // Get data for the current year level or use defaults
+                                        $yearData = $gradesByYearLevel[$yearLevelId] ?? [
+                                            'grades' => [],
+                                            'generalAverage' => null,
+                                            'enrollment' => null,
+                                        ];
+                                    @endphp
 
-                                {{-- year level 2 or grade 2 --}}
-                                @include('teacher.school-forms-10.grade-level.grade6')
+                                    @includeIf("teacher.school-forms-10.grade-level.grade{$yearLevelId}", [
+                                        'grades' => $yearData['grades'],
+                                        'generalAverage' => $yearData['generalAverage'],
+                                        'enrollment' => $yearData['enrollment'],
+                                    ])
+                                @endforeach
                             </div>
                         </div>
                         <div class="border border-gray-300">
@@ -169,8 +184,8 @@
                                 {{-- year level 4 or grade 4 --}}
                                 @include('teacher.school-forms-10.grade-level.grade8')
                             </div>
-                        </div>
 
+                        </div>
                         <!-- For Transfer Out/Elementary School Completer Section -->
                         <div class="border border-black mt-4">
                             <div class="bg-white p-2">

@@ -250,11 +250,11 @@ h3 {
 
 .ratings-container {
     display: flex;
-    margin-top: 20px;
+    margin-top: 40px;
 }
 
 .ratings-section {
-    width: 50%;
+    width: 100%;
 }
 
 .ratings-section h4 {

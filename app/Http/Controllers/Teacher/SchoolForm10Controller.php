@@ -9,7 +9,9 @@ use App\Models\Quarter;
 use App\Http\Controllers\Controller;
 use App\Models\ClassRecord;
 use App\Models\SchoolInfo;
+use App\Models\StudentEnrollment;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class SchoolForm10Controller extends Controller
@@ -56,109 +58,85 @@ class SchoolForm10Controller extends Controller
         return view('teacher.school-forms-10.index', compact('students', 'selectedStudent', 'grades', 'yearLevel', 'schoolInfo'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    // this function is use to show the school form 10 from grade 1 to 6 where student has a record
+    // and the student is not a transferee, previously enrolled, or a new student
+    // Allow only if admin and teacher belong to the same school_info
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Request $request, $student_id)
     {
-        //
-    }
+        // Get student by student_id (should still refer to 'students.id')
+        $student = Student::where('id', $student_id)->firstOrFail();
+        $user = Auth::user();
+        $schoolInfo = SchoolInfo::first();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $request, $id)
-    {
-        $student = Student::findOrFail($id);
-        $schoolInfo = SchoolInfo::get()->first();
-        $grades = [];
+        // Restrict access
+        if (in_array($user->role, ['admin', 'teacher']) && $student->school_info_id !== $user->school_info_id) {
+            abort(403, 'You are not authorized to view this student\'s report card.');
+        }
 
-        // Fetch class records for the current year level and school year
-        $classRecords = ClassRecord::where('student_id', $id)
-            ->where('year_level_id', $student->year_level_id)
-            ->where('school_year_id', $student->school_year_id)
-            ->with(['subject', 'quarter'])
+        // Get ALL enrollments (Grade 1 to 6) for this student
+        $enrollments = StudentEnrollment::where('student_id', $student_id)
+            ->with(['yearLevel', 'schoolYear', 'teacher'])
             ->get();
 
-        // Group records by subject and quarter
-        foreach ($classRecords as $record) {
-            $subject = strtolower($record->subject->name);
-            $quarter = $record->quarter_id;
-            $grades[$subject][$quarter] = $record->quarterly_grade;
-        }
+        $gradesByYearLevel = [];
 
-        // Calculate final ratings and remarks for each subject
-        foreach ($grades as $subject => &$quarters) {
-            $quarterGrades = array_filter($quarters, 'is_numeric');
-            if (!empty($quarterGrades)) {
-                $final = round(array_sum($quarterGrades) / count($quarterGrades));
-                $quarters['final'] = $final;
-                $quarters['remarks'] = $final >= 75 ? 'Passed' : 'Failed';
+        foreach ($enrollments as $enrollment) {
+            $classRecords = ClassRecord::where('student_id', $student_id)
+                ->where('year_level_id', $enrollment->year_level_id)
+                ->where('school_year_id', $enrollment->school_year_id)
+                ->with(['subject', 'quarter'])
+                ->get();
+
+            $grades = [];
+
+            foreach ($classRecords as $record) {
+                $subject = strtolower($record->subject->name);
+                $quarter = $record->quarter_id;
+                $grades[$subject][$quarter] = $record->quarterly_grade;
             }
-        }
 
-        // Calculate MAPEH average
-        if (isset($grades['music']) && isset($grades['art']) && isset($grades['pe']) && isset($grades['health'])) {
-            $mapehGrades = [
-                'music' => $grades['music']['final'] ?? null,
-                'art' => $grades['art']['final'] ?? null,
-                'pe' => $grades['pe']['final'] ?? null,
-                'health' => $grades['health']['final'] ?? null
-            ];
+            foreach ($grades as $subject => &$quarters) {
+                $quarterGrades = array_filter($quarters, 'is_numeric');
+                if (!empty($quarterGrades)) {
+                    $final = round(array_sum($quarterGrades) / count($quarterGrades));
+                    $quarters['final'] = $final;
+                    $quarters['remarks'] = $final >= 75 ? 'Passed' : 'Failed';
+                }
+            }
 
-            $validGrades = array_filter($mapehGrades, 'is_numeric');
-            if (!empty($validGrades)) {
-                $mapehFinal = round(array_sum($validGrades) / count($validGrades));
+            // MAPEH average calculation
+            if (isset($grades['music'], $grades['art'], $grades['pe'], $grades['health'])) {
+                $mapehFinal = round(array_sum(array_filter([
+                    $grades['music']['final'] ?? 0,
+                    $grades['art']['final'] ?? 0,
+                    $grades['pe']['final'] ?? 0,
+                    $grades['health']['final'] ?? 0,
+                ], 'is_numeric')) / 4);
+
                 $grades['mapeh']['final'] = $mapehFinal;
                 $grades['mapeh']['remarks'] = $mapehFinal >= 75 ? 'Passed' : 'Failed';
             }
+
+            // General average
+            $finalGrades = array_filter(array_map(fn($g) => $g['final'] ?? null, $grades));
+            $generalAverage = !empty($finalGrades) ? round(array_sum($finalGrades) / count($finalGrades)) : null;
+
+            // Save all into array per year level
+            $gradesByYearLevel[$enrollment->year_level_id] = [
+                'grades' => $grades,
+                'generalAverage' => $generalAverage,
+                'enrollment' => $enrollment
+            ];
         }
 
-        // Calculate General Average
-        $finalGrades = [];
-        foreach ($grades as $subject => $data) {
-            if ($subject !== 'music' && $subject !== 'art' && $subject !== 'pe' && $subject !== 'health') {
-                if (isset($data['final'])) {
-                    $finalGrades[] = $data['final'];
-                }
-            }
-        }
-
-        $generalAverage = !empty($finalGrades) ? round(array_sum($finalGrades) / count($finalGrades)) : null;
-
-        return view('teacher.school-forms-10.sf10', compact('student', 'schoolInfo', 'grades', 'generalAverage'));
+        return view('teacher.school-forms-10.sf10', compact(
+            'student',
+            'user',
+            'schoolInfo',
+            'enrollments',
+            'gradesByYearLevel'
+        ));
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

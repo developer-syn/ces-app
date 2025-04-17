@@ -18,6 +18,7 @@ use App\Http\Controllers\Teacher\DashboardController;
 use App\Http\Controllers\Teacher\SummaryQuarterlyGradesController;
 use App\Http\Controllers\Teacher\PromoteStudentController;
 use App\Http\Controllers\Teacher\SchoolForm10Controller;
+use App\Http\Controllers\Teacher\AttendanceCoreValuesController;
 
 
 Route::get('/unauthorized', function () {
@@ -29,10 +30,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('school-infos', SchoolInfoController::class);
 });
 
-Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher','admin')->name('teacher.')->group(function () {
+Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher', 'admin')->name('teacher.')->group(function () {
     // Class Records CRUD routes for teachers
     Route::resource('students', StudentController::class);
     Route::resource('school-forms-10', SchoolForm10Controller::class);
+    Route::get('school-forms-10/{student_id}', [SchoolForm10Controller::class, 'show'])->name('school-forms-10.show');
     Route::resource('year-levels', YearLevelController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('subjects', SubjectController::class)->except(['index', 'create', 'edit', 'show']);
     Route::resource('quarters', QuarterController::class)->except(['index', 'create', 'edit', 'show']);
@@ -43,6 +45,11 @@ Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher','admin')->na
     Route::post('students/import', [CsvImportExportController::class, 'import'])->name('students.import');
     Route::post('students/delete-selected', [CsvImportExportController::class, 'deleteSelected'])->name('students.delete-selected');
     Route::post('students/{student}/promote', [PromoteStudentController::class, 'promote'])->name('students.promote');
+    Route::get('students/{student}/{yearLevel}/{schoolYear}', [StudentController::class, 'show'])->name('students.sf09');
+    Route::resource('attendance-core-values', AttendanceCoreValuesController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+    Route::get('attendance-core-values/create/{enrollment}', [AttendanceCoreValuesController::class, 'create'])->name('attendance-core-values.create');
+    Route::get('attendance-core-values/{attendanceCoreValue}/edit', [AttendanceCoreValuesController::class, 'edit'])->name('attendance-core-values.edit');
+    Route::put('attendance-core-values/{attendanceCoreValue}',[AttendanceCoreValuesController::class, 'update'])->name('attendance-core-values.update');
 });
 
 
@@ -65,9 +72,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Teacher-only routes
+    Route::middleware(['role:teacher|admin'])->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 });
 
 require __DIR__ . '/auth.php';

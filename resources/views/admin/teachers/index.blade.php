@@ -13,7 +13,7 @@
                     <div class="flex gap-4">
                         <input type="text" placeholder="Search..."
                             class="px-4 py-2 rounded-lg border focus:outline-none">
-                        <select class="px-4 py-2 rounded-lg border focus:outline-none">
+                        <select class=" py-2 rounded-lg border focus:outline-none">
                             <option value="">All Roles</option>
                             <option value="teacher">Teacher</option>
                             <option value="admin">Admin</option>
@@ -21,7 +21,7 @@
                     </div>
                     <a href="{{ route('admin.teachers.create') }}"
                         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                        Add New Teacher
+                        + Register Teacher
                     </a>
                 </div>
 
@@ -31,7 +31,7 @@
                             <tr>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ID</th>
+                                    #</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Name</th>
@@ -49,6 +49,9 @@
                                     Section</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    School Name</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions</th>
                             </tr>
                         </thead>
@@ -56,7 +59,7 @@
                             @foreach ($teachers as $teacher)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $teacher->id }}</td>
+                                        {{ $loop->iteration }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $teacher->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -68,9 +71,11 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" style="font-family: 'Times New Roman', Times, serif; font-weight: 700;">
-                                        {{ $teacher->yearLevel->name }}</td>
+                                        {{ $teacher->yearLevel->name ?? '-'}}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $teacher->section }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $teacher->schoolInfo->school_name ?? '-'}}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-2">
                                             <a href="{{ route('admin.teachers.edit', $teacher) }}"
@@ -96,31 +101,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Add this if you want the search and filter functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('input[type="text"]');
-            const roleSelect = document.querySelector('select');
-            const rows = document.querySelectorAll('tbody tr');
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const roleFilter = roleSelect.value.toLowerCase();
-
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    const role = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-
-                    const matchesSearch = text.includes(searchTerm);
-                    const matchesRole = !roleFilter || role.includes(roleFilter);
-
-                    row.style.display = matchesSearch && matchesRole ? '' : 'none';
-                });
-            }
-
-            searchInput.addEventListener('input', filterTable);
-            roleSelect.addEventListener('change', filterTable);
-        });
-    </script>
+    <script src="{{ asset('js/teacher/index.js') }}"></script>
 </x-app-layout>

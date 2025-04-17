@@ -53,10 +53,10 @@
                         Remarks</th>
                 </tr>
                 <tr>
-                    <th class="border border-gray-800 p-2 text-center">1</th>
-                    <th class="border border-gray-800 p-2 text-center">2</th>
-                    <th class="border border-gray-800 p-2 text-center">3</th>
-                    <th class="border border-gray-800 p-2 text-center">4</th>
+                    <th class="border border-gray-800 p-2 text-center" style="width: 10%">1</th>
+                    <th class="border border-gray-800 p-2 text-center" style="width: 10%">2</th>
+                    <th class="border border-gray-800 p-2 text-center" style="width: 10%">3</th>
+                    <th class="border border-gray-800 p-2 text-center" style="width: 10%">4</th>
                 </tr>
             </thead>
             <tbody>
@@ -122,13 +122,13 @@
                             $count++;
                         }
 
-                        $quarterlyAverages[$q] = $count > 0 ? number_format($total / $count, 2) : '';
+                        $quarterlyAverages[$q] = $count > 0 ? number_format($total / $count) : '';
                     }
 
                     // Compute final general average
                     $finalTotal = array_sum(array_filter($quarterlyAverages, 'is_numeric'));
                     $finalCount = count(array_filter($quarterlyAverages, 'is_numeric'));
-                    $finalGeneralAverage = $finalCount > 0 ? number_format($finalTotal / $finalCount, 2) : '';
+                    $finalGeneralAverage = $finalCount > 0 ? number_format($finalTotal / $finalCount) : '';
                 @endphp
 
                 @foreach ($subjects as $subject)

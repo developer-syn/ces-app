@@ -22,14 +22,6 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    // public function store(LoginRequest $request): RedirectResponse
-    // {
-    //     $request->authenticate();
-
-    //     $request->session()->regenerate();
-
-    //     return redirect()->intended(route('dashboard', absolute: false));
-    // }
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -38,15 +30,16 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         if (! Auth::attempt($request->only('email', 'password'))) {
-            return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
-            ]);
+            return back()
+                ->withErrors([
+                    'email' => 'The provided credentials do not match our records.',
+                ])
+                ->withInput(); // <-- THIS PRESERVES THE EMAIL
         }
 
-        // $request->authenticate();
         $request->session()->regenerate();
 
-        // Determine redirect based on role
+        // Role-based redirect
         $role = Auth::user()->role;
         if ($role === 'admin') {
             return redirect()->intended('/dashboard');
@@ -54,7 +47,6 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended('/dashboard');
         }
 
-        // Fallback redirect
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

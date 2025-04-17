@@ -20,6 +20,7 @@
             <x-text-input id="password" class="block mt-1 w-full"
                 type="password"
                 name="password"
+                :value="old('password')"
                 required autocomplete="current-password" />
             <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" onclick="togglePasswordVisibility()">
             <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye text-gray-500" viewBox="0 0 16 16">

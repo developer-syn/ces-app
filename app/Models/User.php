@@ -25,6 +25,8 @@ class User extends Authenticatable
         'password',
         'role',
         'year_level_id',
+        'school_info_id',
+        'created_by',
     ];
 
     public function isAdmin()
@@ -40,6 +42,11 @@ class User extends Authenticatable
     public function yearLevel()
     {
         return $this->belongsTo(YearLevel::class);
+    }
+
+    public function schoolInfo()
+    {
+        return $this->belongsTo(SchoolInfo::class);
     }
 
     /**

@@ -99,19 +99,16 @@
                         <div class="grid grid-cols-4 md:grid-cols-4 px-4 py-1">
                             <div class="flex items-center" style="width: 50rem;">
                                 <label for="credential" class="text-sm font-medium text-gray-700">School Name:</label>
-                                <div class="text-sm font-medium text-gray-700 px-4">{{ $schoolInfo->school_name }}</div>
+                                <div class="text-sm font-medium text-gray-700 px-4"></div>
                             </div>
                             <div class="flex items-center" style="width: 24rem;padding-left: 10rem;">
                                 <label for="credential" class="text-sm font-medium text-gray-700">School ID:</label>
-                                <div class="text-sm font-medium text-gray-700 px-4">{{ $schoolInfo->school_id }}</div>
+                                <div class="text-sm font-medium text-gray-700 px-4"></div>
                             </div>
                             <div class="flex items-center" style="width: 50rem;padding-left: 8rem;">
                                 <label for="credential" class="text-sm font-medium text-gray-700">Address of
                                     School:</label>
-                                <div class="text-sm font-medium text-gray-700 px-4">
-                                    {{ $schoolInfo->address ?? 'Caloc-an' }}, {{ $schoolInfo->district }},
-                                    {{ $schoolInfo->division }}
-                                </div>
+                                <div class="text-sm font-medium text-gray-700 px-4"></div>
                             </div>
                         </div>
                     </div>

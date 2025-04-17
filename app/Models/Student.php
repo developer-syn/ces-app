@@ -24,7 +24,24 @@ class Student extends Model
         'year_level_id',
         'school_year_id',
         'user_id',
+        'school_info_id',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($student) {
+            // Automatically add enrollment when a student is created
+            if ($student->year_level_id && $student->school_year_id && $student->user_id) {
+                \App\Models\StudentEnrollment::create([
+                    'student_id'     => $student->id,
+                    'year_level_id'  => $student->year_level_id,
+                    'school_year_id' => $student->school_year_id,
+                    'user_id'        => $student->user_id, // teacher who added the student
+                ]);
+            }
+        });
+    }
+
 
     public function yearLevel()
     {
@@ -58,6 +75,25 @@ class Student extends Model
 
     public function enrollments()
     {
-        return $this->hasMany(StudentEnrollment::class);
+        return $this->hasMany(StudentEnrollment::class)
+                    ->with(['yearLevel', 'schoolYear', 'attendanceCoreValues'])
+                    ->orderBy('school_year_id');
     }
+
+    public function schoolInfo()
+    {
+        return $this->belongsTo(SchoolInfo::class);
+    }
+
+    // app/Models/Student.php
+    public function enrollment()
+    {
+        return $this->hasOne(StudentEnrollment::class);
+    }
+
+    public function attendanceCoreValues()
+    {
+        return $this->hasMany(AttendanceCoreValue::class);
+    }
+    
 }
