@@ -21,7 +21,7 @@
                 @foreach ($studentsPerGrade as $gradeLevel => $sections)
                     <div class="mb-3">
                         <p class="text-lg font-bold text-gray-900">Grade {{ $gradeLevel }}:</p>
-
+                        
                         <div class="grid grid-cols-2 gap-4 ml-4">
                             @foreach ($sections as $section)
                                 <div class="flex items-center bg-white p-3 rounded-lg shadow">

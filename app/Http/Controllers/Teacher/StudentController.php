@@ -118,9 +118,113 @@ class StudentController extends Controller
         ));
     }
 
+    // public function index(Request $request)
+    // {
+    //     $user = Auth::user();
+
+    //     $query = Student::with(['enrollments' => function ($query) {
+    //         $query->latest()->limit(1); // Load only the latest enrollment
+    //     }, 'enrollments.yearLevel', 'enrollments.schoolYear', 'enrollments.teacher']);
+
+    //     // TEACHER-SPECIFIC FILTERS
+    //     if ($user->role === 'teacher') {
+    //         // Get only students where the LATEST enrollment is assigned to this teacher
+    //         $query->whereHas('enrollments', function ($q) use ($user, $request) {
+    //             $q->where('user_id', $user->id)
+    //                 ->whereRaw('id = (
+    //               SELECT MAX(id)
+    //               FROM student_enrollments
+    //               WHERE student_id = students.id
+    //           )'); // Subquery to get latest enrollment
+
+    //             // Apply filters to LATEST enrollment
+    //             if ($request->filled('year_level_id')) {
+    //                 $q->where('year_level_id', $request->year_level_id);
+    //             }
+    //             if ($request->filled('school_year_id')) {
+    //                 $q->where('school_year_id', $request->school_year_id);
+    //             }
+    //         });
+    //     }
+
+    //     // ADMIN-SPECIFIC FILTERS
+    //     elseif ($user->role === 'admin') {
+    //         $query->where('school_info_id', $user->school_info_id);
+
+    //         // Filters apply to LATEST enrollment
+    //         if ($request->filled('user_id')) {
+    //             $query->whereHas('enrollments', function ($q) use ($request) {
+    //                 $q->where('user_id', $request->user_id)
+    //                     ->whereRaw('id = (
+    //                   SELECT MAX(id)
+    //                   FROM student_enrollments
+    //                   WHERE student_id = students.id
+    //               )');
+    //             });
+    //         }
+
+    //         if ($request->filled('year_level_id')) {
+    //             $query->whereHas('enrollments', function ($q) use ($request) {
+    //                 $q->where('year_level_id', $request->year_level_id)
+    //                     ->whereRaw('id = (
+    //                   SELECT MAX(id)
+    //                   FROM student_enrollments
+    //                   WHERE student_id = students.id
+    //               )');
+    //             });
+    //         }
+
+    //         if ($request->filled('school_year_id')) {
+    //             $query->whereHas('enrollments', function ($q) use ($request) {
+    //                 $q->where('school_year_id', $request->school_year_id)
+    //                     ->whereRaw('id = (
+    //                   SELECT MAX(id)
+    //                   FROM student_enrollments
+    //                   WHERE student_id = students.id
+    //               )');
+    //             });
+    //         }
+    //     }
+
+    //     // [Keep the existing search filter code unchanged]
+
+    //     // GET ENROLLMENTS (LATEST ONLY)
+    //     $enrollmentsQuery = StudentEnrollment::with(['student', 'yearLevel', 'schoolYear'])
+    //         ->whereIn('id', function ($query) {
+    //             $query->selectRaw('MAX(id)')
+    //                 ->from('student_enrollments')
+    //                 ->groupBy('student_id');
+    //         });
+
+    //     if ($user->role === 'teacher') {
+    //         $enrollmentsQuery->where('user_id', $user->id);
+    //     }
+
+    //     // Other needed data
+    //     $students = $query->paginate(50)->withQueryString();
+    //     $yearLevels = YearLevel::all();
+    //     $schoolYears = SchoolYear::all();
+    //     $teachers = User::where('role', 'teacher')
+    //         ->when($user->role === 'admin', function ($q) use ($user) {
+    //             $q->where('school_info_id', $user->school_info_id);
+    //         })
+    //         ->get();
+    //     $enrollments = $enrollmentsQuery->orderBy('student_id');
+
+    //     return view('teacher.students.index', compact(
+    //         'students',
+    //         'yearLevels',
+    //         'schoolYears',
+    //         'teachers',
+    //         'user',
+    //         'enrollments'
+    //     ));
+    // }
     // Show the form for creating a new student
     public function create()
     {
+        $user = Auth::user();
+
         // Retrieve year levels for the dropdown selection
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
@@ -151,7 +255,6 @@ class StudentController extends Controller
 
         // ✅ Store the student and assign it to a variable
         $student = Student::create($validated);
-        dd($request->all());
 
         // Create enrollment (separately, and explicitly use Auth::id())
         \App\Models\StudentEnrollment::create([
@@ -192,55 +295,6 @@ class StudentController extends Controller
         return view('teacher.students.edit', compact('student', 'yearLevels', 'schoolYears', 'school_infos'));
     }
 
-    // public function update(Request $request, Student $student)
-    // {
-    //     // Check again on update for security
-    //     $hasAccess = StudentEnrollment::where('student_id', $student->id)
-    //         ->where('user_id', Auth::id())
-    //         ->exists();
-
-    //     if (!$hasAccess) {
-    //         abort(403, 'Unauthorized action.');
-    //     }
-
-    //     $validated = $request->validate([
-    //         'LRN_num'           => 'required|string|unique:students,LRN_num,' . $student->id,
-    //         'firstname'         => 'required|string|max:255',
-    //         'middlename'        => 'nullable|max:255',
-    //         'lastname'          => 'required|string|max:255',
-    //         'suffix'            => 'nullable|max:255',
-    //         'gender'            => 'required|string|max:255',
-    //         'age'               => 'required|string|max:255',
-    //         'section'           => 'nullable|string|max:255',
-    //         'birthdate'         => 'required|date',
-    //         'year_level_id'     => 'nullable|exists:year_levels,id',
-    //         'school_year_id'    => 'nullable|exists:school_years,id',
-    //         'school_info_id'    => 'nullable|exists:school_infos,id',
-    //     ]);
-
-    //     $oldSection = $student->section;
-    //     $oldYearLevel = $student->year_level_id;
-
-    //     $student->update($validated);
-
-    //     // Create enrollment (separately, and explicitly use Auth::id())
-    //     \App\Models\StudentEnrollment::update([
-    //         'student_id'        => $student->id,
-    //         'year_level_id'     => $validated['year_level_id'],
-    //         'school_year_id'    => $validated['school_year_id'],
-    //         'user_id'           => Auth::id(),
-    //     ]);
-
-    //     ActivityLogService::log(
-    //         'Updated Student',
-    //         'Updated ' . $student->firstname . ' ' . $student->middlename . ' ' . $student->lastname .
-    //             ': Grade ' . $oldYearLevel . ' → ' . $student->year_level_id .
-    //             ', Section ' . $oldSection . ' → ' . $student->section
-    //     );
-
-    //     return redirect()->route('teacher.students.index')
-    //         ->with('success', 'Student updated successfully.');
-    // }
     public function update(Request $request, Student $student)
     {
         // Re-verify access before update
@@ -323,7 +377,6 @@ class StudentController extends Controller
     public function show(Request $request, Student $student)
     {
         $user = Auth::user();
-
         // Get filters from URL parameters
         $yearLevelId = $request->query('yearLevel');
         $schoolYearId = $request->query('schoolYear');
@@ -458,78 +511,4 @@ class StudentController extends Controller
             'coreValues' => $coreValues
         ]);
     }
-
-
-    // school form 09 (sf09) report card of students
-    // Allow only if admin and teacher belong to the same school_info
-    // public function show(Request $request, $id)
-    // {
-    //     $student = Student::findOrFail($id);
-    //     $user = Auth::user(); // The currently logged-in user
-    //     $schoolInfo = $user->schoolInfo; // Get related SchoolInfo via relationship
-
-    //     // 🚨 Restrict access: Only allow if student and user belong to the same school
-    //     if ($user->role === 'admin' || $user->role === 'teacher') {
-    //         if ($student->school_info_id !== $user->school_info_id) {
-    //             abort(403, 'You are not authorized to view this student\'s report card.');
-    //         }
-    //     }
-
-    //     $grades = [];
-
-    //     // Fetch class records for the current year level and school year
-    //     $classRecords = ClassRecord::where('student_id', $id)
-    //         ->where('year_level_id', $student->year_level_id)
-    //         ->where('school_year_id', $student->school_year_id)
-    //         ->with(['subject', 'quarter'])
-    //         ->get();
-
-    //     // Group records by subject and quarter
-    //     foreach ($classRecords as $record) {
-    //         $subject = strtolower($record->subject->name);
-    //         $quarter = $record->quarter_id;
-    //         $grades[$subject][$quarter] = $record->quarterly_grade;
-    //     }
-
-    //     // Calculate final ratings and remarks for each subject
-    //     foreach ($grades as $subject => &$quarters) {
-    //         $quarterGrades = array_filter($quarters, 'is_numeric');
-    //         if (!empty($quarterGrades)) {
-    //             $final = round(array_sum($quarterGrades) / count($quarterGrades));
-    //             $quarters['final'] = $final;
-    //             $quarters['remarks'] = $final >= 75 ? 'Passed' : 'Failed';
-    //         }
-    //     }
-
-    //     // Calculate MAPEH average
-    //     if (isset($grades['music']) && isset($grades['art']) && isset($grades['pe']) && isset($grades['health'])) {
-    //         $mapehGrades = [
-    //             'music' => $grades['music']['final'] ?? null,
-    //             'art' => $grades['art']['final'] ?? null,
-    //             'pe' => $grades['pe']['final'] ?? null,
-    //             'health' => $grades['health']['final'] ?? null
-    //         ];
-
-    //         $validGrades = array_filter($mapehGrades, 'is_numeric');
-    //         if (!empty($validGrades)) {
-    //             $mapehFinal = round(array_sum($validGrades) / count($validGrades));
-    //             $grades['mapeh']['final'] = $mapehFinal;
-    //             $grades['mapeh']['remarks'] = $mapehFinal >= 75 ? 'Passed' : 'Failed';
-    //         }
-    //     }
-
-    //     // Calculate General Average
-    //     $finalGrades = [];
-    //     foreach ($grades as $subject => $data) {
-    //         if ($subject !== 'music' && $subject !== 'art' && $subject !== 'pe' && $subject !== 'health') {
-    //             if (isset($data['final'])) {
-    //                 $finalGrades[] = $data['final'];
-    //             }
-    //         }
-    //     }
-
-    //     $generalAverage = !empty($finalGrades) ? round(array_sum($finalGrades) / count($finalGrades)) : null;
-
-    //     return view('teacher.students.sf09', compact('student', 'schoolInfo', 'user', 'grades', 'generalAverage'));
-    // }
 }

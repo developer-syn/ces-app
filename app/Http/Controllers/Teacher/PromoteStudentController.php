@@ -37,7 +37,7 @@ class PromoteStudentController extends Controller
         }
 
         $students = $query->get();
-
+        $students = Student::with(['enrollments'])->get();
         // Get filter options
         $yearLevels = YearLevel::all();
         $schoolYears = SchoolYear::all();
@@ -90,13 +90,24 @@ class PromoteStudentController extends Controller
             return back()->with('error', 'The selected teacher does not exist.');
         }
 
+        // Update the student table with the current year level and school year
+        $student->update([
+            'year_level_id'     => $nextYearLevel->id,
+            'school_year_id'    => $nextSchoolYear->id,
+            'user_id'           => $nextTeacher->id,
+            'age'               => $student->age + 1,
+            'section'           => $nextTeacher->section,
+        ]);
+
         // Create a new enrollment record
         StudentEnrollment::create([
-            'student_id' => $student->id,
-            'year_level_id' => $nextYearLevel->id,
-            'school_year_id' => $nextSchoolYear->id,
-            'user_id' => $nextTeacher->id,
-            'school_info_id' => $schoolInfoId,
+            'student_id'        => $student->id,
+            'age'               => $student->age,
+            'section'           => $nextTeacher->section,
+            'year_level_id'     => $nextYearLevel->id,
+            'school_year_id'    => $nextSchoolYear->id,
+            'user_id'           => $nextTeacher->id,
+            'school_info_id'    => $schoolInfoId,
         ]);
 
         return redirect()->route('teacher.students.index', compact('students', 'yearLevels', 'schoolYears', 'teachers'))

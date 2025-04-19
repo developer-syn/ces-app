@@ -39,7 +39,7 @@
                 </div>
             </div>
 
-            <table class="w-full border-collapse border border-gray-800">
+            <table class="w-full border-collapse border border-gray-800"  style="height: 450px;">
                 <thead>
                     <tr>
                         <th class="border border-gray-800 p-2 text-left" rowspan="2">

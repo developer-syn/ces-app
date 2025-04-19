@@ -11,14 +11,27 @@ use App\Http\Controllers\Controller;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
+use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AttendanceCoreValuesController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request, StudentEnrollment $enrollment): View|RedirectResponse
     {
+        // Get the teacher's assigned year level(s)
+        $teacherYearLevel = auth()->user()->year_level_id; // For single assignment
+        // OR for multiple assignments:
+        // $teacherYearLevels = auth()->user()->yearLevels()->pluck('id');
+
+        // Check authorization
+        if ($enrollment->year_level_id !== $teacherYearLevel) {
+            abort(403, 'You are not authorized to access this year level');
+        }
+
         // 🧑‍🏫 If user is a teacher, only show their enrolled students
         // 🧑‍💼 If user is admin, restrict to students in the same school_info_id
         // Optional: Filter by specific teacher (only within their school)
