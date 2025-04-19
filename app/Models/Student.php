@@ -78,8 +78,8 @@ class Student extends Model
     public function enrollments()
     {
         return $this->hasMany(StudentEnrollment::class)
-                    ->with(['yearLevel', 'schoolYear', 'attendanceCoreValues'])
-                    ->orderBy('school_year_id');
+            ->with(['yearLevel', 'schoolYear', 'attendanceCoreValues'])
+            ->orderBy('school_year_id');
     }
 
     public function schoolInfo()
@@ -98,4 +98,12 @@ class Student extends Model
         return $this->hasMany(AttendanceCoreValue::class);
     }
 
+    public function latestEnrollment()
+    {
+        return $this->hasOne(StudentEnrollment::class)->latest();
+    }
+    public function student_enrollments()
+    {
+        return $this->hasOne(StudentEnrollment::class)->latest();
+    }
 }

@@ -10,15 +10,23 @@
         <div class="mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <div class="flex justify-between">
-                        <button class="bg-blue-600 text-white px-2 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-                            <a href="{{ url()->previous() }}">
-                                Go Back
-                            </a>
-                        </button>
+                    <div class="flex flex-wrap justify-between gap-4">
+                        <!-- Go Back Button -->
+                        <a href="{{ route('teacher.students.index') }}"
+                            class="inline-flex items-center px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-200 ease-in-out transform hover:scale-[1.02] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Return to Previous Page
+                        </a>
+
+                        <!-- Print Button -->
                         <button onclick="printReportCard()"
-                            class="bg-blue-600 text-white px-2 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-                            <i class="fas fa-print mr-2"></i> Print Report Card
+                                class="inline-flex items-center px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 ease-in-out transform hover:scale-[1.02] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                            </svg>
+                            Generate Printable Report
                         </button>
                     </div>
 
@@ -148,7 +156,7 @@
                                                 &nbsp;&nbsp;&nbsp;{{ $enrollment->yearLevel->name ?? '' }}
                                             </div>
                                             <span class="short-label">Section:</span>
-                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $enrollment->section ?? '' }}</div>
+                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $enrollment->section ?? $student->section }}</div>
                                             <span class="short-label">LRN:</span>
                                             <div class="line" style="flex: 0.5;">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->LRN_num }}</div>
                                         </div>

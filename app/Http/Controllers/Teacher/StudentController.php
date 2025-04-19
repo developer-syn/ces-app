@@ -23,50 +23,47 @@ class StudentController extends Controller
     {
         $user = Auth::user();
 
-        // Main student query with relationships
-        $query = Student::with(['enrollments.yearLevel', 'enrollments.schoolYear', 'enrollments.teacher']);
+        // Main student query with latest enrollment
+        $query = Student::with(['latestEnrollment' => function($q) {
+            $q->latest(); // Eager load latest enrollment
+        }]);
 
-        // If user is a teacher, only show their enrolled students
+        // For teachers: Only show students CURRENTLY assigned to them
         if ($user->role === 'teacher') {
-            $query->whereHas('enrollments', function ($q) use ($user, $request) {
-                $q->where('user_id', $user->id);
-
-                // Apply year level filter if present
-                if ($request->filled('year_level_id')) {
-                    $q->where('year_level_id', $request->year_level_id);
-                }
-
-                // Apply school year filter if present
-                if ($request->filled('school_year_id')) {
-                    $q->where('school_year_id', $request->school_year_id);
-                }
+            $query->whereHas('student_enrollments', function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+                                  WHERE student_id = students.id)');
             });
         }
-        // If user is admin
+
+        // For admins: Filter by school & optional teacher
         elseif ($user->role === 'admin') {
-            $query->where('school_info_id', $user->school_info_id);
-
-            // Filter by specific teacher if selected
-            if ($request->filled('user_id')) {
-                $query->whereHas('enrollments', function ($q) use ($request) {
-                    $q->where('user_id', $request->user_id);
-                });
-            }
-
-            // Apply year level filter if present
-            if ($request->filled('year_level_id')) {
-                $query->whereHas('enrollments', function ($q) use ($request) {
-                    $q->where('year_level_id', $request->year_level_id);
-                });
-            }
-
-            // Apply school year filter if present
-            if ($request->filled('school_year_id')) {
-                $query->whereHas('enrollments', function ($q) use ($request) {
-                    $q->where('school_year_id', $request->school_year_id);
-                });
-            }
+            $query->where('school_info_id', $user->school_info_id)
+                  ->when($request->filled('user_id'), function ($q) use ($request) {
+                      $q->whereHas('student_enrollments', function ($q) use ($request) {
+                          $q->where('user_id', $request->user_id)
+                            ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+                                            WHERE student_id = students.id)');
+                      });
+                  });
         }
+
+        // Apply filters to BOTH roles
+        $query->when($request->filled('year_level_id'), function ($q) use ($request) {
+            $q->whereHas('student_enrollments', function ($q) use ($request) {
+                $q->where('year_level_id', $request->year_level_id)
+                  ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+                                  WHERE student_id = students.id)');
+            });
+        })
+        ->when($request->filled('school_year_id'), function ($q) use ($request) {
+            $q->whereHas('student_enrollments', function ($q) use ($request) {
+                $q->where('school_year_id', $request->school_year_id)
+                  ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+                                  WHERE student_id = students.id)');
+            });
+        });
 
         // Search filter
         if ($request->filled('search')) {
@@ -76,7 +73,8 @@ class StudentController extends Controller
                     ->orWhere('LRN_num', 'like', "%{$searchTerm}%")
                     ->orWhere('middlename', 'like', "%{$searchTerm}%")
                     ->orWhere('lastname', 'like', "%{$searchTerm}%")
-                    ->orWhere('suffix', 'like', "%{$searchTerm}%");
+                    ->orWhere('suffix', 'like', "%{$searchTerm}%")
+                    ->orWhere('gender', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -118,108 +116,6 @@ class StudentController extends Controller
         ));
     }
 
-    // public function index(Request $request)
-    // {
-    //     $user = Auth::user();
-
-    //     $query = Student::with(['enrollments' => function ($query) {
-    //         $query->latest()->limit(1); // Load only the latest enrollment
-    //     }, 'enrollments.yearLevel', 'enrollments.schoolYear', 'enrollments.teacher']);
-
-    //     // TEACHER-SPECIFIC FILTERS
-    //     if ($user->role === 'teacher') {
-    //         // Get only students where the LATEST enrollment is assigned to this teacher
-    //         $query->whereHas('enrollments', function ($q) use ($user, $request) {
-    //             $q->where('user_id', $user->id)
-    //                 ->whereRaw('id = (
-    //               SELECT MAX(id)
-    //               FROM student_enrollments
-    //               WHERE student_id = students.id
-    //           )'); // Subquery to get latest enrollment
-
-    //             // Apply filters to LATEST enrollment
-    //             if ($request->filled('year_level_id')) {
-    //                 $q->where('year_level_id', $request->year_level_id);
-    //             }
-    //             if ($request->filled('school_year_id')) {
-    //                 $q->where('school_year_id', $request->school_year_id);
-    //             }
-    //         });
-    //     }
-
-    //     // ADMIN-SPECIFIC FILTERS
-    //     elseif ($user->role === 'admin') {
-    //         $query->where('school_info_id', $user->school_info_id);
-
-    //         // Filters apply to LATEST enrollment
-    //         if ($request->filled('user_id')) {
-    //             $query->whereHas('enrollments', function ($q) use ($request) {
-    //                 $q->where('user_id', $request->user_id)
-    //                     ->whereRaw('id = (
-    //                   SELECT MAX(id)
-    //                   FROM student_enrollments
-    //                   WHERE student_id = students.id
-    //               )');
-    //             });
-    //         }
-
-    //         if ($request->filled('year_level_id')) {
-    //             $query->whereHas('enrollments', function ($q) use ($request) {
-    //                 $q->where('year_level_id', $request->year_level_id)
-    //                     ->whereRaw('id = (
-    //                   SELECT MAX(id)
-    //                   FROM student_enrollments
-    //                   WHERE student_id = students.id
-    //               )');
-    //             });
-    //         }
-
-    //         if ($request->filled('school_year_id')) {
-    //             $query->whereHas('enrollments', function ($q) use ($request) {
-    //                 $q->where('school_year_id', $request->school_year_id)
-    //                     ->whereRaw('id = (
-    //                   SELECT MAX(id)
-    //                   FROM student_enrollments
-    //                   WHERE student_id = students.id
-    //               )');
-    //             });
-    //         }
-    //     }
-
-    //     // [Keep the existing search filter code unchanged]
-
-    //     // GET ENROLLMENTS (LATEST ONLY)
-    //     $enrollmentsQuery = StudentEnrollment::with(['student', 'yearLevel', 'schoolYear'])
-    //         ->whereIn('id', function ($query) {
-    //             $query->selectRaw('MAX(id)')
-    //                 ->from('student_enrollments')
-    //                 ->groupBy('student_id');
-    //         });
-
-    //     if ($user->role === 'teacher') {
-    //         $enrollmentsQuery->where('user_id', $user->id);
-    //     }
-
-    //     // Other needed data
-    //     $students = $query->paginate(50)->withQueryString();
-    //     $yearLevels = YearLevel::all();
-    //     $schoolYears = SchoolYear::all();
-    //     $teachers = User::where('role', 'teacher')
-    //         ->when($user->role === 'admin', function ($q) use ($user) {
-    //             $q->where('school_info_id', $user->school_info_id);
-    //         })
-    //         ->get();
-    //     $enrollments = $enrollmentsQuery->orderBy('student_id');
-
-    //     return view('teacher.students.index', compact(
-    //         'students',
-    //         'yearLevels',
-    //         'schoolYears',
-    //         'teachers',
-    //         'user',
-    //         'enrollments'
-    //     ));
-    // }
     // Show the form for creating a new student
     public function create()
     {
