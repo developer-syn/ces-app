@@ -33,10 +33,12 @@ class Student extends Model
             // Automatically add enrollment when a student is created
             if ($student->year_level_id && $student->school_year_id && $student->user_id) {
                 \App\Models\StudentEnrollment::create([
-                    'student_id'     => $student->id,
-                    'year_level_id'  => $student->year_level_id,
-                    'school_year_id' => $student->school_year_id,
-                    'user_id'        => $student->user_id, // teacher who added the student
+                    'student_id'        => $student->id,
+                    'age'               => $student->age,
+                    'section'           => $student->section,
+                    'year_level_id'     => $student->year_level_id,
+                    'school_year_id'    => $student->school_year_id,
+                    'user_id'           => $student->user_id, // teacher who added the student
                 ]);
             }
         });
@@ -95,5 +97,5 @@ class Student extends Model
     {
         return $this->hasMany(AttendanceCoreValue::class);
     }
-    
+
 }

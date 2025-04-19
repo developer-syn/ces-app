@@ -43,8 +43,8 @@
 
                     <!-- Personal Information Section -->
                     <div class="border-gray-300 mb-2 bg-white">
-                        <h2 class="border border-black bg-gray-400 font-bold uppercase text-center">
-                            Learner's Personal Information</h2>
+                        <h1 class="border border-black bg-gray-400 font-bold uppercase text-center mt-4 py-1">
+                            Learner's Personal Information</h1>
                         <div class="student-info px-4 mt-4">
                             <div class="student-info-row">
                                 <span class="label">LAST NAME:</span>
@@ -70,48 +70,48 @@
                     </div>
 
                     <!-- Eligibility Section -->
-                    <div class="border border-gray-300 shadow-sm bg-white">
-                        <h2 class="border border-black bg-gray-400 font-bold uppercase text-center">
-                            Eligibility for Elementary School Enrollment</h2>
+                    <div class="shadow-sm bg-white">
+                        <h1 class="border border-black bg-gray-400 font-bold uppercase text-center  py-1">
+                            Eligibility for Elementary School Enrollment</h1>
                         <div class="grid grid-cols-4 md:grid-cols-4 gap-2 px-4 py-1 mt-4">
                             <div class="flex items-center">
-                                <label for="credential" class="text-sm font-medium text-gray-700">Credential Presented
+                                <label for="credential" class="text-sm font-medium text-black">Credential Presented
                                     for
                                     Grade 1</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="credential" name="credential"
                                     class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                <label for="credential" class="text-sm font-medium text-gray-700">Kinder Progress
+                                <label for="credential" class="text-sm font-medium text-black">Kinder Progress
                                     Report</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="kinder" name="kinder"
                                     class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                <label for="kinder" class="text-sm font-medium text-gray-700">ECCD Checklist</label>
+                                <label for="kinder" class="text-sm font-medium text-black">ECCD Checklist</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="eccd" name="eccd"
                                     class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                <label for="eccd" class="text-sm font-medium text-gray-700">Kindergarten Certificate
+                                <label for="eccd" class="text-sm font-medium text-black">Kindergarten Certificate
                                     of
                                     Completion</label>
                             </div>
                         </div>
                         <div class="grid grid-cols-4 md:grid-cols-4 px-4 py-1  mb-4">
                             <div class="flex items-center" style="width: 50rem;">
-                                <label for="credential" class="text-sm font-medium text-gray-700">School Name:</label>
-                                <div class="text-sm font-medium text-gray-700 px-4">{{ $schoolInfo->school_name }}
+                                <label for="credential" class="text-sm font-medium text-black">School Name:</label>
+                                <div class="text-sm font-medium text-black px-4">{{ $schoolInfo->school_name }}
                                 </div>
                             </div>
                             <div class="flex items-center" style="width: 24rem;padding-left: 10rem;">
-                                <label for="credential" class="text-sm font-medium text-gray-700">School ID:</label>
-                                <div class="text-sm font-medium text-gray-700 px-4">{{ $schoolInfo->school_id }}</div>
+                                <label for="credential" class="text-sm font-medium text-black">School ID:</label>
+                                <div class="text-sm font-medium text-black px-4">{{ $schoolInfo->school_id }}</div>
                             </div>
                             <div class="flex items-center" style="width: 50rem;padding-left: 8rem;">
-                                <label for="credential" class="text-sm font-medium text-gray-700">Address of
+                                <label for="credential" class="text-sm font-medium text-black">Address of
                                     School:</label>
-                                <div class="text-sm font-medium text-gray-700 px-4">
+                                <div class="text-sm font-medium text-black px-4">
                                     {{ $schoolInfo->address ?? 'Caloc-an' }}, {{ $schoolInfo->district }},
                                     {{ $schoolInfo->division }}</div>
                             </div>
@@ -122,8 +122,8 @@
                 {{-- teacher.school-forms-10.sf10.blade.php --}}
                 <!-- Scholastic Record -->
                 <div class="bg-white border border-gray-300">
-                    <h2 class="border border-black bg-gray-400 text-center font-bold">SCHOLASTIC RECORD</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-2 gap-x-6">
+                    <h1 class="border border-black bg-gray-400 text-center font-bold py-1">SCHOLASTIC RECORD</h1>
+                    <div class="grid grid-cols-2 md:grid-cols-2 gap-6">
                         @foreach ([1, 2, 3, 4] as $yearLevelId)
                             @php
                                 // Get data for the current year level or use defaults
@@ -141,8 +141,8 @@
                             ])
                         @endforeach
                     </div>
+                    <p class="text-right">SFRT 2017</p>
                 </div>
-                <p class="text-right">SFRT 2017</p>
             </div>
         </div>
         <!-- second page for printing -->
@@ -150,13 +150,13 @@
             <div class="py-2">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white overflow-hidden shadow-sm sm:">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 px-2">
+                        <div class="grid grid-cols-2 gap-2 px-2">
                             <h2 class="text-left">SF10-ES</h2>
                             <h2 class="text-right">Page 2 of ___</h2>
                         </div>
                         <!-- Scholastic Record -->
                         <div class="border border-gray-300">
-                            <h2 class="border border-black bg-gray-400 text-center font-bold">SCHOLASTIC RECORD</h2>
+                            <h1 class="border border-black bg-gray-400 text-center font-bold py-1">SCHOLASTIC RECORD</h1>
                             <div class="grid grid-cols-2 md:grid-cols-2 gap-x-6">
                                 @foreach ([5, 6] as $yearLevelId)
                                     @php
@@ -223,7 +223,7 @@
 
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-2 gap-2 px-2">
+                        <div class="grid grid-cols-2 gap-2 px-2">
                             <p class="text-xs text-left italic p-1">May add Certification Box if needed</p>
                             <p class="text-xs text-right p-1">SFRT Revised 2017</p>
                         </div>

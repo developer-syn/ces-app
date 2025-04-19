@@ -4,7 +4,8 @@
         <div class="dashboard">
             <header class="header">
                 <div class="left">
-                    <img src="{{ asset('img/Seal_of_the_Department_of_Education_of_the_Philippines.png') }}" alt="DepEd Logo" class="deped-logo">
+                    <img src="{{ asset('img/Seal_of_the_Department_of_Education_of_the_Philippines.png') }}"
+                        alt="DepEd Logo" class="deped-logo">
                 </div>
                 <div class="center">
                     <h1 class="title">Class Record</h1>
@@ -151,7 +152,8 @@
                             <td>50%</td>
                             <!-- Quarterly Assessment Global -->
                             <td>
-                                <input type="number" name="global_hqa" value="0" id="hqa" oninput="calculateGrades()">
+                                <input type="number" name="global_hqa" value="0" id="hqa"
+                                    oninput="calculateGrades()">
                             </td>
                             <td>100.00</td>
                             <td>20%</td>
@@ -166,7 +168,10 @@
                             @php $index++; @endphp
                             <tr>
                                 <td>{{ $index }}</td>
-                                <td class="text-left" style="text-align: left; padding-left: 5px;">{{ ucwords(strtolower($student->lastname)) }}, {{ ucwords(strtolower($student->firstname)) }}, {{ ucwords(strtolower($student->middlename)) }}</td>
+                                <td class="text-left" style="text-align: left; padding-left: 5px;">
+                                    {{ ucwords(strtolower($student->lastname)) }},
+                                    {{ ucwords(strtolower($student->firstname)) }},
+                                    {{ ucwords(strtolower($student->middlename)) }}</td>
                                 <input type="hidden" name="student_id[]" value="{{ $student->id }}">
                                 <!-- Written Works -->
                                 @for ($i = 1; $i <= 10; $i++)
@@ -212,71 +217,180 @@
                     <!-- Form Actions -->
                     <div class="flex items-center justify-end gap-4">
                         <a href="{{ route('teacher.class-records.index') }}"
-                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                             Cancel
                         </a>
                         <button type="submit"
-                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Save
                         </button>
                     </div>
                 </form>
             @endif
         </div>
-
-        <!-- Include your JavaScript functions for recalculations -->
         <script>
             function updateGlobalTotals() {
                 let hwwTotal = 0,
                     hptTotal = 0;
+
+                // Calculate totals for written works
                 for (let i = 1; i <= 10; i++) {
-                    hwwTotal += parseFloat(document.getElementById(`hww${i}`).value) || 0;
-                    hptTotal += parseFloat(document.getElementById(`hpt${i}`).value) || 0;
+                    const score = parseFloat(document.getElementById(`hww${i}`).value) || 0;
+                    document.getElementById(`hww${i}`).value = Math.max(0, score); // Prevent negatives
+                    hwwTotal += score;
                 }
+
+                // Calculate totals for performance tasks
+                for (let i = 1; i <= 10; i++) {
+                    const score = parseFloat(document.getElementById(`hpt${i}`).value) || 0;
+                    document.getElementById(`hpt${i}`).value = Math.max(0, score); // Prevent negatives
+                    hptTotal += score;
+                }
+
+                // Update displayed totals
                 document.getElementById("hwwTotal").textContent = hwwTotal;
                 document.getElementById("hptTotal").textContent = hptTotal;
+
+                // Validate quarterly assessment header
+                const hqaInput = document.getElementById('hqa');
+                const hqaValue = parseFloat(hqaInput.value) || 0;
+                hqaInput.value = Math.max(0, hqaValue); // Prevent negatives
             }
 
             function calculateGrades(studentIndex) {
-                updateGlobalTotals();
-                let wwTotal = 0,
-                    ptTotal = 0,
-                    qaTotal = 0;
-                let globalHwwTotal = parseFloat(document.getElementById("hwwTotal").textContent) || 0;
-                let globalHptTotal = parseFloat(document.getElementById("hptTotal").textContent) || 0;
-                let hqaTotal = parseFloat(document.getElementById("hqa").value) || 0;
+                // Get all maximum possible scores
+                const maxScores = {
+                    ww: Array.from({length: 10}, (_, i) => {
+                        return parseFloat(document.getElementById(`hww${i+1}`).value) || 0;
+                    }),
+                    pt: Array.from({length: 10}, (_, i) => {
+                        return parseFloat(document.getElementById(`hpt${i+1}`).value) || 0;
+                    }),
+                    qa: parseFloat(document.getElementById('hqa').value) || 0
+                };
 
-                for (let i = 1; i <= 10; i++) {
-                    wwTotal += parseFloat(document.getElementById(`ww${studentIndex}_${i}`).value) || 0;
+                // Clamp and validate written works
+                let wwTotal = 0;
+                for(let i = 1; i <= 10; i++) {
+                    const input = document.getElementById(`ww${studentIndex}_${i}`);
+                    let value = parseFloat(input.value) || 0;
+                    const max = maxScores.ww[i-1];
+
+                    // Clamp value between 0 and max score
+                    value = Math.min(Math.max(value, 0), max);
+                    input.value = value === 0 ? '' : value; // Clear if zero
+                    wwTotal += value;
+
+                    // Visual feedback
+                    input.classList.toggle('invalid-input', value > max);
                 }
+
+                // Clamp and validate performance tasks
+                let ptTotal = 0;
+                for(let i = 1; i <= 10; i++) {
+                    const input = document.getElementById(`pt${studentIndex}_${i}`);
+                    let value = parseFloat(input.value) || 0;
+                    const max = maxScores.pt[i-1];
+
+                    // Clamp value between 0 and max score
+                    value = Math.min(Math.max(value, 0), max);
+                    input.value = value === 0 ? '' : value; // Clear if zero
+                    ptTotal += value;
+
+                    // Visual feedback
+                    input.classList.toggle('invalid-input', value > max);
+                }
+
+                // Validate quarterly assessment
+                const qaInput = document.getElementById(`qa${studentIndex}`);
+                let qaValue = parseFloat(qaInput.value) || 0;
+                qaValue = Math.min(Math.max(qaValue, 0), maxScores.qa);
+                qaInput.value = qaValue === 0 ? '' : qaValue; // Clear if zero
+                qaInput.classList.toggle('invalid-input', qaValue > maxScores.qa);
+
+                // Calculate percentages
+                const globalHwwTotal = parseFloat(document.getElementById("hwwTotal").textContent) || 1;
+                const globalHptTotal = parseFloat(document.getElementById("hptTotal").textContent) || 1;
+                const hqaTotal = maxScores.qa || 1;
+
+                // Written works calculations
+                const wwPS = (wwTotal / globalHwwTotal) * 100;
+                const wwWS = wwPS * 0.30;
                 document.getElementById(`wwTotal${studentIndex}`).textContent = wwTotal;
-
-                for (let i = 1; i <= 10; i++) {
-                    ptTotal += parseFloat(document.getElementById(`pt${studentIndex}_${i}`).value) || 0;
-                }
-                document.getElementById(`ptTotal${studentIndex}`).textContent = ptTotal;
-
-                qaTotal = parseFloat(document.getElementById(`qa${studentIndex}`).value) || 0;
-                let qaPS = hqaTotal ? (qaTotal / hqaTotal) * 100 : 0;
-                let qaWS = qaPS * 0.20;
-                document.getElementById(`qaPS${studentIndex}`).textContent = qaPS.toFixed(2);
-                document.getElementById(`qaWS${studentIndex}`).textContent = qaWS.toFixed(2);
-
-                let wwPS = globalHwwTotal ? (wwTotal / globalHwwTotal) * 100 : 0;
-                let wwWS = wwPS * 0.30;
                 document.getElementById(`wwPS${studentIndex}`).textContent = wwPS.toFixed(2);
                 document.getElementById(`wwWS${studentIndex}`).textContent = wwWS.toFixed(2);
 
-                let ptPS = globalHptTotal ? (ptTotal / globalHptTotal) * 100 : 0;
-                let ptWS = ptPS * 0.50;
+                // Performance tasks calculations
+                const ptPS = (ptTotal / globalHptTotal) * 100;
+                const ptWS = ptPS * 0.50;
+                document.getElementById(`ptTotal${studentIndex}`).textContent = ptTotal;
                 document.getElementById(`ptPS${studentIndex}`).textContent = ptPS.toFixed(2);
                 document.getElementById(`ptWS${studentIndex}`).textContent = ptWS.toFixed(2);
 
-                let initialGrade = wwWS + ptWS + qaWS;
+                // Quarterly assessment calculations
+                const qaPS = (qaValue / hqaTotal) * 100;
+                const qaWS = qaPS * 0.20;
+                document.getElementById(`qaPS${studentIndex}`).textContent = qaPS.toFixed(2);
+                document.getElementById(`qaWS${studentIndex}`).textContent = qaWS.toFixed(2);
+
+                // Calculate final grades
+                const initialGrade = wwWS + ptWS + qaWS;
                 document.getElementById(`initialGrade${studentIndex}`).value = initialGrade.toFixed(2);
                 document.getElementById(`quarterlyGrade${studentIndex}`).value = Math.round(initialGrade);
             }
-        </script>
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                // Set up header score validation
+                document.querySelectorAll('[id^="hww"], [id^="hpt"], #hqa').forEach(input => {
+                    input.addEventListener('input', function() {
+                        // Prevent negative values in header scores
+                        this.value = Math.max(0, parseFloat(this.value) || 0);
+                        updateGlobalTotals();
+
+                        // Revalidate all student scores when header scores change
+                        const studentRows = document.querySelectorAll('[id^="ww1_"]');
+                        if (studentRows.length > 0) {
+                            const totalStudents = studentRows.length / 10;
+                            for(let i = 1; i <= totalStudents; i++) {
+                                calculateGrades(i);
+                            }
+                        }
+                    });
+                });
+
+                // Initial calculations
+                updateGlobalTotals();
+
+                // Calculate grades for existing students
+                @if(isset($groupRecords))
+                    @foreach($groupRecords as $index => $detail)
+                        calculateGrades({{ $index + 1 }});
+                    @endforeach
+                @endif
+            });
+            </script>
+
+            <style>
+            .invalid-input {
+                border-color: #dc3545 !important;
+                background-color: #fff5f5 !important;
+                animation: shake 0.3s;
+            }
+
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-3px); }
+                75% { transform: translateX(3px); }
+            }
+
+            /* Remove number input arrows */
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            </style>
         </div>
     </section>
 </x-app-layout>

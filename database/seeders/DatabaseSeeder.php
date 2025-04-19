@@ -140,34 +140,17 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        /**
-         * ✅ One student from Year Level 1 (promoted with complete grades)
-         */
-        /**
-         * ✅ One student from Year Level 1 to 2 (promoted with complete grades)
-         */
-        /**
-         * ✅ One student from Year Level 1 to 3 (promoted with complete grades)
-         */
-        /**
-         * ✅ One student from Year Level 1 to 4 (promoted with complete grades)
-         */
-        /**
-         * ✅ One student from Year Level 1 to 5 (promoted with complete grades)
-         */
-        /**
-         * ✅ One student from Year Level 1 to 6 (promoted with complete grades)
-         */
-
         $singleStudent = Student::factory()->create([
             'firstname' => 'Promoted',
             'lastname' => 'Student',
+            'age' => fake()->numberBetween(8, 13),
+            'section' => $sections[array_rand($sections)],
+            'school_info_id' => 1,
         ]);
 
         foreach ($orderedYearLevels as $index => $yearLevel) {
             $randomSection = $sections[array_rand($sections)];
             $teacher = $teachers[$yearLevel->id][$randomSection] ?? null;
-
 
             if ($teacher) {
                 $schoolYear = $schoolYears[$index] ?? end($schoolYears);
@@ -175,11 +158,11 @@ class DatabaseSeeder extends Seeder
                 StudentEnrollment::create([
                     'student_id' => $singleStudent->id,
                     'age' => $singleStudent->age,
-                    'section' => $singleStudent->section,
+                    'section' => $randomSection, // Use the section assigned to this enrollment
                     'year_level_id' => $yearLevel->id,
                     'school_year_id' => $schoolYear->id,
                     'user_id' => $teacher->id,
-                    'school_info_id' => $teacher->schoolInfo->id,
+                    'school_info_id' => $teacher->school_info_id, // Make sure this is correct
                 ]);
 
                 foreach ($subjects as $subject) {

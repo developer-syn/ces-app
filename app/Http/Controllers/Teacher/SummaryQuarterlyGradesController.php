@@ -19,22 +19,30 @@ class SummaryQuarterlyGradesController extends Controller
 
         // Base query for students with their class records
         $query = Student::with(['classRecords' => function ($query) use ($request) {
-            $query->with('quarter'); // Include related models
-
-            // Apply quarter filter directly to classRecords
-            if ($quarterId = $request->input('quarter_id')) {
-                $query->where('quarter_id', $quarterId);
-            }
+            $query->with('quarter')
+                // Add these filters to eager loading
+                ->when($request->input('quarter_id'), function ($q) use ($request) {
+                    $q->where('quarter_id', $request->quarter_id);
+                })
+                ->when($request->input('school_year_id'), function ($q) use ($request) {
+                    $q->where('school_year_id', $request->school_year_id);
+                });
         }]);
 
         // Ensure that admins and teachers can only view records from their own school
         if ($user->role === 'teacher') {
-            // Teachers can only view their own students
-            $query->whereHas('classRecords', function ($q) use ($user) {
-                $q->where('user_id', $user->id) // Ensure the teacher is the one associated with the class record
-                    ->whereHas('user', function ($query) use ($user) {
-                        $query->where('school_info_id', $user->school_info_id); // Teacher's school info
-                    });
+            // If NO school year filter is applied, restrict to current year/school year
+            if (!$request->filled('school_year_id')) {
+                $query->where('year_level_id', $user->year_level_id)
+                      ->where('school_year_id', $user->school_year_id);
+            }
+
+            // Always restrict to class records created by this teacher
+            $query->whereHas('classRecords', function ($q) use ($user, $request) {
+                $q->where('user_id', $user->id) // Teacher's own records
+                  ->when($request->filled('school_year_id'), function ($q) use ($request) {
+                      $q->where('school_year_id', $request->school_year_id);
+                  });
             });
         } elseif ($user->role === 'admin') {
             // Admin can view all records within their own school only
@@ -46,8 +54,11 @@ class SummaryQuarterlyGradesController extends Controller
         }
 
         // 1) Year Level filter
+        // Filter by school year IN CLASS RECORDS (not student's current year)
         if ($yearLevel = $request->input('year_level_id')) {
-            $query->where('year_level_id', $yearLevel);
+            $query->whereHas('classRecords', function ($q) use ($yearLevel) {
+                $q->where('year_level_id', $yearLevel);
+            });
         }
 
         // 2) Section filter
@@ -62,9 +73,12 @@ class SummaryQuarterlyGradesController extends Controller
             });
         }
 
-        // Apply school year filter directly to classRecords
+        // Apply school year filter directly to classRecords ensure that the filter is applied as well to the teacher who is assigned
+        // Filter by school year IN CLASS RECORDS (not student's current year)
         if ($schoolYearId = $request->input('school_year_id')) {
-            $query->where('school_year_id', $schoolYearId);
+            $query->whereHas('classRecords', function ($q) use ($schoolYearId) {
+                $q->where('school_year_id', $schoolYearId);
+            });
         }
 
         // Apply pagination: adjust the number (25) as desired.

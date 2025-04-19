@@ -137,7 +137,7 @@
                                         </div>
                                         <div class="student-info-row">
                                             <span class="label">Age:</span>
-                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $student->age ?? '' }}</div>
+                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $enrollment->age ?? '' }}</div>
                                             <span class="short-label">Sex:</span>
                                             <div class="line" style="flex: 0.7;">&nbsp;&nbsp;&nbsp;{{ $student->gender ?? '' }}</div>
                                         </div>
@@ -148,7 +148,7 @@
                                                 &nbsp;&nbsp;&nbsp;{{ $enrollment->yearLevel->name ?? '' }}
                                             </div>
                                             <span class="short-label">Section:</span>
-                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->section ?? '' }}</div>
+                                            <div class="line" style="flex: 0.3;">&nbsp;&nbsp;&nbsp;{{ $enrollment->section ?? '' }}</div>
                                             <span class="short-label">LRN:</span>
                                             <div class="line" style="flex: 0.5;">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->LRN_num }}</div>
                                         </div>

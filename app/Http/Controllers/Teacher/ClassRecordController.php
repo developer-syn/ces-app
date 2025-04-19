@@ -15,6 +15,95 @@ use App\Services\ActivityLogService;
 
 class ClassRecordController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $user = auth()->user();
+
+    //     // Base query for class records
+    //     $query = ClassRecord::query();
+
+    //     // Ensure admin and teacher can only view records from their own school
+    //     if ($user->role === 'teacher') {
+    //         $query->where('user_id', $user->id)
+    //             ->whereHas('user', function ($q) use ($user) {
+    //                 $q->where('school_info_id', $user->school_info_id);
+    //             });
+    //     } elseif ($user->role === 'admin') {
+    //         $query->whereHas('user', function ($q) use ($user) {
+    //             $q->where('school_info_id', $user->school_info_id);
+    //         });
+    //     }
+
+    //     // 1) Search filter
+    //     if ($search = $request->input('search')) {
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('subject_id', 'like', "%{$search}%")
+    //                 ->orWhere('grade_section', 'like', "%{$search}%")
+    //                 ->orWhere('school_year_id', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // 2) Subject filter (only allow 1 subject)
+    //     if ($subjectId = $request->input('subject_id')) {
+    //         $query->where('subject_id', $subjectId);
+    //     }
+
+    //     // 3) Grade & Section filter
+    //     if ($gradeSection = $request->input('grade_section')) {
+    //         $query->where('grade_section', $gradeSection);
+    //     }
+
+    //     // 4) Quarter filter
+    //     if ($quarter = $request->input('quarter_id')) {
+    //         $query->where('quarter_id', $quarter);
+    //     }
+
+    //     // 5) School Year filter
+    //     if ($schoolYear = $request->input('school_year_id')) {
+    //         $query->where('school_year_id', $schoolYear);
+    //     }
+
+    //     // Pagination (limit results to 25 per page)
+    //     $classRecords = $query->paginate(25);  // Adjust the number 25 as per your needs
+
+    //     // For the subject filter dropdown
+    //     $subjects = Subject::select('id', 'name')->get();
+
+    //     // Fetch grade sections with the user (teacher) who created them,
+    //     // then filter for unique grade_section values.
+    //     // 👀 Get teachers only within the admin’s school
+    //     // 🧑‍💼 If user is an admin, restrict grade_section to their assigned school_info_id
+    //     // Fetch grade sections correctly
+    //     if ($user->role === 'admin') {
+    //         $gradeSections = ClassRecord::whereHas('user', function ($q) use ($user) {
+    //             $q->where('school_info_id', $user->school_info_id);
+    //         })
+    //             ->select('grade_section', 'user_id') // Corrected from 'teacher' to 'grade_section'
+    //             ->with('user')
+    //             ->get()
+    //             ->unique('grade_section'); // Unique by grade_section
+    //     } else {
+    //         $gradeSections = ClassRecord::where('user_id', $user->id)
+    //             ->select('grade_section', 'user_id') // Corrected from 'teacher' to 'grade_section'
+    //             ->with('user')
+    //             ->get()
+    //             ->unique('grade_section'); // Unique by grade_section
+    //     }
+
+    //     // For quarter, if you store "First Quarter", etc.
+    //     $quarters = Quarter::select('id', 'name')->get();
+
+    //     // For school year, get available school years
+    //     $schoolYear = SchoolYear::select('id', 'name')->get();
+
+    //     return view('teacher.class-records.index', [
+    //         'classRecords'  => $classRecords,
+    //         'subjects'      => $subjects,
+    //         'gradeSections' => $gradeSections,
+    //         'quarters'      => $quarters,
+    //         'schoolYear'    => $schoolYear,
+    //     ]);
+    // }
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -22,21 +111,19 @@ class ClassRecordController extends Controller
         // Base query for class records
         $query = ClassRecord::query();
 
-        // Ensure admin and teacher can only view records from their own school
+        // Restrict access based on role and school
         if ($user->role === 'teacher') {
-            // Teachers can only view their own records and those of students in the same school
             $query->where('user_id', $user->id)
                 ->whereHas('user', function ($q) use ($user) {
                     $q->where('school_info_id', $user->school_info_id);
                 });
         } elseif ($user->role === 'admin') {
-            // Admin can view all records within their own school only
             $query->whereHas('user', function ($q) use ($user) {
                 $q->where('school_info_id', $user->school_info_id);
             });
         }
 
-        // 1) Search filter
+        // Apply search and filters
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('subject_id', 'like', "%{$search}%")
@@ -45,38 +132,45 @@ class ClassRecordController extends Controller
             });
         }
 
-        // 2) Subject filter (only allow 1 subject)
         if ($subjectId = $request->input('subject_id')) {
             $query->where('subject_id', $subjectId);
         }
 
-        // 3) Grade & Section filter
         if ($gradeSection = $request->input('grade_section')) {
             $query->where('grade_section', $gradeSection);
         }
 
-        // 4) Quarter filter
         if ($quarter = $request->input('quarter_id')) {
             $query->where('quarter_id', $quarter);
         }
 
-        // 5) School Year filter
         if ($schoolYear = $request->input('school_year_id')) {
             $query->where('school_year_id', $schoolYear);
         }
 
-        // Pagination (limit results to 25 per page)
-        $classRecords = $query->paginate(25);  // Adjust the number 25 as per your needs
+        // --- NEW: Prevent duplicate records ---
+        // Get unique IDs for each group of fields
+        $uniqueIdsQuery = clone $query;
+        $uniqueIds = $uniqueIdsQuery
+            ->selectRaw('MIN(id) as id') // Use MIN/MAX to pick one ID per group
+            ->groupBy('grade_section', 'year_level_id', 'quarter_id', 'school_year_id')
+            ->pluck('id')
+            ->toArray();
 
-        // For the subject filter dropdown
+        // Filter main query to include only unique records
+        $query->whereIn('id', $uniqueIds);
+        // --- END of changes ---
+
+        // Paginate results
+        $classRecords = $query->paginate(25);
+
+        // Prepare filter dropdowns
         $subjects = Subject::select('id', 'name')->get();
+        $quarters = Quarter::select('id', 'name')->get();
+        $schoolYearList = SchoolYear::select('id', 'name')->get();
 
-        // Fetch grade sections with the user (teacher) who created them,
-        // then filter for unique grade_section values.
-        // 👀 Get teachers only within the admin’s school
-        // 🧑‍💼 If user is an admin, restrict grade_section to their assigned school_info_id
+        // Get grade sections for dropdown
         if ($user->role === 'admin') {
-            // Admin: Fetch grade sections from records whose creating teacher belongs to admin's school.
             $gradeSections = ClassRecord::whereHas('user', function ($q) use ($user) {
                 $q->where('school_info_id', $user->school_info_id);
             })
@@ -85,7 +179,6 @@ class ClassRecordController extends Controller
                 ->get()
                 ->unique('grade_section');
         } else {
-            // Teacher: Fetch grade sections from records created by this teacher.
             $gradeSections = ClassRecord::where('user_id', $user->id)
                 ->select('grade_section', 'user_id')
                 ->with('user')
@@ -93,22 +186,14 @@ class ClassRecordController extends Controller
                 ->unique('grade_section');
         }
 
-        // For quarter, if you store "First Quarter", etc.
-        $quarters = Quarter::select('id', 'name')->get();
-
-        // For school year, get available school years
-        $schoolYear = SchoolYear::select('id', 'name')->get();
-
         return view('teacher.class-records.index', [
             'classRecords'  => $classRecords,
             'subjects'      => $subjects,
             'gradeSections' => $gradeSections,
             'quarters'      => $quarters,
-            'schoolYear'    => $schoolYear,
+            'schoolYear'    => $schoolYearList,
         ]);
     }
-
-
 
     public function create(Request $request)
     {
@@ -147,220 +232,120 @@ class ClassRecordController extends Controller
         ]);
     }
 
-    // public function store(Request $request)
-    // {
-    //     // dd($request->all());
-    //     // Validate all required fields.
-    //     $validated = $request->validate([
-    //         'quarter_id'            => 'required|exists:quarters,id',
-    //         'grade_section'         => 'required|string',
-    //         'teacher'               => 'required|string',
-    //         'subject_id'            => 'required|exists:subjects,id',
-    //         'hww'                   => 'required|array|size:10',
-    //         'hww.*'                 => 'nullable|numeric|min:0',
-    //         'hpt'                   => 'required|array|size:10',
-    //         'hpt.*'                 => 'nullable|numeric|min:0',
-    //         'global_hqa'            => 'required|numeric|min:0',
-    //         'student_id'            => 'required|array',
-    //         'student_id.*'          => 'exists:students,id',
-    //         'user_id'               => 'required|exists:users,id',
-    //         'written_works'         => 'required|array',
-    //         'performance_tasks'     => 'required|array',
-    //         'quarterly_assessment'  => 'required|array',
-    //     ]);
-
-    //     // Global header scores.
-    //     $hwwArray = array_values($validated['hww']);
-    //     $hptArray = array_values($validated['hpt']);
-    //     $globalHqa = max(floatval($validated['global_hqa']), 1);
-
-    //     // Compute global totals.
-    //     $hwwTotalGlobal = max(array_sum(array_map('floatval', $hwwArray)), 1);
-    //     $hptTotalGlobal = max(array_sum(array_map('floatval', $hptArray)), 1);
-
-    //     // Loop over each student.
-    //     foreach ($validated['student_id'] as $studentId) {
-    //         // Retrieve the student to get the year level.
-    //         $student = Student::findOrFail($studentId);
-
-    //         // Retrieve written works scores for this student.
-    //         $wwScores = isset($validated['written_works'][$studentId])
-    //             ? array_map('floatval', $validated['written_works'][$studentId])
-    //             : array_fill(0, 10, 0);
-    //         if (count($wwScores) < 10) {
-    //             $wwScores = array_pad($wwScores, 10, 0);
-    //         }
-
-    //         // Retrieve performance tasks scores for this student.
-    //         $ptScores = isset($validated['performance_tasks'][$studentId])
-    //             ? array_map('floatval', $validated['performance_tasks'][$studentId])
-    //             : array_fill(0, 10, 0);
-    //         if (count($ptScores) < 10) {
-    //             $ptScores = array_pad($ptScores, 10, 0);
-    //         }
-
-    //         // Get the student's quarterly assessment score.
-    //         $studentQuarterlyAssessment = isset($validated['quarterly_assessment'][$studentId])
-    //             ? floatval($validated['quarterly_assessment'][$studentId])
-    //             : 0;
-
-    //         // Calculate totals.
-    //         $totalWrittenWorks = array_sum($wwScores);
-    //         $totalPerformanceTasks = array_sum($ptScores);
-
-    //         // Calculate percentages and weighted scores.
-    //         $psWrittenWorks = round(($totalWrittenWorks / $hwwTotalGlobal) * 100, 2);
-    //         $wsWrittenWorks = round($psWrittenWorks * 0.30, 2);
-
-    //         $psPerformanceTasks = round(($totalPerformanceTasks / $hptTotalGlobal) * 100, 2);
-    //         $wsPerformanceTasks = round($psPerformanceTasks * 0.50, 2);
-
-    //         $psQuarterlyAssessment = round(($studentQuarterlyAssessment / $globalHqa) * 100, 2);
-    //         $wsQuarterlyAssessment = round($psQuarterlyAssessment * 0.20, 2);
-
-    //         // Compute final grades.
-    //         $initialGrade = round($wsWrittenWorks + $wsPerformanceTasks + $wsQuarterlyAssessment, 2);
-    //         $quarterlyGrade = round($initialGrade);
-
-    //         // Build data array.
-    //         $data = [
-    //             'student_id'                => $studentId,
-    //             'user_id'                   => $validated['user_id'],
-    //             'subject_id'                => $validated['subject_id'],
-    //             'grade_section'             => $validated['grade_section'],
-    //             'quarter_id'                => $validated['quarter_id'],
-    //             'year_level_id'             => $student->year_level_id, // Use the student's year level
-    //             'school_year_id'            => $student->school_year_id, // Use the student's
-    //             'teacher'                   => $validated['teacher'],
-    //             'written_works_total'       => $totalWrittenWorks,
-    //             'written_works_ps'          => $psWrittenWorks,
-    //             'written_works_ws'          => $wsWrittenWorks,
-    //             'performance_tasks_total'   => $totalPerformanceTasks,
-    //             'performance_tasks_ps'      => $psPerformanceTasks,
-    //             'performance_tasks_ws'      => $wsPerformanceTasks,
-    //             'quarterly_assessment'      => $studentQuarterlyAssessment,
-    //             'quarterly_assessment_ps'   => $psQuarterlyAssessment,
-    //             'quarterly_assessment_ws'   => $wsQuarterlyAssessment,
-    //             'initial_grade'             => $initialGrade,
-    //             'quarterly_grade'           => $quarterlyGrade,
-    //             'hww'                       => $hwwArray,   // or json_encode($hwwArray)
-    //             'hpt'                       => $hptArray,   // or json_encode($hptArray)
-    //             'global_hqa'                => $globalHqa,
-    //         ];
-
-    //         // Add individual scores.
-    //         for ($i = 1; $i <= 10; $i++) {
-    //             $data["written_work_{$i}"] = $wwScores[$i - 1];
-    //             $data["performance_task_{$i}"] = $ptScores[$i - 1];
-    //         }
-
-    //         // Create the ClassRecord and store the instance.
-    //         $classRecord = ClassRecord::create($data);
-
-    //         // ✅ Log the action
-    //         ActivityLogService::log('Added Class Record', "User: " . auth()->user()->name . " - created class record for subject: {$classRecord->subject->name}");
-    //     }
-
-    //     return redirect()
-    //         ->route('teacher.class-records.index')
-    //         ->with('success', 'Class record created successfully.');
-    // }
     public function store(Request $request)
-{
-    dd($request->all());
-    $validated = $request->validate([
-        'quarter_id' => 'required|exists:quarters,id',
-        'subject_id' => 'required|exists:subjects,id',
-        'grade_section' => 'required|string',
-        'teacher' => 'required|string',
-        'hww' => 'required|array|size:10',
-        'hww.*' => 'nullable|numeric|min:0',
-        'hpt' => 'required|array|size:10',
-        'hpt.*' => 'nullable|numeric|min:0',
-        'global_hqa' => 'required|numeric|min:0',
-        'students' => 'required|array',
-        'students.*.id' => 'required|exists:students,id',
-        'students.*.written_works' => 'nullable|array|size:10',
-        'students.*.written_works.*' => 'nullable|numeric|min:0',
-        'students.*.performance_tasks' => 'nullable|array|size:10',
-        'students.*.performance_tasks.*' => 'nullable|numeric|min:0',
-        'students.*.quarterly_assessment' => 'nullable|numeric|min:0',
-    ]);
-
-    // Create single class record
-    $classRecord = ClassRecord::create([
-        'quarter_id' => $validated['quarter_id'],
-        'subject_id' => $validated['subject_id'],
-        'user_id' => auth()->id(),
-        'grade_section' => $validated['grade_section'],
-        'teacher' => $validated['teacher'],
-        'hww' => $validated['hww'],
-        'hpt' => $validated['hpt'],
-        'global_hqa' => $validated['global_hqa'],
-        'year_level_id' => Student::find($validated['students'][0]['id'])->year_level_id,
-        'school_year_id' => Student::find($validated['students'][0]['id'])->school_year_id,
-    ]);
-
-    // Process header scores
-    $hwwTotalGlobal = max(array_sum(array_map('floatval', $validated['hww'])), 1);
-    $hptTotalGlobal = max(array_sum(array_map('floatval', $validated['hpt'])), 1);
-    $globalHqa = max(floatval($validated['global_hqa']), 1);
-
-    foreach ($validated['students'] as $studentData) {
-        $student = Student::findOrFail($studentData['id']);
-
-        // Process scores
-        $wwScores = array_map('floatval', $studentData['written_works']);
-        $ptScores = array_map('floatval', $studentData['performance_tasks']);
-        $qaScore = floatval($studentData['quarterly_assessment']);
-
-        // Calculate totals
-        $totalWW = array_sum($wwScores);
-        $totalPT = array_sum($ptScores);
-
-        // Calculate percentages and weighted scores
-        $wwPS = $hwwTotalGlobal > 0 ? round(($totalWW / $hwwTotalGlobal) * 100, 2) : 0;
-        $wwWS = round($wwPS * 0.30, 2);
-
-        $ptPS = $hptTotalGlobal > 0 ? round(($totalPT / $hptTotalGlobal) * 100, 2) : 0;
-        $ptWS = round($ptPS * 0.50, 2);
-
-        $qaPS = round(($qaScore / $globalHqa) * 100, 2);
-        $qaWS = round($qaPS * 0.20, 2);
-
-        $initialGrade = round($wwWS + $ptWS + $qaWS, 2);
-        $quarterlyGrade = round($initialGrade);
-
-        // Attach student with scores
-        $classRecord->students()->attach($student->id, [
-            'written_works' => $wwScores,
-            'performance_tasks' => $ptScores,
-            'quarterly_assessment' => $qaScore,
-            'written_works_total' => $totalWW,
-            'written_works_ps' => $wwPS,
-            'written_works_ws' => $wwWS,
-            'performance_tasks_total' => $totalPT,
-            'performance_tasks_ps' => $ptPS,
-            'performance_tasks_ws' => $ptWS,
-            'quarterly_assessment_ps' => $qaPS,
-            'quarterly_assessment_ws' => $qaWS,
-            'initial_grade' => $initialGrade,
-            'quarterly_grade' => $quarterlyGrade,
+    {
+        $validated = $request->validate([
+            'quarter_id' => 'required|exists:quarters,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'grade_section' => 'required|string',
+            'teacher' => 'required|string',
+            'hww' => 'required|array|size:10',
+            'hww.*' => 'nullable|numeric|min:0',
+            'hpt' => 'required|array|size:10',
+            'hpt.*' => 'nullable|numeric|min:0',
+            'global_hqa' => 'required|numeric|min:0',
+            'students' => 'required|array',
+            'students.*.id' => 'required|exists:students,id',
+            'students.*.written_works' => 'nullable|array|size:10',
+            'students.*.written_works.*' => 'nullable|numeric|min:0',
+            'students.*.performance_tasks' => 'nullable|array|size:10',
+            'students.*.performance_tasks.*' => 'nullable|numeric|min:0',
+            'students.*.quarterly_assessment' => 'nullable|numeric|min:0',
         ]);
 
-        // Log activity per student if needed
-        ActivityLogService::log('Added Student Grade',
-            "Added grades for {$student->name} in {$classRecord->subject->name}");
+        // Prevent duplicate ClassRecord
+        $schoolYearId = Student::find($validated['students'][0]['id'])->school_year_id;
+        $exists = ClassRecord::where('quarter_id', $validated['quarter_id'])
+            ->where('subject_id', $validated['subject_id'])
+            ->where('grade_section', $validated['grade_section'])
+            ->where('user_id', auth()->id())
+            ->where('school_year_id', $schoolYearId)
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withInput()
+                ->with('error', 'A class record already exists for this subject, quarter, and grade section.');
+        }
+
+        // Create single class record
+        $classRecord = ClassRecord::create([
+            'quarter_id' => $validated['quarter_id'],
+            'subject_id' => $validated['subject_id'],
+            'user_id' => auth()->id(),
+            'grade_section' => $validated['grade_section'],
+            'teacher' => $validated['teacher'],
+            'hww' => $validated['hww'],
+            'hpt' => $validated['hpt'],
+            'global_hqa' => $validated['global_hqa'],
+            'year_level_id' => Student::find($validated['students'][0]['id'])->year_level_id,
+            'school_year_id' => Student::find($validated['students'][0]['id'])->school_year_id,
+        ]);
+
+        // Process header scores
+        $hwwTotalGlobal = max(array_sum(array_map('floatval', $validated['hww'])), 1);
+        $hptTotalGlobal = max(array_sum(array_map('floatval', $validated['hpt'])), 1);
+        $globalHqa = max(floatval($validated['global_hqa']), 1);
+
+        foreach ($validated['students'] as $studentData) {
+            $student = Student::findOrFail($studentData['id']);
+
+            // Process scores
+            $wwScores = array_map('floatval', $studentData['written_works']);
+            $ptScores = array_map('floatval', $studentData['performance_tasks']);
+            $qaScore = floatval($studentData['quarterly_assessment']);
+
+            // Calculate totals
+            $totalWW = array_sum($wwScores);
+            $totalPT = array_sum($ptScores);
+
+            // Calculate percentages and weighted scores
+            $wwPS = $hwwTotalGlobal > 0 ? round(($totalWW / $hwwTotalGlobal) * 100, 2) : 0;
+            $wwWS = round($wwPS * 0.30, 2);
+
+            $ptPS = $hptTotalGlobal > 0 ? round(($totalPT / $hptTotalGlobal) * 100, 2) : 0;
+            $ptWS = round($ptPS * 0.50, 2);
+
+            $qaPS = round(($qaScore / $globalHqa) * 100, 2);
+            $qaWS = round($qaPS * 0.20, 2);
+
+            $initialGrade = round($wwWS + $ptWS + $qaWS, 2);
+            $quarterlyGrade = round($initialGrade);
+
+            // Attach student with scores
+            $classRecord->students()->attach($student->id, [
+                'written_works' => $wwScores,
+                'performance_tasks' => $ptScores,
+                'quarterly_assessment' => $qaScore,
+                'written_works_total' => $totalWW,
+                'written_works_ps' => $wwPS,
+                'written_works_ws' => $wwWS,
+                'performance_tasks_total' => $totalPT,
+                'performance_tasks_ps' => $ptPS,
+                'performance_tasks_ws' => $ptWS,
+                'quarterly_assessment_ps' => $qaPS,
+                'quarterly_assessment_ws' => $qaWS,
+                'initial_grade' => $initialGrade,
+                'quarterly_grade' => $quarterlyGrade,
+            ]);
+
+            // Log activity per student if needed
+            ActivityLogService::log(
+                'Added Student Grade',
+                "Added grades for {$student->name} in {$classRecord->subject->name}"
+            );
+        }
+
+        // Log main class record creation
+        ActivityLogService::log(
+            'Created Class Record',
+            "Created class record for {$classRecord->subject->name} - {$classRecord->grade_section}"
+        );
+
+        return redirect()
+            ->route('teacher.class-records.show', $classRecord)
+            ->with('success', 'Class record created successfully with all student grades');
     }
-
-    // Log main class record creation
-    ActivityLogService::log('Created Class Record',
-        "Created class record for {$classRecord->subject->name} - {$classRecord->grade_section}");
-
-    return redirect()
-        ->route('teacher.class-records.show', $classRecord)
-        ->with('success', 'Class record created successfully with all student grades');
-}
 
     public function showGroup(Request $request)
     {
@@ -435,49 +420,44 @@ class ClassRecordController extends Controller
         // dd($request->all());
         // 1) Validation rules.
         $rules = [
-            'user_id'         => 'required|exists:users,id',
-            'subject'         => 'required|string',
-            'grade_section'   => 'required|string',
-            'quarter_id'      => 'required|exists:quarters,id',
-            'school_year_id'  => 'required|exists:school_years,id',
-            'teacher'         => 'required|string',
-            'hww'             => 'required|array|size:10',
-            'hww.*'           => 'nullable|numeric|min:0',
-            'hpt'             => 'required|array|size:10',
-            'hpt.*'           => 'nullable|numeric|min:0',
-            'global_hqa'      => 'required|numeric|min:0',
-
-            // Detail fields:
-            'student_id'            => 'required|array',
-            'student_id.*'          => 'exists:students,id',
-            'written_works'         => 'required|array',     // keys = student IDs
-            'performance_tasks'     => 'required|array',     // keys = student IDs
-            'quarterly_assessment'  => 'required|array',     // keys = student IDs
+            // Removed 'user_id' from validation - use authenticated user instead
+            'subject_id'       => 'required|exists:subjects,id', // Changed from 'subject'
+            'grade_section'    => 'required|string',
+            'quarter_id'       => 'required|exists:quarters,id',
+            'school_year_id'   => 'required|exists:school_years,id',
+            'teacher'          => 'required|string',
+            'hww'              => 'required|array|size:10',
+            'hww.*'            => 'nullable|numeric|min:0',
+            'hpt'              => 'required|array|size:10',
+            'hpt.*'            => 'nullable|numeric|min:0',
+            'global_hqa'       => 'required|numeric|min:0',
+            'student_id'       => 'required|array',
+            'student_id.*'     => 'exists:students,id',
+            'written_works'    => 'required|array',
+            'performance_tasks' => 'required|array',
+            'quarterly_assessment' => 'required|array',
         ];
 
         $validated = $request->validate($rules);
 
-        // 2) Store the old group fields (the ones used to locate existing rows).
-        $oldSubject   = $classRecord->subject_id;
-        $oldQuarter   = $classRecord->quarter_id;
-        $oldGradeSec  = $classRecord->grade_section;
-        $oldSchoolYear = $classRecord->school_year_id;
+        // Use authenticated user's ID instead of request input
+        $userId = auth()->id();
 
-        // 3) Update all rows in the OLD group with new header values.
-        ClassRecord::where('subject_id', $oldSubject)
-            ->where('quarter_id', $oldQuarter)
-            ->where('grade_section', $oldGradeSec)
-            ->where('school_year_id', $oldSchoolYear)
+        // Update group records with AUTHENTICATED USER ID
+        ClassRecord::where('subject_id', $classRecord->subject_id)
+            ->where('quarter_id', $classRecord->quarter_id)
+            ->where('grade_section', $classRecord->grade_section)
+            ->where('school_year_id', $classRecord->school_year_id)
             ->update([
-                'user_id'       => $validated['user_id'],
-                'subject_id'    => $validated['subject'],
-                'grade_section' => $validated['grade_section'],
-                'quarter_id'    => $validated['quarter_id'],
-                'school_year_id'   => $validated['school_year_id'],
-                'teacher'       => $validated['teacher'],
-                'hww'           => $validated['hww'],
-                'hpt'           => $validated['hpt'],
-                'global_hqa'    => floatval($validated['global_hqa']),
+                'user_id'         => $userId, // From auth()->id()
+                'subject_id'      => $validated['subject_id'], // Corrected field
+                'grade_section'   => $validated['grade_section'],
+                'quarter_id'      => $validated['quarter_id'],
+                'school_year_id' => $validated['school_year_id'],
+                'teacher'         => $validated['teacher'],
+                'hww'            => $validated['hww'],
+                'hpt'            => $validated['hpt'],
+                'global_hqa'      => floatval($validated['global_hqa']),
             ]);
 
         // 4) Compute global totals from the new header arrays.
@@ -488,7 +468,7 @@ class ClassRecordController extends Controller
         $hptTotalGlobal = max(array_sum(array_map('floatval', $hptArray)), 1);
 
         // 5) Now retrieve the UPDATED rows using the NEW group fields from $validated.
-        $newSubject   = $validated['subject'];
+        $newSubject   = $validated['subject_id'];
         $newQuarter   = $validated['quarter_id'];
         $newGradeSec  = $validated['grade_section'];
         $newSchoolYear = $validated['school_year_id'];
@@ -601,7 +581,13 @@ class ClassRecordController extends Controller
                 $classRecord = ClassRecord::create($newData);
 
                 // Log the action for the newly created record
-                ActivityLogService::log('Updated Class Record', "User: " . auth()->id()->name . " - updated or added class record for subject ID: {$classRecord->newSubject}, grade section: {$classRecord->newGradeSec}, quarter ID: {$classRecord->newQuarter}, school year ID: {$classRecord->newSchoolYear}");
+                // Fixed activity log (auth()->user()->name instead of auth()->id()->name)
+                ActivityLogService::log(
+                    'Updated Class Record',
+                    "User: " . auth()->user()->name . " updated class record for " .
+                        "Subject ID: {$validated['subject_id']}, " .
+                        "Grade Section: {$validated['grade_section']}"
+                );
             }
         }
 
