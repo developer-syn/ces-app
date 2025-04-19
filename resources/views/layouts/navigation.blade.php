@@ -57,7 +57,7 @@
                 </div>
                 <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('teacher.summary_quarterly_grades.index')" :active="request()->routeIs('teacher.summary_quarterly_grades.index')">
-                        {{ __('Summary Quarterly Grades') }}
+                        {{ __('Quarterly Grades') }}
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
