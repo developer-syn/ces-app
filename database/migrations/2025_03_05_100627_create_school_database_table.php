@@ -159,12 +159,33 @@ return new class extends Migration
                 $table->integer("{$month}_days")->default(0);
                 $table->integer("{$month}_present")->default(0);
             }
-            $table->integer('total_days')->virtualAs(
-                'jun_days + jul_days + aug_days + sept_days + oct_days + nov_days + dec_days + jan_days + feb_days + mar_days + apr_days'
-            );
-            $table->integer('total_present')->virtualAs(
-                'jun_present + jul_present + aug_present + sept_present + oct_present + nov_present + dec_present + jan_present + feb_present + mar_present + apr_present'
-            );
+            $table->integer('total_days')->storedAs('
+                COALESCE(jun_days, 0) + 
+                COALESCE(jul_days, 0) + 
+                COALESCE(aug_days, 0) + 
+                COALESCE(sept_days, 0) + 
+                COALESCE(oct_days, 0) + 
+                COALESCE(nov_days, 0) + 
+                COALESCE(dec_days, 0) + 
+                COALESCE(jan_days, 0) + 
+                COALESCE(feb_days, 0) + 
+                COALESCE(mar_days, 0) + 
+                COALESCE(apr_days, 0)
+            ');
+            
+            $table->integer('total_present')->storedAs('
+                COALESCE(jun_present, 0) + 
+                COALESCE(jul_present, 0) + 
+                COALESCE(aug_present, 0) + 
+                COALESCE(sept_present, 0) + 
+                COALESCE(oct_present, 0) + 
+                COALESCE(nov_present, 0) + 
+                COALESCE(dec_present, 0) + 
+                COALESCE(jan_present, 0) + 
+                COALESCE(feb_present, 0) + 
+                COALESCE(mar_present, 0) + 
+                COALESCE(apr_present, 0)
+            ');
 
             // Core Values Columns
             $coreValues = [
