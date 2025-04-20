@@ -21,6 +21,7 @@
         "@fortawesome/fontawesome-svg-core": "^6.7.2",
         "@fortawesome/free-brands-svg-icons": "^6.7.2",
         "@fortawesome/free-regular-svg-icons": "^6.7.2",
-        "@fortawesome/free-solid-svg-icons": "^6.7.2"
+        "@fortawesome/free-solid-svg-icons": "^6.7.2",
+        "@vercel/speed-insights": "^1.2.0"
     }
 }

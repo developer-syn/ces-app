@@ -18,4 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->withCommands([
+        // Add any command paths if needed
+    ])
+    ->create()
+    // Vercel-specific storage configuration
+    ->useStoragePath($_ENV['APP_STORAGE_PATH'] ?? storage_path());
