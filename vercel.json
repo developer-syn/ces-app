@@ -1,53 +1,30 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "public/index.php",
-            "use": "vercel-php@0.6.0",
-            "config": {
-                "includeFiles": [
-                    "app/**",
-                    "bootstrap/**",
-                    "config/**",
-                    "public/**",
-                    "routes/**",
-                    "vendor/**"
-                ]
-            }
-        }
-    ],
+    "framework": null,
+    "functions": {
+        "api/index.php": { "runtime": "vercel-php@0.6.0" }
+    },
     "routes": [
         {
-            "src": "/build/assets/(.*)",
-            "headers": {
-                "Cache-Control": "public, max-age=31536000, immutable"
-            }
-        },
-        {
             "src": "/(.*)",
-            "dest": "/public/index.php"
+            "dest": "/api/index.php"
         }
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
-        "APP_KEY": "base64:your_generated_key",
-        "APP_URL": "https://your-domain.vercel.app",
-        "APP_STORAGE_PATH": "/tmp/storage",
+        "APP_DEBUG": "true",
+        "APP_URL": "https://ces-record-forms.vercel.app",
+        "APP_KEY": "base64:VVlH/XRyvzL7YadZ2hUWb54aytsyjlShiPWsXVPNZbQ=",
+
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
-        "APP_SERVICES_CACHE": "/tmp/app.php",
+        "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp",
+
         "CACHE_DRIVER": "array",
-        "SESSION_DRIVER": "cookie",
         "LOG_CHANNEL": "stderr",
-        "DB_CONNECTION": "mysql",
-        "DB_HOST": "your-db-host",
-        "DB_PORT": "3306",
-        "DB_DATABASE": "your-db-name",
-        "DB_USERNAME": "your-db-user",
-        "DB_PASSWORD": "your-db-password"
+        "SESSION_DRIVER": "cookie"
     }
 }
