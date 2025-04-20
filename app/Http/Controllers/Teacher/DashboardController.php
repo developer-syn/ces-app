@@ -15,7 +15,7 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $user = auth()->user(); // Get the logged-in user
+        $user = auth()->user();
 
         $totalTeachers = User::where('role', 'teacher')->count();
         $totalSubjects = Subject::count();

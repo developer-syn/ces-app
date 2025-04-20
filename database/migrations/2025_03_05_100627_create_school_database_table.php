@@ -129,29 +129,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 8. Store quarterly grades per subject for each student
-        Schema::create('summary_quarterly_grades', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->decimal('quarter_1', 5, 2)->nullable();
-            $table->decimal('quarter_2', 5, 2)->nullable();
-            $table->decimal('quarter_3', 5, 2)->nullable();
-            $table->decimal('quarter_4', 5, 2)->nullable();
-            $table->decimal('final_rating', 5, 2)->nullable();
-            $table->string('remarks')->nullable();
-            $table->timestamps();
-        });
-
-        // 9. Store overall school form (per student)
-        Schema::create('school_forms', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
-            $table->json('grades'); // JSON format: { "English": { "Q1": 85, "Q2": 88, "Q3": 90, "Q4": 87, "Final": 88, "Remarks": "Passed" }, ... }
-            $table->timestamps();
-        });
-
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -191,10 +168,10 @@ return new class extends Migration
 
             // Core Values Columns
             $coreValues = [
-                'maka_diyos',    // 1. Maka-Diyos
-                'makatao',       // 2. Makatao
-                'maka_kalikasan', // 3. Maka-kalikasan
-                'makabansa'      // 4. Makabansa
+                'maka_diyos',
+                'makatao',
+                'maka_kalikasan',
+                'makabansa'
             ];
 
             foreach ($coreValues as $value) {
@@ -213,15 +190,14 @@ return new class extends Migration
     {
         Schema::dropIfExists('attendance_core_values');
         Schema::dropIfExists('student_enrollments');
-        Schema::dropIfExists('student_grades');
         Schema::dropIfExists('class_records');
         Schema::dropIfExists('activity_logs');
-        Schema::dropIfExists('school_forms');
         Schema::dropIfExists('school_infos');
         Schema::dropIfExists('school_years');
         Schema::dropIfExists('year_levels');
         Schema::dropIfExists('students');
         Schema::dropIfExists('subjects');
+        Schema::dropIfExists('quarters');
         Schema::dropIfExists('users');
     }
 };

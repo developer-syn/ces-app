@@ -32,13 +32,17 @@
             <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
         </div>
 
-
-
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)"
                 required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        </div>
+        <div>
+            <x-input-label for="section" :value="__('Section')" />
+            <x-text-input id="section" name="section" type="text" class="mt-1 block w-full" :value="old('section', $user->section)"
+                required autofocus autocomplete="section" />
+            <x-input-error class="mt-2" :messages="$errors->get('section')" />
         </div>
 
         <div>

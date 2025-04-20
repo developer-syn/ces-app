@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Students') }}
+            {{ __('Manage Students') }}
         </h2>
     </x-slot>
     <div class="py-4">
@@ -86,7 +86,7 @@
                                 @foreach ($teachers as $teacher)
                                     <option value="{{ $teacher->id }}"
                                         {{ request('user_id') == $teacher->id ? 'selected' : '' }}>
-                                        {{ $teacher->name }} (Grade {{ $teacher->yearLevel->name ?? 'N/A' }})
+                                        {{ $teacher->name }}
                                     </option>
                                 @endforeach
                             @else
@@ -106,10 +106,6 @@
                                 <th
                                     class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
                                     <input type="checkbox" id="selectAllCheckbox">
-                                </th>
-                                <th
-                                    class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-                                    #
                                 </th>
                                 <th
                                     class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
@@ -152,234 +148,124 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($students as $student)
                                 @php
-                                    $studentEnrollment = $student->enrollments->sortByDesc('created_at')->first();
-                                    $currentEnrollment = $student->latestEnrollment;
+                                    $studentEnrollment  =  $student->enrollments->sortByDesc('created_at')->first();
                                 @endphp
                                 <tr class="hover:bg-gray-50">
                                     <td class="border-t px-6 py-4">
                                         <input type="checkbox" class="studentCheckbox" value="{{ $student->id }}">
                                     </td>
-                                    <td class="border-t px-6 py-4">{{ $loop->iteration }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->LRN_num }}</td>
                                     <td class="border-t px-6 py-4">{{ ucwords(strtolower($student->lastname)) }},
                                         {{ ucwords(strtolower($student->firstname)) }},
                                         {{ ucwords(strtolower($student->middlename ?? '-')) }},
                                         {{ ucwords(strtolower($student->suffix ?? '-')) }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->age }}</td>
-                                    <td class="border-t px-6 py-4">{{ ucwords(strtolower($student->gender)) }}</td>
+                                    <td class="border-t px-6 py-4">{{ $student->gender }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->birthdate }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->section }}</td>
                                     <td class="border-t px-6 py-4"
-                                        data-year-level="{{ $currentEnrollment->yearLevel->name ?? 'N/A' }}">
-                                        {{ $currentEnrollment->yearLevel->name ?? 'N/A' }}
+                                        data-year-level="{{ $studentEnrollment->year_level_id ?? ($student->yearLevel->id ?? '') }}">
+                                        {{ $studentEnrollment->yearLevel->name }}
                                     </td>
                                     <td class="border-t px-6 py-4"
-                                        data-school-year="{{ $currentEnrollment->yearLevel->name ?? 'N/A' }}">
-                                        {{ $currentEnrollment->schoolYear->name ?? 'N/A' }}
+                                        data-school-year="{{ $studentEnrollment->school_year_id ?? ($student->schoolYear->id ?? '') }}">
+                                        {{ $studentEnrollment->schoolYear->name }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div x-data="{ open: false, showPromoteModal: false }" class="inline-block text-left">
-                                            <!-- Dropdown trigger -->
+                                        <div x-data="{ open: false }" class=" inline-block text-left overflow-visible">
+                                            <!-- Dropdown toggle button -->
                                             <button @click="open = !open"
-                                                class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors duration-200"
-                                                aria-label="Student actions">
-                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                                </svg>
+                                                class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none">
                                                 Actions
+                                                <svg class="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd"
+                                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 01.02-1.06z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
                                             </button>
 
                                             <!-- Dropdown menu -->
                                             <div x-show="open" @click.away="open = false"
-                                                x-transition:enter="transition ease-out duration-100"
-                                                x-transition:enter-start="opacity-0 scale-95"
-                                                x-transition:enter-end="opacity-100 scale-100"
-                                                x-transition:leave="transition ease-in duration-75"
-                                                x-transition:leave-start="opacity-100 scale-100"
-                                                x-transition:leave-end="opacity-0 scale-95"
-                                                class="origin-top-right absolute right-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 divide-y divide-gray-100">
+                                                class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                                                style="overflow: visible;">
+                                                <div class="py-1">
 
-                                                <!-- Basic Actions -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <a href="{{ route('teacher.students.edit', $student->id) }}"
-                                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
-                                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                        </svg>
-                                                        Edit Student
+                                                    <a href="{{ route('teacher.students.edit', $studentEnrollment->student_id) }}"
+                                                        class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
+                                                        Edit
                                                     </a>
-                                                </div>
 
-                                                <!-- Attendance & Core Values -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <div
-                                                        class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                                        Attendance & Core Values
-                                                    </div>
-                                                    @foreach ($student->enrollments->sortBy('school_year_id') as $enrollment)
-                                                        <a href="{{ route('teacher.attendance-core-values.create', [
-                                                            'enrollment' => $enrollment->id,
-                                                            'year_level' => $enrollment->year_level_id,
-                                                            'school_year' => $enrollment->school_year_id,
-                                                        ]) }}"
-                                                            class="flex items-center justify-between px-4 py-2 text-sm hover:bg-blue-50 rounded-md group">
-                                                            <span
-                                                                class="{{ $enrollment->attendanceCoreValues()->exists() ? 'text-green-700' : 'text-gray-700' }}">
-                                                                {{ $enrollment->yearLevel->name }}
-                                                                ({{ $enrollment->schoolYear->name }})
-                                                            </span>
-                                                            @if ($enrollment->attendanceCoreValues()->exists())
-                                                                <svg class="w-4 h-4 text-green-500" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M5 13l4 4L19 7" />
-                                                                </svg>
-                                                            @endif
-                                                        </a>
-                                                    @endforeach
-                                                </div>
+                                                    <select onchange="window.location.href = this.value" class="block w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                        <option value="" selected disabled>Select Attendance&CoreValues</option>
+                                                        @foreach ($student->enrollments->sortBy('school_year_id') as $enrollment)
+                                                            @php
+                                                                $hasRecords = $enrollment->attendanceCoreValues()->exists();
+                                                            @endphp
 
-                                                <!-- Academic Records -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <div
-                                                        class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                                        Academic Records
-                                                    </div>
-                                                    @foreach ($student->enrollments->sortBy('year_level_id') as $enrollment)
-                                                        <a href="{{ route('teacher.students.show', [
-                                                            $studentEnrollment->student->id,
-                                                            'yearLevel' => $enrollment->year_level_id,
-                                                            'schoolYear' => $enrollment->school_year_id,
-                                                        ]) }}"
-                                                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
-                                                            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                            </svg>
-                                                            SF9 - Grade {{ $enrollment->yearLevel->name }}
-                                                        </a>
-                                                    @endforeach
+                                                            <option value="{{ route('teacher.attendance-core-values.create', [
+                                                                'enrollment' => $enrollment->id,
+                                                                'year_level' => $enrollment->year_level_id,
+                                                                'school_year' => $enrollment->school_year_id,
+                                                            ]) }}" class="{{ $hasRecords ? 'text-green-700' : 'text-yellow-700' }}">
+                                                                Attendance&CoreValues ({{ $enrollment->yearLevel->name }} - {{ $enrollment->schoolYear->name }})
+                                                                @if ($hasRecords) ✓ @endif
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    <select onchange="window.location.href = this.value" class="block w-full px-4 py-2 text-sm text-white-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-white-100 mt-1">
+                                                        <option value="" selected disabled>Select SF9 Record</option>
+                                                        @foreach ($student->enrollments->sortBy('year_level_id') as $enrollment)
+                                                            <option value="{{ route('teacher.students.show', [
+                                                                $studentEnrollment->student->id,
+                                                                'yearLevel' => $enrollment->year_level_id,
+                                                                'schoolYear' => $enrollment->school_year_id,
+                                                            ]) }}">
+                                                                SF09 - Grade {{ $enrollment->yearLevel->name }} ({{ $enrollment->schoolYear->name }})
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+
                                                     <a href="{{ route('teacher.school-forms-10.show', ['student_id' => $student->id]) }}"
-                                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
-                                                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                        </svg>
-                                                        SF10 Records
+                                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        SF10
                                                     </a>
-                                                </div>
 
-                                                <!-- Administrative Actions -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <button @click="showPromoteModal = true"
-                                                        class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
-                                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                                        </svg>
-                                                        Promote Student
-                                                    </button>
+                                                    <form
+                                                        action="{{ route('teacher.students.promote', $student->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <label for="user_id"
+                                                            class="px-4 block text-sm font-medium text-gray-700">Assign
+                                                            Teacher:</label>
+                                                        <select name="user_id" id="user_id" required
+                                                            class="mt-1 px-4 block w-full p-2 border-none rounded-md">
+                                                            <option value="">Select a Teacher</option>
+                                                            @foreach ($teachers as $teacher)
+                                                                <option value="{{ $teacher->id }}">
+                                                                    {{ $teacher->name }}
+                                                                    ({{ $teacher->yearLevel->name }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+
+                                                        <button type="submit"
+                                                            class="block w-full px-4 py-2 text-sm text-left text-green-700 hover:bg-green-100">
+                                                            Promote
+                                                        </button>
+                                                    </form>
 
                                                     <form
                                                         action="{{ route('teacher.students.destroy', $student->id) }}"
-                                                        method="POST"
-                                                        @submit.prevent="if(confirm('Are you sure you want to delete this student?')) $el.submit()"
-                                                        class="w-full">
+                                                        method="POST" class="block"
+                                                        onsubmit="return confirm('Are you sure you want to delete this student?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
-                                                            class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md group">
-                                                            <svg class="w-5 h-5 mr-2 text-red-600" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                            </svg>
-                                                            Delete Student
+                                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
+                                                            Delete
                                                         </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-
-                                            <!-- Promote Modal -->
-                                            <div x-show="showPromoteModal"
-                                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-                                                x-transition:enter="transition ease-out duration-150"
-                                                x-transition:enter-start="opacity-0"
-                                                x-transition:enter-end="opacity-100"
-                                                x-transition:leave="transition ease-in duration-150"
-                                                x-transition:leave-start="opacity-100"
-                                                x-transition:leave-end="opacity-0">
-                                                <div @click.away="showPromoteModal = false"
-                                                    class="bg-white rounded-xl shadow-2xl max-w-md w-full">
-                                                    <form
-                                                        action="{{ route('teacher.students.promote', $student->id) }}"
-                                                        method="POST" class="p-6">
-                                                        @csrf
-                                                        <div class="flex justify-between items-center mb-6">
-                                                            <h3 class="text-lg font-semibold">Promote Student</h3>
-                                                            <button type="button" @click="showPromoteModal = false"
-                                                                class="text-gray-500 hover:text-gray-700">
-                                                                ✕
-                                                            </button>
-                                                        </div>
-
-                                                        <div class="space-y-4">
-                                                            <div>
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700 mb-2">
-                                                                    Assign Teacher
-                                                                </label>
-                                                                <select name="user_id" id="user_id" required
-                                                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                                    <option value="">Select Teacher</option>
-                                                                    @php
-                                                                        $schoolInfoId = optional(
-                                                                            $student->enrollments->last(),
-                                                                        )->school_info_id;
-                                                                    @endphp
-
-                                                                    @forelse ($teachers->where('school_info_id', $schoolInfoId) as $teacher)
-                                                                        <option value="{{ $teacher->id }}">
-                                                                            {{ $teacher->name }}
-                                                                            ({{ $teacher->yearLevel->name ?? 'N/A' }})
-                                                                        </option>
-                                                                    @empty
-                                                                        <option disabled>
-                                                                            @if (!$schoolInfoId)
-                                                                                School information missing
-                                                                            @else
-                                                                                No teachers available in this school
-                                                                            @endif
-                                                                        </option>
-                                                                    @endforelse
-                                                                </select>
-
-                                                                <div class="flex justify-end gap-3 mt-6">
-                                                                    <button type="button"
-                                                                        @click="showPromoteModal = false"
-                                                                        class="px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                                                                        Cancel
-                                                                    </button>
-                                                                    <button type="submit"
-                                                                        class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                                                                        Promote Student
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>

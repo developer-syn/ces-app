@@ -92,15 +92,16 @@
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                         </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        <div class="flex justify-end gap-3 p-6 border-t">
+                            <a class="px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200"
                                 href="{{ route('admin.teachers.index') }}">
                                 {{ __('Cancel') }}
                             </a>
-                            <x-primary-button class="ms-4">
+                            <x-primary-button class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200">
                                 {{ __('Register') }}
                             </x-primary-button>
                         </div>
+                        
                     </form>
                 </div>
             </div>
