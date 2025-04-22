@@ -9,6 +9,12 @@ class AttendanceCoreValue extends Model
 {
     use HasFactory;
 
+    // In AttendanceCoreValue model
+    protected $primaryKey = 'id'; // Default, but good to be explicit
+    public function getRouteKeyName()
+    {
+        return 'id'; // Default, but good to be explicit
+    }
     /**
      * The attributes that are mass assignable.
      *
