@@ -70,20 +70,27 @@ class AttendanceCoreValuesController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request): RedirectResponse
-    {
+{
+    try {
         $validated = $request->validate($this->validationRules());
         $enrollment = StudentEnrollment::findOrFail($validated['student_enrollment_id']);
 
-        // Check existing records
         if ($enrollment->attendanceCoreValues()->exists()) {
             return back()->with('error', 'SF9 record already exists for this enrollment period!')
                 ->withInput();
         }
 
-        $enrollment->attendanceCoreValues()->create($validated);
-
-        return redirect()->route('teacher.students.index')->with('success', 'Attendance & Core Values record created successfully!');
+        $record = $enrollment->attendanceCoreValues()->create($validated);
+        
+        return redirect()->route('teacher.students.index')
+            ->with('success', 'Attendance & Core Values record created successfully!');
+            
+    } catch (\Exception $e) {
+        \Log::error('Error storing attendance: ' . $e->getMessage());
+        return back()->with('error', 'Failed to save records. Please try again.')
+            ->withInput();
     }
+}
 
     /**
      * Show the form for editing the specified resource.
@@ -106,17 +113,23 @@ class AttendanceCoreValuesController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, AttendanceCoreValue $attendanceCoreValue): RedirectResponse
-    {
+{
+    try {
         $validated = $request->validate($this->validationRules());
-
         $attendanceCoreValue->update($validated);
-
+        
         return redirect()->route('teacher.students.show', [
             'student' => $attendanceCoreValue->studentEnrollment->student_id,
             'year_level' => $attendanceCoreValue->studentEnrollment->year_level_id,
             'school_year' => $attendanceCoreValue->studentEnrollment->school_year_id
         ])->with('success', 'SF9 record updated successfully!');
+        
+    } catch (\Exception $e) {
+        \Log::error('Error updating attendance: ' . $e->getMessage());
+        return back()->with('error', 'Failed to update records. Please try again.')
+            ->withInput();
     }
+}
 
     /**
      * Validation rules for store and update methods
