@@ -46,10 +46,14 @@ Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher', 'admin')->n
     Route::post('students/delete-selected', [CsvImportExportController::class, 'deleteSelected'])->name('students.delete-selected');
     Route::post('students/{student}/promote', [PromoteStudentController::class, 'promote'])->name('students.promote');
     Route::get('students/{student}/{yearLevel}/{schoolYear}', [StudentController::class, 'show'])->name('students.sf09');
-    Route::resource('attendance-core-values', AttendanceCoreValuesController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
-    Route::get('attendance-core-values/create/{enrollment}', [AttendanceCoreValuesController::class, 'create'])->name('attendance-core-values.create');
-    Route::get('attendance-core-values/{attendanceCoreValue}/edit', [AttendanceCoreValuesController::class, 'edit'])->name('attendance-core-values.edit');
-    Route::put('attendance-core-values/{attendanceCoreValue}',[AttendanceCoreValuesController::class, 'update'])->name('attendance-core-values.update');
+    Route::get('attendance-core-values/create/{enrollment}', [AttendanceCoreValuesController::class, 'create'])
+        ->name('teacher.attendance-core-values.create');
+    Route::post('attendance-core-values', [AttendanceCoreValuesController::class, 'store'])
+        ->name('teacher.attendance-core-values.store'); 
+    Route::get('attendance-core-values/{attendanceCoreValue}/edit', [AttendanceCoreValuesController::class, 'edit'])
+        ->name('teacher.attendance-core-values.edit');
+    Route::put('attendance-core-values/{attendanceCoreValue}', [AttendanceCoreValuesController::class, 'update'])
+        ->name('teacher.attendance-core-values.update');
 });
 
 
