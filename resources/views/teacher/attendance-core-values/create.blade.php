@@ -4,7 +4,7 @@
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                 <h4 class="text-xl font-semibold text-gray-800">
                     {{ isset($record) ? 'Edit' : 'Add' }} Attendance & Core Values for
-                    {{ $enrollment->student->LRN_num ?? ''}}
+                    {{ $enrollment->student->LRN_num ?? '' }}
                 </h4>
                 <p class="text-gray-600">
                     Grade {{ $enrollment->yearLevel->name ?? '' }} -
@@ -14,11 +14,11 @@
 
             <div class="p-6">
                 <form method="POST"
-                    action="{{ isset($record) ?
-                        route('teacher.attendance-core-values.update', $record->id) :
-                        route('teacher.attendance-core-values.store') }}">
+                    action="{{ isset($record)
+                        ? route('teacher.attendance-core-values.update', $record->id)
+                        : route('teacher.attendance-core-values.store') }}">
                     @csrf
-                    @if(isset($record))
+                    @if (isset($record))
                         @method('PUT')
                     @endif
 
@@ -30,22 +30,29 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             @foreach (['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'] as $month)
                                 <div class="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-                                    <label class="block font-semibold text-gray-700 mb-2 text-capitalize">{{ $month }}</label>
+                                    <label
+                                        class="block font-semibold text-gray-700 mb-2 text-capitalize">{{ $month }}</label>
                                     <div class="space-y-3">
                                         <div>
+                                            <label for="{{ $month }}_days">Number of days</label>
                                             <input type="number" name="{{ $month }}_days"
+                                                id="{{ $month }}_days"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 @error($month . '_days') border-red-500 @enderror"
                                                 placeholder="School days"
-                                                value="{{ old($month . '_days', $record->{$month . '_days'} ?? '') }}">
+                                                value="{{ old($month . '_days', $record->{$month . '_days'} ?? '') }}"
+                                                min="0">
                                             @error($month . '_days')
                                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         <div>
+                                            <label for="{{ $month }}_present">Number of present</label>
                                             <input type="number" name="{{ $month }}_present"
+                                                id="{{ $month }}_present"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 @error($month . '_present') border-red-500 @enderror"
                                                 placeholder="Days present"
-                                                value="{{ old($month . '_present', $record->{$month . '_present'} ?? '') }}">
+                                                value="{{ old($month . '_present', $record->{$month . '_present'} ?? '') }}"
+                                                min="0">
                                             @error($month . '_present')
                                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                             @enderror
@@ -79,7 +86,7 @@
                                                 <select name="{{ $coreValue }}_{{ $quarter }}"
                                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 @error($coreValue . '_' . $quarter) border-red-500 @enderror">
                                                     <option value="">Select Rating</option>
-                                                    @foreach(['AO', 'SO', 'RO', 'NO'] as $rating)
+                                                    @foreach (['AO', 'SO', 'RO', 'NO'] as $rating)
                                                         <option value="{{ $rating }}"
                                                             {{ old($coreValue . '_' . $quarter, $record->{$coreValue . '_' . $quarter} ?? '') == $rating ? 'selected' : '' }}>
                                                             {{ $rating }} - @php
@@ -87,7 +94,7 @@
                                                                     'AO' => 'Always Observed',
                                                                     'SO' => 'Sometimes Observed',
                                                                     'RO' => 'Rarely Observed',
-                                                                    'NO' => 'Not Observed'
+                                                                    'NO' => 'Not Observed',
                                                                 ][$rating];
                                                             @endphp
                                                         </option>
@@ -118,4 +125,42 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all month day inputs
+            const dayInputs = document.querySelectorAll('input[id$="_days"]');
+
+            dayInputs.forEach(dayInput => {
+                const month = dayInput.id.replace('_days', '');
+                const presentInput = document.getElementById(`${month}_present`);
+
+                // Update present input max when days input changes
+                dayInput.addEventListener('input', function() {
+                    presentInput.max = this.value;
+
+                    // If present value exceeds new max, adjust it
+                    if (presentInput.value > this.value) {
+                        presentInput.value = this.value;
+                    }
+                });
+
+                // Initialize max value on page load
+                if (dayInput.value) {
+                    presentInput.max = dayInput.value;
+                }
+
+                // Validate present input when it changes
+                presentInput.addEventListener('input', function() {
+                    const maxDays = parseInt(dayInput.value) || 0;
+                    if (this.value > maxDays) {
+                        this.value = maxDays;
+                    }
+                    if (this.value < 0) {
+                        this.value = 0;
+                    }
+                });
+            });
+        });
+    </script>
 </x-app-layout>

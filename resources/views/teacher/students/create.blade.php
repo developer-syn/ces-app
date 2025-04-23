@@ -94,6 +94,8 @@
                                     <input type="date"
                                            id="birthdate"
                                            name="birthdate"
+                                           min="1900-01-01"
+                                           max="{{ date('Y-m-d') }}"
                                            required
                                            class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                            onchange="calculateAge()">
@@ -226,15 +228,30 @@
 
     <script>
         function calculateAge() {
-            const birthdate = document.getElementById('birthdate').value;
+            const birthdateInput = document.getElementById('birthdate');
+            const birthdate = birthdateInput.value;
+
+            if (!birthdate) return; // Exit if no date selected
+
             const birthDate = new Date(birthdate);
             const today = new Date();
+
+            // Check if birthdate is in the future (even if max date is set, manual entry could bypass it)
+            if (birthDate > today) {
+                alert("Birthdate cannot be in the future!");
+                birthdateInput.value = ''; // Clear the invalid date
+                document.getElementById('age').value = ''; // Clear age field
+                return;
+            }
+
             let age = today.getFullYear() - birthDate.getFullYear();
             const monthDifference = today.getMonth() - birthDate.getMonth();
+
             if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
                 age--;
             }
-            document.getElementById('age').value = age;
+
+            document.getElementById('age').value = Math.max(0, age);
         }
     </script>
 </x-app-layout>

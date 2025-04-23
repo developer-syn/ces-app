@@ -156,15 +156,9 @@ return new class extends Migration
             // Attendance Columns (School Days and Present Days)
             $months = ['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'];
             foreach ($months as $month) {
-                $table->integer("{$month}_days")->default(0);
-                $table->integer("{$month}_present")->default(0);
+                $table->integer("{$month}_days")->nullable()->default(null);
+                $table->integer("{$month}_present")->nullable()->default(null);
             }
-            $table->integer('total_days')->virtualAs(
-                'jun_days + jul_days + aug_days + sept_days + oct_days + nov_days + dec_days + jan_days + feb_days + mar_days + apr_days'
-            );
-            $table->integer('total_present')->virtualAs(
-                'jun_present + jul_present + aug_present + sept_present + oct_present + nov_present + dec_present + jan_present + feb_present + mar_present + apr_present'
-            );
 
             // Core Values Columns
             $coreValues = [
@@ -183,7 +177,7 @@ return new class extends Migration
             }
 
             $table->timestamps();
-        });
+        }); 
     }
 
     public function down(): void

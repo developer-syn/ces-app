@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
+use App\Rules\StrongPassword;
 
 class TeacherController extends Controller
 {
@@ -37,7 +38,7 @@ class TeacherController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'section' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::defaults(), new StrongPassword],
             'role' => ['required', 'string', 'max:100'],
             'year_level_id' => ['nullable', 'exists:year_levels,id'],
             'school_info_id' => ['nullable', 'exists:school_infos,id'],
@@ -59,7 +60,7 @@ class TeacherController extends Controller
         if ($admin->role === 'admin' && $teacher->school_info_id !== $admin->school_info_id) {
             abort(403, 'Unauthorized access to edit this teacher.');
         }
-        
+
         $yearLevels = YearLevel::all();
         $school_infos = SchoolInfo::all();
 

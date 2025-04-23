@@ -23,7 +23,7 @@ class AttendanceCoreValuesController extends Controller
     public function create(Request $request, StudentEnrollment $enrollment): View|RedirectResponse
     {
         // Get the teacher's assigned year level(s)
-        $teacherYearLevel = auth()->user()->year_level_id; // For single assignment
+        $teacherYearLevel = auth()->user()->year_level_id;
         // OR for multiple assignments:
         // $teacherYearLevels = auth()->user()->yearLevels()->pluck('id');
 
@@ -105,17 +105,20 @@ class AttendanceCoreValuesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AttendanceCoreValue $attendanceCoreValue): RedirectResponse
+    public function update(Request $request, AttendanceCoreValue $attendance)
     {
-        $validated = $request->validate($this->validationRules());
+        $data = $request->all();
 
-        $attendanceCoreValue->update($validated);
+        // Convert empty values to null for all month fields
+        $months = ['jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr'];
+        foreach ($months as $month) {
+            $data[$month.'_days'] = $request->input($month.'_days') ?: null;
+            $data[$month.'_present'] = $request->input($month.'_present') ?: null;
+        }
 
-        return redirect()->route('teacher.students.show', [
-            'student' => $attendanceCoreValue->studentEnrollment->student_id,
-            'year_level' => $attendanceCoreValue->studentEnrollment->year_level_id,
-            'school_year' => $attendanceCoreValue->studentEnrollment->school_year_id
-        ])->with('success', 'SF9 record updated successfully!');
+        $attendance->update($data);
+
+        return redirect()->back()->with('success', 'Attendance updated successfully');
     }
 
     /**

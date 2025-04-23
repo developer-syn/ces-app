@@ -9,11 +9,6 @@ class AttendanceCoreValue extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'student_enrollment_id',
         // Attendance months
@@ -35,54 +30,56 @@ class AttendanceCoreValue extends Model
         'makabansa_q1', 'makabansa_q2', 'makabansa_q3', 'makabansa_q4',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = ['total_days', 'total_present', 'total_absent'];
+    protected $appends = ['total_days', 'total_present', 'total_absent', 'months'];
 
-    /**
-     * Get the student enrollment that owns the attendance record.
-     */
     public function studentEnrollment()
     {
         return $this->belongsTo(StudentEnrollment::class);
     }
 
     /**
-     * Get total school days accessor.
+     * Safely get a numeric value (treat null as 0)
      */
+    protected function getNumericValue($value)
+    {
+        return $value ?? 0;
+    }
+
     public function getTotalDaysAttribute()
     {
-        return $this->jun_days + $this->jul_days + $this->aug_days +
-               $this->sept_days + $this->oct_days + $this->nov_days +
-               $this->dec_days + $this->jan_days + $this->feb_days +
-               $this->mar_days + $this->apr_days;
+        return $this->getNumericValue($this->jun_days) +
+               $this->getNumericValue($this->jul_days) +
+               $this->getNumericValue($this->aug_days) +
+               $this->getNumericValue($this->sept_days) +
+               $this->getNumericValue($this->oct_days) +
+               $this->getNumericValue($this->nov_days) +
+               $this->getNumericValue($this->dec_days) +
+               $this->getNumericValue($this->jan_days) +
+               $this->getNumericValue($this->feb_days) +
+               $this->getNumericValue($this->mar_days) +
+               $this->getNumericValue($this->apr_days);
     }
 
-    /**
-     * Get total present days accessor.
-     */
     public function getTotalPresentAttribute()
     {
-        return $this->jun_present + $this->jul_present + $this->aug_present +
-               $this->sept_present + $this->oct_present + $this->nov_present +
-               $this->dec_present + $this->jan_present + $this->feb_present +
-               $this->mar_present + $this->apr_present;
+        return $this->getNumericValue($this->jun_present) +
+               $this->getNumericValue($this->jul_present) +
+               $this->getNumericValue($this->aug_present) +
+               $this->getNumericValue($this->sept_present) +
+               $this->getNumericValue($this->oct_present) +
+               $this->getNumericValue($this->nov_present) +
+               $this->getNumericValue($this->dec_present) +
+               $this->getNumericValue($this->jan_present) +
+               $this->getNumericValue($this->feb_present) +
+               $this->getNumericValue($this->mar_present) +
+               $this->getNumericValue($this->apr_present);
     }
 
-    /**
-     * Get total absent days accessor.
-     */
     public function getTotalAbsentAttribute()
     {
-        return $this->total_days - $this->total_present;
+        return max(0, $this->total_days - $this->total_present);
     }
 
-    /**
-     * Get all months with their attendance data
-     */
     public function getMonthsAttribute()
     {
         return [
