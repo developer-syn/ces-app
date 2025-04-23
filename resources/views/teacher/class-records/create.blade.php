@@ -161,19 +161,14 @@
 
                         <!-- Detail rows for each student -->
                         @php $index = 0; @endphp
-                        @foreach ($students as $student)
-                            @php
-                                $studentEnrollment = $student->enrollments->sortByDesc('created_at')->first();
-                            @endphp
-                            @php $index++; @endphp
+                        @foreach ($students as $index => $student)
                             <tr>
                                 <td>{{ $index }}</td>
                                 <td class="text-left" style="text-align: left; padding-left: 5px;">
                                     {{ ucwords(strtolower($student->lastname)) }},
                                     {{ ucwords(strtolower($student->firstname)) }},
                                     {{ ucwords(strtolower($student->middlename)) }}</td>
-                                <input type="hidden" name="student_id[]" value="{{ $student->id }}">
-                                <!-- Written Works -->
+                                    <input type="hidden" name="students[{{ $index }}][id]" value="{{ $student->id }}">                                   <!-- Written Works -->
                                 @for ($i = 1; $i <= 10; $i++)
                                     <td>
                                         <input type="number" name="written_works[{{ $student->id }}][]"
