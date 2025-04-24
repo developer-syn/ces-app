@@ -168,7 +168,8 @@
                                     {{ ucwords(strtolower($student->lastname)) }},
                                     {{ ucwords(strtolower($student->firstname)) }},
                                     {{ ucwords(strtolower($student->middlename)) }}</td>
-                                    <input type="hidden" name="students[{{ $index }}][id]" value="{{ $student->id }}">                                   <!-- Written Works -->
+                                    <input type="hidden" name="students[{{ $index }}][id]" value="{{ $student->id }}">
+                                <!-- Written Works -->
                                 @for ($i = 1; $i <= 10; $i++)
                                     <td>
                                         <input type="number" name="written_works[{{ $student->id }}][]"
