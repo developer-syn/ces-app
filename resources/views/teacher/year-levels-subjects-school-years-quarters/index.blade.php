@@ -78,14 +78,18 @@
                                                             </svg>
                                                         </button>
                                                     </form>
-                                                    <form
+                                                    <form id="delete-year-level-{{ $yearLevel->id }}"
                                                         action="{{ route('teacher.year-levels.destroy', $yearLevel->id) }}"
                                                         method="POST" class="flex gap-4">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
+                                                        <button type="button"
                                                             class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                                                            onclick="return confirm('Are you sure you want to delete this year level?')">
+                                                            onclick="showDeleteModal(
+                                                              'delete-year-level-{{ $yearLevel->id }}',
+                                                              'Delete Year Level',
+                                                              'WARNING: This will permanently delete the year level and ALL associated student enrollments. This action cannot be undone.'
+                                                          )">
                                                             <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                                 fill="none" class="text-white"
                                                                 xmlns="http://www.w3.org/2000/svg">
@@ -293,14 +297,18 @@
                                                         </svg>
                                                     </button>
                                                 </form>
-                                                <form
+                                                <form id="delete-school-year-{{ $schoolYear->id }}"
                                                     action="{{ route('teacher.school-years.destroy', $schoolYear->id) }}"
-                                                    method="POST" class="mt-2">
+                                                    method="POST" class="flex gap-4">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit"
+                                                    <button type="button"
                                                         class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                                                        onclick="return confirm('Are you sure you want to delete this subject?')">
+                                                        onclick="showDeleteModal(
+                                                          'delete-school-year-{{ $schoolYear->id }}',
+                                                          'Delete School Year',
+                                                          'WARNING: This will permanently delete the school year and ALL associated data (classes, schedules, etc.). This action cannot be undone.'
+                                                      )">
                                                         <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                             fill="none" class="text-white"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -491,14 +499,18 @@
                                                             </svg>
                                                         </button>
                                                     </form>
-                                                    <form
+                                                    <form id="delete-subject-{{ $subject->id }}"
                                                         action="{{ route('teacher.subjects.destroy', $subject->id) }}"
-                                                        method="POST" class="flex gap-2">
+                                                        method="POST" class="flex gap-4">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
+                                                        <button type="button"
                                                             class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                                                            onclick="return confirm('Are you sure you want to delete this subject?')">
+                                                            onclick="showDeleteModal(
+                                                              'delete-subject-{{ $subject->id }}',
+                                                              'Delete Subject',
+                                                              'WARNING: This will permanently delete the subject and ALL related class materials. This action cannot be undone.'
+                                                          )">
                                                             <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                                 fill="none" class="text-white"
                                                                 xmlns="http://www.w3.org/2000/svg">
@@ -693,14 +705,18 @@
                                                             </svg>
                                                         </button>
                                                     </form>
-                                                    <form
+                                                    <form id="delete-quarterly-{{ $quarter->id }}"
                                                         action="{{ route('teacher.quarters.destroy', $quarter->id) }}"
-                                                        method="POST" class="flex gap-2">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                                                            onclick="return confirm('Are you sure you want to delete this subject?')">
+                                                        method="POST" class="flex gap-4">
+                                                      @csrf
+                                                      @method('DELETE')
+                                                      <button type="button"
+                                                          class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                                          onclick="showDeleteModal(
+                                                              'delete-quarterly-{{ $quarter->id }}',
+                                                              'Delete Quarterly',
+                                                              'WARNING: This will permanently delete the quarterly period and ALL associated grades. This action cannot be undone.'
+                                                          )">
                                                             <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                                 fill="none" class="text-white"
                                                                 xmlns="http://www.w3.org/2000/svg">
@@ -827,6 +843,53 @@
         </div>
     </div>
 
+    <!-- Reusable Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            <!-- Modal container -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div
+                        class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 mt-4">
+                        <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                <!-- Title will be inserted here -->
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500" id="modal-message">
+                                    <!-- Message will be inserted here -->
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-4">
+                    <button type="button" id="confirm-delete"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Delete
+                    </button>
+                    <button type="button" onclick="hideDeleteModal()"
+                        class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         function showAccessDeniedModal() {
             document.getElementById('accessDeniedModal').classList.remove('hidden');
@@ -836,4 +899,51 @@
             document.getElementById('accessDeniedModal').classList.add('hidden');
         }
     </script>
+    <script>
+        let currentDeleteForm = null;
+
+        function showDeleteModal(formId, title, message) {
+            // Set modal content
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+
+            // Store the form reference
+            currentDeleteForm = document.getElementById(formId);
+
+            // Show modal
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            currentDeleteForm = null;
+        }
+
+        document.getElementById('confirm-delete').addEventListener('click', function() {
+            if (currentDeleteForm) {
+                currentDeleteForm.submit();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideDeleteModal();
+            }
+        });
+    </script>
+
+    <style>
+        /* Add some transitions for smoother appearance */
+        #deleteModal {
+            transition: opacity 0.15s ease-in-out;
+        }
+
+        /* Prevent scrolling when modal is open */
+        body.overflow-hidden {
+            overflow: hidden;
+        }
+    </style>
 </x-app-layout>

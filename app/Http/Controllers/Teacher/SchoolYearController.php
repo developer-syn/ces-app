@@ -51,11 +51,14 @@ class SchoolYearController extends Controller
         return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
             ->with('success', 'School Year updated successfully.');
     }
-
-
     public function destroy(SchoolYear $schoolYear)
     {
+        if ($schoolYear->studentEnrollments()->exists()) {
+            return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
+                ->with('error', 'Cannot delete school year as it has associated enrolled students.');
+        }
+
         $schoolYear->delete();
-        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Year Level deleted successfully.');
+        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'School Year deleted successfully.');
     }
 }

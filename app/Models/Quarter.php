@@ -10,4 +10,9 @@ class Quarter extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+
+    public function studentEnrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
 }

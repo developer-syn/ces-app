@@ -25,10 +25,15 @@ class QuarterController extends Controller
         $quarter->update($request->only('name'));
         return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Quarter updated successfully.');
     }
-
+    
     public function destroy(Quarter $quarter)
     {
+        if ($quarter->studentEnrollments()->exists()) {
+            return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
+                ->with('error', 'Cannot delete Quarter as it has associated enrolled students.');
+        }
+
         $quarter->delete();
-        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Quarter deleted successfully.');
+        return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Quarter was deleted successfully.');
     }
 }

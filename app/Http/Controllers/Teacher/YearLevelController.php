@@ -25,9 +25,14 @@ class YearLevelController extends Controller
         $yearLevel->update($request->only('name'));
         return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Year Level updated successfully.');
     }
-
+    
     public function destroy(YearLevel $yearLevel)
     {
+        if ($yearLevel->studentEnrollments()->exists()) {
+            return redirect()->route('teacher.year-levels-subjects-school-years-quarters')
+                ->with('error', 'Cannot delete year level as it has associated enrolled students.');
+        }
+
         $yearLevel->delete();
         return redirect()->route('teacher.year-levels-subjects-school-years-quarters')->with('success', 'Year Level deleted successfully.');
     }

@@ -19,7 +19,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>REGION:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->region }}" disabled>
+                        <input type="text" value="{{ Auth::user()->schoolInfo->region }}" disabled>
                     </div>
                     <div class="form-group">
                         <label>DIVISION:</label>

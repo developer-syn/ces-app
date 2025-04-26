@@ -23,5 +23,10 @@ class SchoolYear extends Model
     {
         return self::where('current', true)->first();
     }
+
+    public function studentEnrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
 }
 

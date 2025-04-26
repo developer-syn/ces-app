@@ -1,4 +1,5 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<!-- Responsive Navigation Menu -->
+<nav x-data="{ open: false, schoolManagementOpen: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class=" mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -172,6 +173,42 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <!-- School Management Dropdown -->
+            <div class="px-4">
+                <button @click="schoolManagementOpen = !schoolManagementOpen" class="w-full flex justify-between items-center py-2 text-left text-gray-600 hover:text-gray-900">
+                    <span>{{ __('School Management') }}</span>
+                    <svg class="h-4 w-4" :class="{ 'transform rotate-180': schoolManagementOpen }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div x-show="schoolManagementOpen" class="pl-4 space-y-1">
+                    <x-responsive-nav-link :href="route('admin.school-infos.index')">
+                        {{ __('School Information') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.teachers.index')">
+                        {{ __('Teachers lists') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('teacher.students.index')">
+                        {{ __('Students lists') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('teacher.year-levels-subjects-school-years-quarters')">
+                        {{ __('YSYQ Management') }}
+                    </x-responsive-nav-link>
+                </div>
+            </div>
+
+            <x-responsive-nav-link :href="route('teacher.class-records.index')" :active="request()->routeIs('teacher.class-records.index')">
+                {{ __('Class Records') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('teacher.summary_quarterly_grades.index')" :active="request()->routeIs('teacher.summary_quarterly_grades.index')">
+                {{ __('Quarterly Grades') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('teacher.school-forms-10.index')" :active="request()->routeIs('teacher.school-forms-10.index')">
+                {{ __('School Form 10') }}
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
@@ -213,5 +250,14 @@
                 }, 3000);
             }
         });
+    });
+</script>
+<script>
+    // Add this to your Alpine.js component or script
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('navigation', () => ({
+            open: false,
+            schoolManagementOpen: false
+        }));
     });
 </script>

@@ -24,4 +24,9 @@ class YearLevel extends Model
     {
         return $this->hasOne(User::class);
     }
+
+    public function studentEnrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
 }
