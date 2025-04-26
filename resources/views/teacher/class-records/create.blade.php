@@ -174,8 +174,9 @@
                                 @for ($i = 1; $i <= 10; $i++)
                                     <td>
                                         <input type="number" name="written_works[{{ $student->id }}][]"
-                                            id="ww{{ $index }}_{{ $i }}"
-                                            oninput="calculateGrades({{ $index }})">
+                                            id="ww{{ $index }}_{{ $i }}" class="score-input"
+                                            data-student-index="{{ $index }}" data-type="ww"
+                                            data-task="{{ $i }}">
                                     </td>
                                 @endfor
                                 <td id="wwTotal{{ $index }}">0</td>
@@ -185,8 +186,9 @@
                                 @for ($i = 1; $i <= 10; $i++)
                                     <td>
                                         <input type="number" name="performance_tasks[{{ $student->id }}][]"
-                                            id="pt{{ $index }}_{{ $i }}"
-                                            oninput="calculateGrades({{ $index }})">
+                                            id="pt{{ $index }}_{{ $i }}" class="score-input"
+                                            data-student-index="{{ $index }}" data-type="pt"
+                                            data-task="{{ $i }}">
                                     </td>
                                 @endfor
                                 <td id="ptTotal{{ $index }}">0</td>
@@ -195,7 +197,8 @@
                                 <!-- Quarterly Assessment -->
                                 <td>
                                     <input type="number" name="quarterly_assessment[{{ $student->id }}]"
-                                        id="qa{{ $index }}" oninput="calculateGrades({{ $index }})">
+                                        id="qa{{ $index }}" class="qa-input"
+                                        data-student-index="{{ $index }}">
                                 </td>
                                 <td id="qaPS{{ $index }}">0</td>
                                 <td id="qaWS{{ $index }}">0</td>
@@ -519,42 +522,54 @@
 
             // Initialize on page load
             document.addEventListener('DOMContentLoaded', function() {
-                // Set up header score validation
-                document.querySelectorAll('[id^="hww"], [id^="hpt"], #hqa').forEach(input => {
-                    input.addEventListener('input', function() {
-                        // Prevent negative values in header scores
-                        this.value = Math.max(0, parseFloat(this.value) || 0);
-                        updateGlobalTotals();
-
-                        // Find all student rows using a better selector
-                        const studentInputs = document.querySelectorAll('[id^="ww"][id*="_"]');
-                        const studentIndices = new Set();
-
-                        // Extract unique student indices from input IDs
-                        studentInputs.forEach(input => {
-                            const matches = input.id.match(/ww(\d+)_/);
-                            if (matches && matches[1]) {
-                                studentIndices.add(parseInt(matches[1]));
-                            }
-                        });
-
-                        // Recalculate grades for all students
-                        studentIndices.forEach(index => {
-                            calculateGrades(index);
-                        });
-                    });
-                });
-
-                // Initial calculations
+                // Initialize global totals
                 updateGlobalTotals();
 
-                // Calculate grades for existing students
-                @if (isset($groupRecords))
-                    @foreach ($groupRecords as $index => $detail)
-                        calculateGrades({{ $index + 1 }});
-                    @endforeach
-                @endif
+                // Event delegation for all score inputs
+                document.addEventListener('input', function(e) {
+                    const target = e.target;
+
+                    if (target.classList.contains('score-input')) {
+                        const studentIndex = target.dataset.studentIndex;
+                        const taskType = target.dataset.type;
+                        const taskNumber = target.dataset.task;
+
+                        clampScore(target, `h${taskType}${taskNumber}`);
+                        calculateGrades(studentIndex);
+                    }
+
+                    if (target.classList.contains('qa-input')) {
+                        const studentIndex = target.dataset.studentIndex;
+                        calculateGrades(studentIndex);
+                    }
+                });
+
+                // Header inputs listener
+                document.querySelectorAll('[id^="hww"], [id^="hpt"], #hqa').forEach(input => {
+                    input.addEventListener('input', function() {
+                        this.value = Math.max(0, parseFloat(this.value) || 0);
+                        updateGlobalTotals();
+                        recalculateAllGrades();
+                    });
+                });
             });
+
+            // Global functions
+            function clampScore(input, maxScoreId) {
+                const max = parseFloat(document.getElementById(maxScoreId).value) || 0;
+                let value = parseFloat(input.value) || 0;
+                value = Math.min(Math.max(value, 0), max);
+                input.value = value === 0 ? '' : value.toFixed(2);
+            }
+
+            function recalculateAllGrades() {
+                const studentIndices = new Set(
+                    Array.from(document.querySelectorAll('.score-input')).map(input =>
+                        input.dataset.studentIndex
+                    )
+                );
+                studentIndices.forEach(index => calculateGrades(index));
+            }
         </script>
         <style>
             .invalid-input {

@@ -13,6 +13,7 @@ use App\Models\SchoolYear;
 use App\Models\Quarter;
 use App\Models\YearLevel;
 use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Auth;
 
 class ClassRecordController extends Controller
 {
@@ -297,45 +298,97 @@ class ClassRecordController extends Controller
         return view('teacher.class-records.show-group', compact('records'));
     }
 
+    // public function edit(Request $request, ClassRecord $classRecord)
+    // {
+    //     // Restrict access to only teachers
+    //     if (auth()->user()->role !== 'teacher') {
+    //         abort(403, 'Unauthorized action. Only teachers can edit class records.');
+    //     }
 
+    //     // Get the selected school year id from the query string.
+    //     $selectedYear = $request->input('school_year_id');
 
+    //     // If a school year is selected, filter students using school_year_id.
+    //     $students = [];
+    //     if ($selectedYear) {
+    //         $students = Student::where('school_year_id', $selectedYear)
+    //             ->where('user_id', auth()->user()->id)
+    //             ->get();
+    //     }
+
+    //     $schoolYear = SchoolYear::all();
+    //     $subject    = Subject::all();
+    //     $schoolInfo = SchoolInfo::all();
+    //     $quarter    = Quarter::all();
+    //     $newStudents = Student::all();
+
+    //     // Retrieve all rows (per student) that match the current record's old group fields:
+    //     // (subject_id, quarter, grade_section, school_year).
+    //     $groupRecords = ClassRecord::where('subject_id', $classRecord->subject_id)
+    //         ->where('quarter_id', $classRecord->quarter_id)
+    //         ->where('grade_section', $classRecord->grade_section)
+    //         ->where('school_year_id', $classRecord->school_year_id)
+    //         ->get();
+
+    //     return view('teacher.class-records.edit', compact(
+    //         'classRecord',
+    //         'groupRecords',
+    //         'students',
+    //         'newStudents',
+    //         'schoolYear',
+    //         'subject',
+    //         'schoolInfo',
+    //         'quarter'
+    //     ));
+    // }
     public function edit(Request $request, ClassRecord $classRecord)
     {
-        // Restrict access to only teachers
         if (auth()->user()->role !== 'teacher') {
             abort(403, 'Unauthorized action. Only teachers can edit class records.');
         }
 
-        // Get the selected school year id from the query string.
-        $selectedYear = $request->input('school_year_id'); // This will now be the school year's id
+        // Use the classRecord's school_year_id as default if not provided
+        $selectedYear = $request->input('school_year_id', $classRecord->school_year_id);
 
-        // If a school year is selected, filter students using school_year_id.
-        $students = [];
-        if ($selectedYear) {
-            $students = Student::where('school_year_id', $selectedYear)
-                ->where('user_id', auth()->user()->id)
-                ->get();
-        }
+        // Fetch students under the selected school year and teacher
+        $students = Student::where('school_year_id', $selectedYear)
+            ->where('user_id', auth()->user()->id)
+            ->get();
 
-        $schoolYear = SchoolYear::all();
-        $subject    = Subject::all();
-        $schoolInfo = SchoolInfo::all();
-        $quarter    = Quarter::all();
-        $newStudents = Student::all();
-
-        // Retrieve all rows (per student) that match the current record's old group fields:
-        // (subject_id, quarter, grade_section, school_year).
+        // Fetch existing class records for the group (using selectedYear instead of the original)
         $groupRecords = ClassRecord::where('subject_id', $classRecord->subject_id)
             ->where('quarter_id', $classRecord->quarter_id)
             ->where('grade_section', $classRecord->grade_section)
-            ->where('school_year_id', $classRecord->school_year_id)
+            ->where('school_year_id', $selectedYear) // Use selectedYear instead of original
             ->get();
+
+        // Identify students NOT already in the class records
+        $existingStudentIds = $groupRecords->pluck('student_id')->toArray();
+        $newStudents = $students->whereNotIn('id', $existingStudentIds);
+
+        // Merge existing records with new students (as "draft" records)
+        $mergedRecords = $groupRecords->merge(
+            $newStudents->map(function ($student) use ($classRecord) {
+                return new ClassRecord([
+                    'student_id' => $student->id,
+                    'subject_id' => $classRecord->subject_id,
+                    'quarter_id' => $classRecord->quarter_id,
+                    'grade_section' => $classRecord->grade_section,
+                    'school_year_id' => $classRecord->school_year_id,
+                    // Add other default fields here
+                ]);
+            })
+        );
+
+        $schoolYear = SchoolYear::all();
+        $subject = Subject::all();
+        $schoolInfo = SchoolInfo::all();
+        $quarter = Quarter::all();
 
         return view('teacher.class-records.edit', compact(
             'classRecord',
-            'groupRecords',
+            'mergedRecords', // Pass merged records to the view
             'students',
-            'newStudents',
             'schoolYear',
             'subject',
             'schoolInfo',
@@ -351,8 +404,8 @@ class ClassRecordController extends Controller
         // dd($request->all());
         // 1) Validation rules.
         $rules = [
-            // Removed 'user_id' from validation - use authenticated user instead
-            'subject_id'       => 'required|exists:subjects,id', // Changed from 'subject'
+            'year_level_id' => 'required|exists:year_levels,id',
+            'subject_id'       => 'required|exists:subjects,id',
             'grade_section'    => 'required|string',
             'quarter_id'       => 'required|exists:quarters,id',
             'school_year_id'   => 'required|exists:school_years,id',
@@ -385,6 +438,7 @@ class ClassRecordController extends Controller
                 'grade_section'   => $validated['grade_section'],
                 'quarter_id'      => $validated['quarter_id'],
                 'school_year_id' => $validated['school_year_id'],
+                'year_level_id' => $validated['year_level_id'],
                 'teacher'         => $validated['teacher'],
                 'hww'            => $validated['hww'],
                 'hpt'            => $validated['hpt'],
@@ -394,9 +448,9 @@ class ClassRecordController extends Controller
         // 4) Compute global totals from the new header arrays.
         $hwwArray       = array_values($validated['hww']);
         $hptArray       = array_values($validated['hpt']);
-        $globalHqa      = max(floatval($validated['global_hqa']), 1);
         $hwwTotalGlobal = max(array_sum(array_map('floatval', $hwwArray)), 1);
         $hptTotalGlobal = max(array_sum(array_map('floatval', $hptArray)), 1);
+        $globalHqa      = max(floatval($validated['global_hqa']), 1);
 
         // 5) Now retrieve the UPDATED rows using the NEW group fields from $validated.
         $newSubject   = $validated['subject_id'];
@@ -461,7 +515,9 @@ class ClassRecordController extends Controller
             $wsQA = round($psQA * 0.20, 2);
 
             $initialGrade   = round($wsWrittenWorks + $wsPerformanceTasks + $wsQA, 2);
-            $quarterlyGrade = round($initialGrade);
+
+
+            $quarterlyGrade = $this->getTransmutedGrade($initialGrade);
 
             // Build detail data for this student.
             $detailData = [
@@ -496,16 +552,17 @@ class ClassRecordController extends Controller
             } else {
                 // If no record exists for this student, create a new one in the updated group.
                 $newData = [
-                    'student_id'    => $studentId,
-                    'user_id'       => $validated['user_id'],
-                    'subject_id'    => $newSubject,
-                    'grade_section' => $newGradeSec,
-                    'quarter_id'    => $newQuarter,
-                    'school_year_id'   => $newSchoolYear,
-                    'teacher'       => $validated['teacher'],
-                    'hww'           => $hwwArray,
-                    'hpt'           => $hptArray,
-                    'global_hqa'    => $globalHqa,
+                    'student_id'        => $studentId,
+                    'user_id'           => Auth::id(),
+                    'subject_id'        => $newSubject,
+                    'grade_section'     => $newGradeSec,
+                    'quarter_id'        => $newQuarter,
+                    'school_year_id'    => $newSchoolYear,
+                    'year_level_id'     => $validated['year_level_id'],
+                    'teacher'           => $validated['teacher'],
+                    'hww'               => $hwwArray,
+                    'hpt'               => $hptArray,
+                    'global_hqa'        => $globalHqa,
                 ];
                 $newData = array_merge($newData, $detailData);
 
@@ -547,4 +604,63 @@ class ClassRecordController extends Controller
             ->route('teacher.class-records.index')
             ->with('success', 'All records for this class quarter were deleted successfully.');
     }
+
+    private function getTransmutedGrade($initialGrade)
+            {
+                $transmutationTable = [
+                    ['min' => 100,    'grade' => 100],
+                    ['min' => 98.40,  'grade' => 99],
+                    ['min' => 96.80,  'grade' => 98],
+                    ['min' => 95.20,  'grade' => 97],
+                    ['min' => 93.60,  'grade' => 96],
+                    ['min' => 92.00,  'grade' => 95],
+                    ['min' => 90.40,  'grade' => 94],
+                    ['min' => 88.80,  'grade' => 93],
+                    ['min' => 87.20,  'grade' => 92],
+                    ['min' => 85.60,  'grade' => 91],
+                    ['min' => 84.00,  'grade' => 90],
+                    ['min' => 82.40,  'grade' => 89],
+                    ['min' => 80.80,  'grade' => 88],
+                    ['min' => 79.20,  'grade' => 87],
+                    ['min' => 77.60,  'grade' => 86],
+                    ['min' => 76.00,  'grade' => 85],
+                    ['min' => 74.40,  'grade' => 84],
+                    ['min' => 72.80,  'grade' => 83],
+                    ['min' => 71.20,  'grade' => 82],
+                    ['min' => 69.60,  'grade' => 81],
+                    ['min' => 68.00,  'grade' => 80],
+                    ['min' => 66.40,  'grade' => 79],
+                    ['min' => 64.80,  'grade' => 78],
+                    ['min' => 63.20,  'grade' => 77],
+                    ['min' => 61.60,  'grade' => 76],
+                    ['min' => 60.00,  'grade' => 60],
+                    ['min' => 56.00,  'grade' => 74],
+                    ['min' => 52.00,  'grade' => 73],
+                    ['min' => 48.00,  'grade' => 72],
+                    ['min' => 44.00,  'grade' => 71],
+                    ['min' => 40.00,  'grade' => 70],
+                    ['min' => 36.00,  'grade' => 69],
+                    ['min' => 32.00,  'grade' => 68],
+                    ['min' => 28.00,  'grade' => 67],
+                    ['min' => 24.00,  'grade' => 66],
+                    ['min' => 20.00,  'grade' => 65],
+                    ['min' => 16.00,  'grade' => 64],
+                    ['min' => 12.00,  'grade' => 63],
+                    ['min' => 8.00,   'grade' => 62],
+                    ['min' => 4.00,   'grade' => 61],
+                    ['min' => 0,      'grade' => 60]
+                ];
+
+                // Sort descendingly by 'min'
+                usort($transmutationTable, function ($a, $b) {
+                    return $b['min'] <=> $a['min'];
+                });
+
+                foreach ($transmutationTable as $entry) {
+                    if ($initialGrade >= $entry['min']) {
+                        return $entry['grade'];
+                    }
+                }
+                return 60; // Default
+            }
 }
