@@ -157,9 +157,9 @@ class StudentController extends Controller
             'student_id'        => $student->id,
             'age'               => $student->age,
             'section'           => $student->section,
-            'year_level_id'     => $validated['year_level_id'],
-            'school_year_id'    => $validated['school_year_id'],
-            'school_info_id'    => $validated['school_info_id'],
+            'year_level_id'     => $student->year_level_id,
+            'school_year_id'    => $student->school_year_id,
+            'school_info_id'    => $student->school_info_id,
             'user_id'           => Auth::id(),
         ]);
 

@@ -117,7 +117,7 @@
                                     <div class="school-details">
                                         <div class="school-detail">
                                             <span class="label">Region</span>
-                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $enrollment->student->schoolInfo->region ?? 'N/A' }}</div>
+                                            <div class="line">&nbsp;&nbsp;&nbsp;{{ $student->schoolInfo->region ?? 'N/A' }}</div>
                                         </div>
                                         <div class="school-detail">
                                             <span class="label">Division</span>

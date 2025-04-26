@@ -65,7 +65,8 @@
                     @csrf
                     <!-- Hidden fields -->
                     <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
-                    <input type="hidden" name="school_year" value="{{ $selectedYear }}">
+                    <input type="hidden" name="school_year_id" value="{{ $selectedYear }}">
+                    <input type="hidden" name="year_level_id" value="{{ auth()->user()->yearLevel->id }}">
 
                     <table class="grade-table w-full border-collapse mb-6">
                         <tr class="head-row bg-gray-100">
@@ -160,15 +161,15 @@
                         </tr>
 
                         <!-- Detail rows for each student -->
-                        @php $index = 0; @endphp
+
                         @foreach ($students as $index => $student)
                             <tr>
-                                <td>{{ $index }}</td>
+                                <td>{{ $index + 1 }}</td>
                                 <td class="text-left" style="text-align: left; padding-left: 5px;">
                                     {{ ucwords(strtolower($student->lastname)) }},
                                     {{ ucwords(strtolower($student->firstname)) }},
                                     {{ ucwords(strtolower($student->middlename)) }}</td>
-                                    <input type="hidden" name="students[{{ $index }}][id]" value="{{ $student->id }}">
+                                <input type="hidden" name="student_id[]" value="{{ $student->id }}">
                                 <!-- Written Works -->
                                 @for ($i = 1; $i <= 10; $i++)
                                     <td>
@@ -256,10 +257,14 @@
             function calculateGrades(studentIndex) {
                 // Get all maximum possible scores
                 const maxScores = {
-                    ww: Array.from({length: 10}, (_, i) => {
+                    ww: Array.from({
+                        length: 10
+                    }, (_, i) => {
                         return parseFloat(document.getElementById(`hww${i+1}`).value) || 0;
                     }),
-                    pt: Array.from({length: 10}, (_, i) => {
+                    pt: Array.from({
+                        length: 10
+                    }, (_, i) => {
                         return parseFloat(document.getElementById(`hpt${i+1}`).value) || 0;
                     }),
                     qa: parseFloat(document.getElementById('hqa').value) || 0
@@ -267,10 +272,10 @@
 
                 // Clamp and validate written works
                 let wwTotal = 0;
-                for(let i = 1; i <= 10; i++) {
+                for (let i = 1; i <= 10; i++) {
                     const input = document.getElementById(`ww${studentIndex}_${i}`);
                     let value = parseFloat(input.value) || 0;
-                    const max = maxScores.ww[i-1];
+                    const max = maxScores.ww[i - 1];
 
                     // Clamp value between 0 and max score
                     value = Math.min(Math.max(value, 0), max);
@@ -283,10 +288,10 @@
 
                 // Clamp and validate performance tasks
                 let ptTotal = 0;
-                for(let i = 1; i <= 10; i++) {
+                for (let i = 1; i <= 10; i++) {
                     const input = document.getElementById(`pt${studentIndex}_${i}`);
                     let value = parseFloat(input.value) || 0;
-                    const max = maxScores.pt[i-1];
+                    const max = maxScores.pt[i - 1];
 
                     // Clamp value between 0 and max score
                     value = Math.min(Math.max(value, 0), max);
@@ -329,10 +334,187 @@
                 document.getElementById(`qaPS${studentIndex}`).textContent = qaPS.toFixed(2);
                 document.getElementById(`qaWS${studentIndex}`).textContent = qaWS.toFixed(2);
 
+                // Add DepEd Transmutation Table (sorted descendingly)
+                const TRANSMUTATION_TABLE = [{
+                        min: 100,
+                        grade: 100
+                    },
+                    {
+                        min: 98.40,
+                        grade: 99
+                    },
+                    {
+                        min: 96.80,
+                        grade: 98
+                    },
+                    {
+                        min: 95.20,
+                        grade: 97
+                    },
+                    {
+                        min: 93.60,
+                        grade: 96
+                    },
+                    {
+                        min: 92.00,
+                        grade: 95
+                    },
+                    {
+                        min: 90.40,
+                        grade: 94
+                    },
+                    {
+                        min: 88.80,
+                        grade: 93
+                    },
+                    {
+                        min: 87.20,
+                        grade: 92
+                    },
+                    {
+                        min: 85.60,
+                        grade: 91
+                    },
+                    {
+                        min: 84.00,
+                        grade: 90
+                    },
+                    {
+                        min: 82.40,
+                        grade: 89
+                    },
+                    {
+                        min: 80.80,
+                        grade: 88
+                    },
+                    {
+                        min: 79.20,
+                        grade: 87
+                    },
+                    {
+                        min: 77.60,
+                        grade: 86
+                    },
+                    {
+                        min: 76.00,
+                        grade: 85
+                    },
+                    {
+                        min: 74.40,
+                        grade: 84
+                    },
+                    {
+                        min: 72.80,
+                        grade: 83
+                    },
+                    {
+                        min: 71.20,
+                        grade: 82
+                    },
+                    {
+                        min: 69.60,
+                        grade: 81
+                    },
+                    {
+                        min: 68.00,
+                        grade: 80
+                    },
+                    {
+                        min: 66.40,
+                        grade: 79
+                    },
+                    {
+                        min: 64.80,
+                        grade: 78
+                    },
+                    {
+                        min: 63.20,
+                        grade: 77
+                    },
+                    {
+                        min: 61.60,
+                        grade: 76
+                    },
+                    {
+                        min: 60.00,
+                        grade: 75
+                    },
+                    {
+                        min: 56.00,
+                        grade: 74
+                    },
+                    {
+                        min: 52.00,
+                        grade: 73
+                    },
+                    {
+                        min: 48.00,
+                        grade: 72
+                    },
+                    {
+                        min: 44.00,
+                        grade: 71
+                    },
+                    {
+                        min: 40.00,
+                        grade: 70
+                    },
+                    {
+                        min: 36.00,
+                        grade: 69
+                    },
+                    {
+                        min: 32.00,
+                        grade: 68
+                    },
+                    {
+                        min: 28.00,
+                        grade: 67
+                    },
+                    {
+                        min: 24.00,
+                        grade: 66
+                    },
+                    {
+                        min: 20.00,
+                        grade: 65
+                    },
+                    {
+                        min: 16.00,
+                        grade: 64
+                    },
+                    {
+                        min: 12.00,
+                        grade: 63
+                    },
+                    {
+                        min: 8.00,
+                        grade: 62
+                    },
+                    {
+                        min: 4.00,
+                        grade: 61
+                    },
+                    {
+                        min: 0,
+                        grade: 60
+                    }
+                ].sort((a, b) => b.min - a.min);
+
+                function getTransmutedGrade(initialGrade) {
+                    // Handle perfect score edge case
+                    if (initialGrade >= 100) return 100;
+
+                    // Find the first range that matches
+                    const entry = TRANSMUTATION_TABLE.find(entry => initialGrade >= entry.min);
+                    return entry ? entry.grade : 60; // Default to 60 if not found (shouldn't happen)
+                }
+
                 // Calculate final grades
                 const initialGrade = wwWS + ptWS + qaWS;
+                const transmutedGrade = getTransmutedGrade(initialGrade);
                 document.getElementById(`initialGrade${studentIndex}`).value = initialGrade.toFixed(2);
-                document.getElementById(`quarterlyGrade${studentIndex}`).value = Math.round(initialGrade);
+                document.getElementById(`quarterlyGrade${studentIndex}`).value = transmutedGrade;
             }
 
             // Initialize on page load
@@ -344,14 +526,22 @@
                         this.value = Math.max(0, parseFloat(this.value) || 0);
                         updateGlobalTotals();
 
-                        // Revalidate all student scores when header scores change
-                        const studentRows = document.querySelectorAll('[id^="ww1_"]');
-                        if (studentRows.length > 0) {
-                            const totalStudents = studentRows.length / 10;
-                            for(let i = 1; i <= totalStudents; i++) {
-                                calculateGrades(i);
+                        // Find all student rows using a better selector
+                        const studentInputs = document.querySelectorAll('[id^="ww"][id*="_"]');
+                        const studentIndices = new Set();
+
+                        // Extract unique student indices from input IDs
+                        studentInputs.forEach(input => {
+                            const matches = input.id.match(/ww(\d+)_/);
+                            if (matches && matches[1]) {
+                                studentIndices.add(parseInt(matches[1]));
                             }
-                        }
+                        });
+
+                        // Recalculate grades for all students
+                        studentIndices.forEach(index => {
+                            calculateGrades(index);
+                        });
                     });
                 });
 
@@ -359,15 +549,14 @@
                 updateGlobalTotals();
 
                 // Calculate grades for existing students
-                @if(isset($groupRecords))
-                    @foreach($groupRecords as $index => $detail)
+                @if (isset($groupRecords))
+                    @foreach ($groupRecords as $index => $detail)
                         calculateGrades({{ $index + 1 }});
                     @endforeach
                 @endif
             });
-            </script>
-
-            <style>
+        </script>
+        <style>
             .invalid-input {
                 border-color: #dc3545 !important;
                 background-color: #fff5f5 !important;
@@ -375,9 +564,19 @@
             }
 
             @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-3px); }
-                75% { transform: translateX(3px); }
+
+                0%,
+                100% {
+                    transform: translateX(0);
+                }
+
+                25% {
+                    transform: translateX(-3px);
+                }
+
+                75% {
+                    transform: translateX(3px);
+                }
             }
 
             /* Remove number input arrows */
@@ -386,7 +585,6 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
-            </style>
-        </div>
+        </style>
     </section>
 </x-app-layout>
