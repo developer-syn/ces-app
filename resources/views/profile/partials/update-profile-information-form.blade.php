@@ -20,7 +20,7 @@
         <!-- School Information Field -->
         <div>
             <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
-            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md" required>
+            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md" required disabled>
                 <option value="" disabled selected>Select a School Name</option>
                 @foreach ($school_infos as $school_info)
                     <option value="{{ $school_info->id }}"
@@ -31,18 +31,18 @@
             </select>
             <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
         </div>
-
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)"
-                required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
         <div>
             <x-input-label for="section" :value="__('Section')" />
             <x-text-input id="section" name="section" type="text" class="mt-1 block w-full" :value="old('section', $user->section)"
-                 autofocus autocomplete="section" />
+                disabled autofocus autocomplete="section" />
             <x-input-error class="mt-2" :messages="$errors->get('section')" />
+        </div>
+
+        <div>
+            <x-input-label for="name" :value="__('Full Name')" />
+            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)"
+                required autofocus autocomplete="name" />
+            <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
