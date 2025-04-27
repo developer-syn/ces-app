@@ -70,9 +70,13 @@
             @endif
 
             @if ($needsImprovement->isEmpty())
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="bg-red-600 text-white px-4 py-3 font-medium text-lg">
+                    Students Needing Improvement (<75) </div>
                 <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded" role="alert">
                     <p class="font-medium">All students are passing!</p>
                 </div>
+            </div>
             @else
                 <!-- Needs Improvement Section -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">

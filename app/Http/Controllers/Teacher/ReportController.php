@@ -12,27 +12,29 @@ class ReportController extends Controller
 {
     public function gradeReports()
     {
-        // Get high honors students (90-100)
-        $highHonors = Student::with(['classRecords' => function ($query) {
+        // Base query with access control
+        $query = Student::with(['classRecords' => function ($query) {
             $query->selectRaw('student_id, AVG(quarterly_grade) as average_grade')
                 ->groupBy('student_id');
-        }])->get()
-            ->filter(function ($student) {
-                $averageGrade = optional($student->classRecords->first())->average_grade ?? 0;
-                return $averageGrade >= 90 && $averageGrade <= 100;
-            });
+        }]);
 
-        // Get students below 75
-        $needsImprovement = Student::with(['classRecords' => function ($query) {
-            $query->selectRaw('student_id, AVG(quarterly_grade) as average_grade')
-                ->groupBy('student_id');
-        }])->get()
-            ->filter(function ($student) {
-                $averageGrade = optional($student->classRecords->first())->average_grade ?? 0;
-                return $averageGrade < 75;
-            });
+        // Restrict to assigned students for non-admins
+        if (!auth()->user()->isAdmin()) {
+            $query->where('user_id', auth()->id());
+        }
 
-        $students = Student::with('classRecords')->get();
+        $students = $query->get();
+
+        // Filter students
+        $highHonors = $students->filter(function ($student) {
+            $averageGrade = optional($student->classRecords->first())->average_grade ?? 0;
+            return $averageGrade >= 90 && $averageGrade <= 100;
+        });
+
+        $needsImprovement = $students->filter(function ($student) {
+            $averageGrade = optional($student->classRecords->first())->average_grade ?? 0;
+            return $averageGrade < 75;
+        });
 
         return view('teacher.reports.students-report', compact('students', 'highHonors', 'needsImprovement'));
     }
