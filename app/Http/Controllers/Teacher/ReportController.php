@@ -16,26 +16,25 @@ class ReportController extends Controller
         $highHonors = Student::with(['classRecords' => function ($query) {
             $query->selectRaw('student_id, AVG(quarterly_grade) as average_grade')
                 ->groupBy('student_id');
-        }])
-            ->get()
+        }])->get()
             ->filter(function ($student) {
-                return $student->classRecords->first()->average_grade >= 90 &&
-                    $student->classRecords->first()->average_grade <= 100;
+                $averageGrade = optional($student->classRecords->first())->average_grade ?? 0;
+                return $averageGrade >= 90 && $averageGrade <= 100;
             });
 
         // Get students below 75
         $needsImprovement = Student::with(['classRecords' => function ($query) {
             $query->selectRaw('student_id, AVG(quarterly_grade) as average_grade')
                 ->groupBy('student_id');
-        }])
-            ->get()
+        }])->get()
             ->filter(function ($student) {
-                return $student->classRecords->first()->average_grade < 75;
+                $averageGrade = optional($student->classRecords->first())->average_grade ?? 0;
+                return $averageGrade < 75;
             });
 
         return view('teacher.reports.students-report', compact('highHonors', 'needsImprovement'));
     }
-
+    
     public function downloadGradeReports()
     {
         // Repeat the same data fetching logic
