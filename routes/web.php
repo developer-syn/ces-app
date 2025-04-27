@@ -19,6 +19,7 @@ use App\Http\Controllers\Teacher\SummaryQuarterlyGradesController;
 use App\Http\Controllers\Teacher\PromoteStudentController;
 use App\Http\Controllers\Teacher\SchoolForm10Controller;
 use App\Http\Controllers\Teacher\AttendanceCoreValuesController;
+use App\Http\Controllers\Teacher\ReportController;
 
 
 Route::get('/unauthorized', function () {
@@ -50,6 +51,8 @@ Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher', 'admin')->n
     Route::get('attendance-core-values/create/{enrollment}', [AttendanceCoreValuesController::class, 'create'])->name('attendance-core-values.create');
     Route::get('attendance-core-values/{attendanceCoreValue}/edit', [AttendanceCoreValuesController::class, 'edit'])->name('attendance-core-values.edit');
     Route::put('attendance-core-values/{attendanceCoreValue}',[AttendanceCoreValuesController::class, 'update'])->name('attendance-core-values.update');
+    Route::get('reports/students-report', [ReportController::class, 'gradeReports'])->name('reports.students-report');
+    Route::get('reports/download', [ReportController::class, 'downloadGradeReports'])->name('reports.download');
 });
 
 

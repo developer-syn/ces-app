@@ -43,7 +43,13 @@ class Student extends Model
     //         }
     //     });
     // }
-
+    public function scopeWithAverageGrade($query)
+    {
+        return $query->with(['classRecords' => function($q) {
+            $q->selectRaw('student_id, AVG(quarterly_grade) as average_grade')
+              ->groupBy('student_id');
+        }]);
+    }
 
     public function yearLevel()
     {
