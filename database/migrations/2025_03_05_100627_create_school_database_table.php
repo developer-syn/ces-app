@@ -142,8 +142,8 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->string('age')->nullable();
             $table->string('section')->nullable();
-            $table->foreignId('year_level_id')->constrained();
-            $table->foreignId('school_year_id')->constrained();
+            $table->foreignId('year_level_id')->constrained()->onDelete('cascade');
+            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('school_info_id')->nullable()->contrained()->onDelete('set null');
             $table->timestamps();
@@ -177,7 +177,7 @@ return new class extends Migration
             }
 
             $table->timestamps();
-        }); 
+        });
     }
 
     public function down(): void

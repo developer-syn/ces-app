@@ -26,10 +26,10 @@
     </div>
 
     <div>
-        <label for="division" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="school_name" class="block text-sm font-medium text-gray-700 mb-1">
             School Name <span class="text-red-500">*</span>
         </label>
-        <input type="text" name="division" id="school_name" required
+        <input type="text" name="school_name" id="school_name" required
             value="{{ old('school_name', $schoolInfo->school_name ?? '') }}"
             class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 transition duration-150 @error('school_name') border-red-500 @enderror">
         @error('school_name')

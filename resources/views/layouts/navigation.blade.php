@@ -251,8 +251,7 @@
             }
         });
     });
-</script>
-<script>
+
     // Add this to your Alpine.js component or script
     document.addEventListener('alpine:init', () => {
         Alpine.data('navigation', () => ({
