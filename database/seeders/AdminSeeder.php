@@ -60,12 +60,17 @@ class AdminSeeder extends Seeder
         ];
 
         foreach ($subjectsArray as $subject) {
-            DB::table('school_years')->insert(['name' => $subject]);
+            DB::table('subjects')->insert(['name' => $subject]);
         }
 
         $quartersArray = ['1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter'];
         foreach ($quartersArray as $quarterName) {
             DB::table('quarters')->insert(['name' => $quarterName]);
+        }
+
+        $school_years = ['2024 - 2025', '2025 - 2026'];
+        foreach ($school_years as $school_year) {
+            DB::table('school_years')->insert(['name' => $school_year]);
         }
     }
 }
