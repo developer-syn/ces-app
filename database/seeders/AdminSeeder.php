@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\SchoolInfo;
 use App\Models\User;
 use App\Models\YearLevel;
@@ -18,7 +19,7 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        SchoolInfo::create([
+        DB::table('school_infos')->insert([
             'school_id' => '131482',
             'school_name' => 'Caloc-an Elementary School',
             'region' => 'XIII',
@@ -29,10 +30,10 @@ class AdminSeeder extends Seeder
             'address' => 'Caloc-an, Magallanes, Agusan del Norte',
         ]);
 
-        User::firstOrCreate([
+        DB::table('users')->insert([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('Password@123'),
             'role' => 'admin',
             'school_info_id' => 1,
         ]);
@@ -40,7 +41,7 @@ class AdminSeeder extends Seeder
         // 2. Create year levels in order
         $yearLevelsOrder = ['I', 'II', 'III', 'IV', 'V', 'VI'];
         foreach ($yearLevelsOrder as $level) {
-            YearLevel::firstOrCreate(['name' => $level]);
+            DB::table('year_levels')->insert(['name' => $level]);
         }
 
         $subjectsArray = [
@@ -59,12 +60,12 @@ class AdminSeeder extends Seeder
         ];
 
         foreach ($subjectsArray as $subject) {
-            Subject::firstOrCreate(['name' => $subject]);
+            DB::table('school_years')->insert(['name' => $subject]);
         }
 
         $quartersArray = ['1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter'];
         foreach ($quartersArray as $quarterName) {
-            Quarter::firstOrCreate(['name' => $quarterName]);
+            DB::table('quarters')->insert(['name' => $quarterName]);
         }
     }
 }

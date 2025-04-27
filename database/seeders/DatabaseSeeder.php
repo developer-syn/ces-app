@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             'district' => 'Magallanes',
             'principal_name' => 'Jean Ville E. Sulapas',
             'logo_path' => asset('img/caloc-anLogo.png'),
+            'address' => 'Caloc-an, Magallanes, Agusan del Norte',
         ]);
 
          // 2. Create year levels in order
