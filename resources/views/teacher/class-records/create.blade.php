@@ -33,11 +33,11 @@
                 <div class="form-row">
                     <div class="form-group school-name">
                         <label>SCHOOL NAME:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->school_name }}" disabled>
+                        <input type="text" value="{{ auth()->user()->schoolInfo->school_name }}" disabled>
                     </div>
                     <div class="form-group">
                         <label>SCHOOL ID:</label>
-                        <input type="text" value="{{ $schoolInfo->first()->school_id }}" disabled>
+                        <input type="text" value="{{ auth()->user()->schoolInfo->school_id }}" disabled>
                     </div>
                     <div class="form-group">
                         <!-- School Year Selection Form (GET) -->

@@ -41,7 +41,7 @@
         <div>
             <x-input-label for="section" :value="__('Section')" />
             <x-text-input id="section" name="section" type="text" class="mt-1 block w-full" :value="old('section', $user->section)"
-                required autofocus autocomplete="section" />
+                 autofocus autocomplete="section" />
             <x-input-error class="mt-2" :messages="$errors->get('section')" />
         </div>
 
