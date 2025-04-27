@@ -112,7 +112,12 @@
                                                         {{ $student->lastname }}, {{ $student->firstname }}
                                                     </td>
                                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                                        {{ number_format($student->classRecords->first()->average_grade, 2) }}
+                                                        @php
+                                                            $average = $student->classRecords->isNotEmpty()
+                                                                ? $student->classRecords->avg('quarterly_grade')
+                                                                : 0;
+                                                        @endphp
+                                                        {{ number_format($average, 2) }}
                                                     </td>
                                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" style="font-family: 'Times New Roman', Times, serif">
                                                         <strong>{{ $student->yearLevel->name }}</strong>

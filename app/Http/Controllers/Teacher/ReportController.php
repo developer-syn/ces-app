@@ -32,9 +32,11 @@ class ReportController extends Controller
                 return $averageGrade < 75;
             });
 
-        return view('teacher.reports.students-report', compact('highHonors', 'needsImprovement'));
+        $students = Student::with('classRecords')->get();
+
+        return view('teacher.reports.students-report', compact('students', 'highHonors', 'needsImprovement'));
     }
-    
+
     public function downloadGradeReports()
     {
         // Repeat the same data fetching logic
