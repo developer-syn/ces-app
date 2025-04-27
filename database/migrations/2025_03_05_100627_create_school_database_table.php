@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('school_name');
             $table->string('school_id');
             $table->string('principal_name');
-            $table->string('logo_path')->nullable();
             $table->string('address');
+            $table->string('logo_path')->nullable();
             $table->timestamps();
         });
 

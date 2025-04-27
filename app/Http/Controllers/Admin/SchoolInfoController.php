@@ -37,6 +37,7 @@ class SchoolInfoController extends Controller
             'school_name'    => 'required|string|max:255',
             'school_id'      => 'required|string|max:255',
             'principal_name' => 'required|string|max:255',
+            'address'        => 'required|string|max:255',
             'logo_path'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -65,6 +66,7 @@ class SchoolInfoController extends Controller
             'school_name'    => $validated['school_name'],
             'school_id'      => $validated['school_id'],
             'principal_name' => $validated['principal_name'],
+            'address'        => $validated['address'],
             'logo_path'      => $logoPath,
         ]);
 
@@ -100,6 +102,7 @@ class SchoolInfoController extends Controller
             'school_name'       => 'required|string|max:255',
             'school_id'         => 'required|string|max:255',
             'principal_name'    => 'required|string|max:255',
+            'address'           => 'required|string|max:255',
             'logo_path'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -128,6 +131,7 @@ class SchoolInfoController extends Controller
             'school_name'    => $validated['school_name'],
             'school_id'      => $validated['school_id'],
             'principal_name' => $validated['principal_name'],
+            'address'        => $validated['address'],
             'logo_path'      => $logoPath, // Update the logo path
         ]);
 

@@ -17,5 +17,6 @@ class SchoolInfo extends Model
         'school_id',
         'principal_name',
         'logo_path',
+        'address',
     ];
 }

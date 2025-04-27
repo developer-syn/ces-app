@@ -112,8 +112,7 @@
                                 <label for="credential" class="text-sm font-medium text-black">Address of
                                     School:</label>
                                 <div class="text-sm font-medium text-black px-4">
-                                    {{ $schoolInfo->address ?? 'Caloc-an' }}, {{ $schoolInfo->district }},
-                                    {{ $schoolInfo->division }}</div>
+                                    {{ $schoolInfo->address ?? '-' }}</div>
                             </div>
                         </div>
                     </div>
