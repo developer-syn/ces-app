@@ -20,7 +20,7 @@
                             Register student
                         </a>
                         <!-- Bulk Actions -->
-                        <div class="flex gap-2">
+                        <div class="hidden flex gap-2">
                             <button id="exportCsvButton"
                                 class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -519,7 +519,7 @@
                 </div>
 
                 <!-- CSV Import Form -->
-                <div class="mt-6">
+                <div class="hidden mt-6">
                     <form action="{{ route('teacher.students.import') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
