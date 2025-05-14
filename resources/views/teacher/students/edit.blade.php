@@ -9,204 +9,167 @@
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <form method="POST" action="{{ route('teacher.students.update', $student->id) }}" class="space-y-6">
+                    <form method="POST" action="{{ route('teacher.students.update', $student->id) }}" class="space-y-6" id="studentForm">
                         @csrf
                         @method('PUT')
-                        <!-- Name Field -->
+
+                        <!-- LRN Field -->
                         <div>
-                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN
-                                number</label>
+                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN number</label>
                             <div class="mt-1">
-                                <input type="number" id="LRN_num" name="LRN_num"
-                                    value="{{ old('LRN_num', $student->LRN_num) }}" required
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Enter LRN number">
+                                <input type="text" id="LRN_num" name="LRN_num" required
+                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('LRN_num') border-red-500 @enderror"
+                                    placeholder="Enter LRN number"
+                                    value="{{ old('LRN_num', $student->LRN_num) }}">
+                                @error('LRN_num')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
-                            @error('LRN_num')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
                         </div>
 
-                        <!-- firstname Field -->
-                        <div>
-                            <label for="firstname" class="block text-sm font-medium text-gray-700">Student firstname</label>
-                            <div class="mt-1">
-                                <input type="text" id="firstname" name="firstname"
-                                    value="{{ old('firstname', $student->firstname) }}" required
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="firstname">
+                        <!-- Name Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
+                                <input type="text" id="lastname" name="lastname" required
+                                    class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('lastname') border-red-500 @enderror"
+                                    value="{{ old('lastname', $student->lastname) }}">
+                                @error('lastname')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
-                            @error('firstname')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <!-- middlename Field -->
-                        <div>
-                            <label for="middlename" class="block text-sm font-medium text-gray-700">Student middlename</label>
-                            <div class="mt-1">
+                            <div>
+                                <label for="firstname" class="block text-sm font-medium text-gray-700">First Name</label>
+                                <input type="text" id="firstname" name="firstname" required
+                                    class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('firstname') border-red-500 @enderror"
+                                    value="{{ old('firstname', $student->firstname) }}">
+                                @error('firstname')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="middlename" class="block text-sm font-medium text-gray-700">Middle Name</label>
                                 <input type="text" id="middlename" name="middlename"
-                                    value="{{ old('middlename', $student->middlename) }}"
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="middlename">
+                                    class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('middlename') border-red-500 @enderror"
+                                    value="{{ old('middlename', $student->middlename) }}">
+                                @error('middlename')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
-                            @error('middlename')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
                         </div>
-                        <!-- lastname Field -->
+
+                        <!-- Suffix -->
                         <div>
-                            <label for="lastname" class="block text-sm font-medium text-gray-700">Student lastname</label>
-                            <div class="mt-1">
-                                <input type="text" id="lastname" name="lastname"
-                                    value="{{ old('lastname', $student->lastname) }}" required
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="lastname">
-                            </div>
-                            @error('lastname')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <!-- suffix Field -->
-                        <div>
-                            <label for="suffix" class="block text-sm font-medium text-gray-700">Student suffix</label>
-                            <div class="mt-1">
-                                <input type="text" id="suffix" name="suffix"
-                                    value="{{ old('suffix', $student->suffix) }}"
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="suffix">
-                            </div>
+                            <label for="suffix" class="block text-sm font-medium text-gray-700">Suffix</label>
+                            <input type="text" id="suffix" name="suffix"
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('suffix') border-red-500 @enderror"
+                                value="{{ old('suffix', $student->suffix) }}">
                             @error('suffix')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- Birthdate and Age Fields -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Birthdate Field -->
+                        <!-- Birthdate and Age -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="birthdate" class="block text-sm font-medium text-gray-700">Birthdate</label>
-                                <div class="mt-1">
-                                    <input type="date" id="birthdate" name="birthdate"
-                                        value="{{ old('birthdate', $student->birthdate) }}" required
-                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        onchange="calculateAge()">
-                                </div>
+                                <input type="date" id="birthdate" name="birthdate" required
+                                    class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('birthdate') border-red-500 @enderror"
+                                    min="{{ date('Y-m-d', strtotime('-60 years')) }}"
+                                    max="{{ date('Y-m-d', strtotime('-5 years')) }}"
+                                    value="{{ old('birthdate', $student->birthdate) }}"
+                                    onchange="calculateAge()">
                                 @error('birthdate')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <!-- Age Field -->
                             <div>
-                                <label for="age" class="block text-sm font-medium text-gray-700">Student
-                                    Age</label>
-                                <div class="mt-1">
-                                    <input type="number" id="age" name="age"
-                                        value="{{ old('age', $student->age) }}" required readonly
-                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Computed student's age">
-                                </div>
+                                <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+                                <input type="number" id="age" name="age" required readonly
+                                    class="mt-1 px-4 py-2 block w-full rounded-lg border bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('age') border-red-500 @enderror"
+                                    value="{{ old('age', $student->age) }}">
                                 @error('age')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
-                        <!-- Gender Field -->
+
+                        <!-- Gender -->
                         <div>
-                            <label for="gender" class="block text-sm font-medium text-gray-700">Student
-                                Gender</label>
-                            <div class="mt-1">
-                                <select name="gender" id="gender" required
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="" disabled>--Select Gender--</option>
-                                    <option value="male"
-                                        {{ old('gender', $student->gender) == 'male' ? 'selected' : '' }}>Male
-                                    </option>
-                                    <option value="female"
-                                        {{ old('gender', $student->gender) == 'female' ? 'selected' : '' }}>Female
-                                    </option>
-                                    {{-- <option value="other" {{ old('gender', $student->gender) == 'other' ? 'selected' : '' }}>Other</option> --}}
-                                </select>
-                            </div>
+                            <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                            <select id="gender" name="gender" required
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('gender') border-red-500 @enderror">
+                                <option value="">Select Gender</option>
+                                <option value="male" {{ old('gender', $student->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                <option value="female" {{ old('gender', $student->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                            </select>
                             @error('gender')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
-                        <!-- Birthdate Field -->
+
+                        <!-- School Information -->
                         <div>
-                            <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
-                            <div class="mt-1">
-                                <input type="text" id="section" name="section"
-                                    value="{{ old('section', $student->section) }}" required
-                                    class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            @error('section')
+                            <label for="school_info_id" class="block text-sm font-medium text-gray-700">School</label>
+                            <select id="school_info_id" name="school_info_id" required
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('school_info_id') border-red-500 @enderror">
+                                <option value="">Select School</option>
+                                @foreach ($school_infos as $school)
+                                    <option value="{{ $school->id }}" {{ old('school_info_id', $student->school_info_id) == $school->id ? 'selected' : '' }}>
+                                        {{ $school->school_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('school_info_id')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- School Year Field -->
+                        <!-- Year Level -->
                         <div>
-                            <label for="school_year_id" class="block text-sm font-medium text-gray-700">School
-                                Year</label>
-                            <div class="mt-1">
-                                <div class="mt-1">
-                                    <select id="school_year_id" name="school_year_id" required
-                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">--Select School Year--</option>
-                                        @foreach ($schoolYears as $schoolYear)
-                                            <option value="{{ $schoolYear->id }}"
-                                                {{ old('school_year_id', $student->school_year_id) == $schoolYear->id ? 'selected' : '' }}>
-                                                {{ $schoolYear->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            @error('school_year_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Year Level Field -->
-                        <div>
-                            <label for="year_level_id" class="block text-sm font-medium text-gray-700">Year
-                                Level</label>
-                            <div class="mt-1">
-                                <div class="mt-1">
-                                    <select id="year_level_id" name="year_level_id" required
-                                        class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">--Select Year Level--</option>
-                                        @foreach ($yearLevels as $yearLevel)
-                                            <option value="{{ $yearLevel->id }}"
-                                                {{ old('year_level_id', $student->year_level_id) == $yearLevel->id ? 'selected' : '' }}>
-                                                {{ $yearLevel->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                            <label for="year_level_id" class="block text-sm font-medium text-gray-700">Year Level</label>
+                            <select id="year_level_id" name="year_level_id" required
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('year_level_id') border-red-500 @enderror">
+                                <option value="">Select Year Level</option>
+                                @foreach ($yearLevels as $level)
+                                    <option value="{{ $level->id }}" {{ old('year_level_id', $student->year_level_id) == $level->id ? 'selected' : '' }}>
+                                        {{ $level->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                             @error('year_level_id')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- School Information Field -->
+                        <!-- School Year -->
                         <div>
-                            <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
-                            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md"
-                                required>
-                                <option value="" disabled selected>Select a School Name</option>
-                                @foreach ($school_infos as $school_info)
-                                    <option value="{{ $school_info->id }}"
-                                        {{ old('school_info_id', $student->school_info_id ?? '') == $school_info->id ? 'selected' : '' }}>
-                                        {{ $school_info->school_name }}
+                            <label for="school_year_id" class="block text-sm font-medium text-gray-700">School Year</label>
+                            <select id="school_year_id" name="school_year_id" required
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('school_year_id') border-red-500 @enderror">
+                                <option value="">Select School Year</option>
+                                @foreach ($schoolYears as $year)
+                                    <option value="{{ $year->id }}" {{ old('school_year_id', $student->school_year_id) == $year->id ? 'selected' : '' }}>
+                                        {{ $year->name }}
                                     </option>
                                 @endforeach
                             </select>
-                            <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
+                            @error('school_year_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Form Actions -->
+                        <!-- Section -->
+                        <div>
+                            <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
+                            <input type="text" id="section" name="section" required
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('section') border-red-500 @enderror"
+                                value="{{ old('section', $student->section) }}">
+                            @error('section')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div class="flex items-center justify-end gap-4 pt-4">
                             <a href="{{ route('teacher.students.index') }}"
                                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -222,17 +185,70 @@
             </div>
         </div>
     </div>
+
     <script>
+        // Calculate age from birthdate
         function calculateAge() {
-            const birthdate = document.getElementById('birthdate').value;
+            const birthdateInput = document.getElementById('birthdate');
+            const ageInput = document.getElementById('age');
+            const birthdate = birthdateInput.value;
+
+            if (!birthdate) {
+                ageInput.value = '';
+                return;
+            }
+
             const birthDate = new Date(birthdate);
             const today = new Date();
+
             let age = today.getFullYear() - birthDate.getFullYear();
             const monthDifference = today.getMonth() - birthDate.getMonth();
+
             if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
                 age--;
             }
-            document.getElementById('age').value = age;
+
+            ageInput.value = age;
         }
+
+        // Form validation and error focus
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on first error field if any
+            const firstErrorField = document.querySelector('.text-red-600');
+            if (firstErrorField) {
+                const inputId = firstErrorField.getAttribute('data-input-id') ||
+                               firstErrorField.previousElementSibling.querySelector('input, select')?.id;
+                if (inputId) {
+                    const inputElement = document.getElementById(inputId);
+                    if (inputElement) {
+                        inputElement.focus();
+                        inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+
+            // Age validation on form submit
+            const form = document.getElementById('studentForm');
+            form.addEventListener('submit', function(event) {
+                const ageInput = document.getElementById('age');
+                const age = parseInt(ageInput.value);
+
+                if (age < 5 || age > 60) {
+                    event.preventDefault();
+                    const errorElement = document.querySelector('[data-input-id="age"]') ||
+                                        ageInput.nextElementSibling;
+                    if (errorElement) {
+                        errorElement.textContent = "Age must be between 5 and 60 years";
+                        errorElement.classList.remove('hidden');
+                    }
+                    ageInput.classList.add('border-red-500');
+                    ageInput.focus();
+                    ageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+
+                return true;
+            });
+        });
     </script>
 </x-app-layout>

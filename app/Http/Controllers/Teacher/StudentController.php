@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ActivityLogService;
 use App\Models\AttendanceCoreValue;
+use Illuminate\Support\Facades\DB;
 
 
 class StudentController extends Controller
@@ -24,7 +25,7 @@ class StudentController extends Controller
         $user = Auth::user();
 
         // Main student query with latest enrollment
-        $query = Student::with(['latestEnrollment' => function($q) {
+        $query = Student::with(['latestEnrollment' => function ($q) {
             $q->latest(); // Eager load latest enrollment
         }]);
 
@@ -32,7 +33,7 @@ class StudentController extends Controller
         if ($user->role === 'teacher') {
             $query->whereHas('student_enrollments', function ($q) use ($user) {
                 $q->where('user_id', $user->id)
-                  ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+                    ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
                                   WHERE student_id = students.id)');
             });
         }
@@ -40,30 +41,30 @@ class StudentController extends Controller
         // For admins: Filter by school & optional teacher
         elseif ($user->role === 'admin') {
             $query->where('school_info_id', $user->school_info_id)
-                  ->when($request->filled('user_id'), function ($q) use ($request) {
-                      $q->whereHas('student_enrollments', function ($q) use ($request) {
-                          $q->where('user_id', $request->user_id)
+                ->when($request->filled('user_id'), function ($q) use ($request) {
+                    $q->whereHas('student_enrollments', function ($q) use ($request) {
+                        $q->where('user_id', $request->user_id)
                             ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
                                             WHERE student_id = students.id)');
-                      });
-                  });
+                    });
+                });
         }
 
         // Apply filters to BOTH roles
         $query->when($request->filled('year_level_id'), function ($q) use ($request) {
             $q->whereHas('student_enrollments', function ($q) use ($request) {
                 $q->where('year_level_id', $request->year_level_id)
-                  ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+                    ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
                                   WHERE student_id = students.id)');
             });
         })
-        ->when($request->filled('school_year_id'), function ($q) use ($request) {
-            $q->whereHas('student_enrollments', function ($q) use ($request) {
-                $q->where('school_year_id', $request->school_year_id)
-                  ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
+            ->when($request->filled('school_year_id'), function ($q) use ($request) {
+                $q->whereHas('student_enrollments', function ($q) use ($request) {
+                    $q->where('school_year_id', $request->school_year_id)
+                        ->whereRaw('student_enrollments.id = (SELECT MAX(id) FROM student_enrollments
                                   WHERE student_id = students.id)');
+                });
             });
-        });
 
         // Search filter
         if ($request->filled('search')) {
@@ -138,39 +139,65 @@ class StudentController extends Controller
             'middlename'        => 'nullable|max:255',
             'lastname'          => 'required|string|max:255',
             'suffix'            => 'nullable|max:255',
-            'gender'            => 'required|string|max:255',
-            'age'               => 'required|string|max:255',
-            'section'           => 'nullable|string|max:255',
-            'birthdate'         => 'required|date',
-            'year_level_id'     => 'nullable|exists:year_levels,id',
-            'school_year_id'    => 'nullable|exists:school_years,id',
-            'school_info_id'    => 'nullable|exists:school_infos,id',
+            'gender'            => 'required|string|in:male,female',
+            'age'               => 'required|integer|min:5|max:60',
+            'section'           => 'required|string|max:255',
+            'birthdate'         => 'required|date|before_or_equal:-5 years|after_or_equal:-60 years',
+            'year_level_id'     => 'required|exists:year_levels,id',
+            'school_year_id'    => 'required|exists:school_years,id',
+            'school_info_id'    => 'required|exists:school_infos,id',
         ]);
 
-        $validated['user_id'] = Auth::id();
+        // Double-check age calculation from birthdate
+        $birthdate = new \DateTime($request->birthdate);
+        $today = new \DateTime();
+        $calculatedAge = $today->diff($birthdate)->y;
 
-        // ✅ Store the student and assign it to a variable
-        $student = Student::create($validated);
+        if ($calculatedAge < 5 || $calculatedAge > 60) {
+            return back()
+                ->withErrors(['age' => 'Calculated age must be between 5 and 60 years'])
+                ->withInput();
+        }
 
-        // Create enrollment (separately, and explicitly use Auth::id())
-        \App\Models\StudentEnrollment::create([
-            'student_id'        => $student->id,
-            'age'               => $student->age,
-            'section'           => $student->section,
-            'year_level_id'     => $student->year_level_id,
-            'school_year_id'    => $student->school_year_id,
-            'school_info_id'    => $student->school_info_id,
-            'user_id'           => Auth::id(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // ✅ Log the action with correct variable reference
-        ActivityLogService::log(
-            'Added Student',
-            "Added {$student->firstname} {$student->middlename} {$student->lastname} to Grade {$student->year_level_id} - Section {$student->section}"
-        );
+            $validated['user_id'] = Auth::id();
+            $student = Student::create($validated);
 
-        return redirect()->route('teacher.students.index')
-            ->with('success', 'Student created successfully.');
+            \App\Models\StudentEnrollment::create([
+                'student_id'        => $student->id,
+                'age'               => $student->age,
+                'section'           => $student->section,
+                'year_level_id'     => $student->year_level_id,
+                'school_year_id'    => $student->school_year_id,
+                'school_info_id'    => $student->school_info_id,
+                'user_id'           => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            ActivityLogService::log(
+                'Added Student',
+                sprintf(
+                    "Added %s %s %s %s to Grade %s - Section %s",
+                    $student->firstname,
+                    $student->middlename,
+                    $student->lastname,
+                    $student->suffix,
+                    $student->yearLevel->name,
+                    $student->section
+                )
+            );
+
+            return redirect()->route('teacher.students.index')
+                ->with('success', 'Student created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withErrors(['error' => 'Failed to create student. Please try again.'])
+                ->withInput();
+        }
     }
 
     public function edit(Student $student)
@@ -234,7 +261,6 @@ class StudentController extends Controller
                 'year_level_id'     => $validated['year_level_id'],
                 'school_year_id'    => $validated['school_year_id'],
                 'school_info_id'    => $validated['school_info_id'],
-                // Do NOT update user_id to maintain original creator
             ]);
         }
 
