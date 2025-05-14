@@ -43,7 +43,7 @@
                                         @foreach ($teachers as $teacher)
                                             <option value="{{ $teacher->id }}"
                                                 {{ request('user_id') == $teacher->id ? 'selected' : '' }}>
-                                                {{ $teacher->name }} ({{ $teacher->yearLevel->name }} - {{ $teacher->section }})
+                                                {{ $teacher->name }} ({{ $teacher->yearLevel->name ?? '' }} - {{ $teacher->section ?? '' }})
                                             </option>
                                         @endforeach
                                     </select>

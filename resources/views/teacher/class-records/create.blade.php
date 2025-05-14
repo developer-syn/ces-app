@@ -71,7 +71,7 @@
                     <table class="grade-table w-full border-collapse mb-6">
                         <tr class="head-row bg-gray-100">
                             <th class="table-head" colspan="2">
-                                <select name="quarter_id" class="border-none bg-blue-50 text-center text-sm">
+                                <select name="quarter_id" class="border-none bg-blue-50 text-center text-sm" required>
                                     <option value="" disabled selected>--Select Quarter--</option>
                                     @foreach ($quarter as $q)
                                         <option value="{{ $q->id }}">{{ $q->name }}</option>
@@ -91,7 +91,7 @@
                             </th>
                             <th class="table-head" colspan="4">SUBJECT:</th>
                             <th class="table-head" colspan="4">
-                                <select name="subject_id" class="border-none bg-blue-50 text-center text-sm">
+                                <select name="subject_id" class="border-none bg-blue-50 text-center text-sm" required>
                                     <option value="" disabled selected>--Select Subject--</option>
                                     @foreach ($subject as $subj)
                                         <option value="{{ $subj->id }}">{{ $subj->name }}</option>
