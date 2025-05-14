@@ -525,7 +525,7 @@
                         @csrf
                         <div class="flex items-center gap-4">
                             <input type="file" name="file" class="border rounded-lg px-4 py-2 w-full sm:w-64"
-                                accept=".csv">
+                                accept=".csv" required>
                             <button type="submit"
                                 class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -540,7 +540,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="{{ asset('js/students/index.js') }}"></script>
 </x-app-layout>
