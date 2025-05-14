@@ -120,6 +120,15 @@ class StudentController extends Controller
     // Show the form for creating a new student
     public function create()
     {
+        // Check if the authenticated teacher is linked to this student
+        $hasAccess = User::where('role', 'teacher')
+            ->where('id', Auth::id())
+            ->exists();
+
+        if (!$hasAccess) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $user = Auth::user();
 
         // Retrieve year levels for the dropdown selection
