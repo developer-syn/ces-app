@@ -60,7 +60,7 @@
                                                         ? $student->classRecords->avg('quarterly_grade')
                                                         : 0;
                                                 @endphp
-                                                {{ number_format($average, 2) }}
+                                                {{ number_format($average) }}
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                                                 <strong>{{ $student->yearLevel->name }}</strong>
@@ -127,7 +127,7 @@
                                                                     ? $student->classRecords->avg('quarterly_grade')
                                                                     : 0;
                                                             @endphp
-                                                            {{ number_format($average, 2) }}
+                                                            {{ number_format($average) }}
                                                         </td>
                                                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"
                                                             style="font-family: 'Times New Roman', Times, serif">
