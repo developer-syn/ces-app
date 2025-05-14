@@ -39,8 +39,8 @@ class TeacherController extends Controller
             'section' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults(), new StrongPassword],
-            'role' => ['required', 'string', 'max:100'],
-            'year_level_id' => ['nullable', 'exists:year_levels,id'],
+            'role'      => ['required', 'in:admin,teacher'],
+            'year_level_id' => ['required_if:role,teacher', 'exists:year_levels,id'],
             'school_info_id' => ['nullable', 'exists:school_infos,id'],
         ]);
 
@@ -73,14 +73,14 @@ class TeacherController extends Controller
             'name' => 'required|string|max:255',
             'section' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email,' . $teacher->id,
-            'role' => 'required|string|max:100',
-            'year_level_id' => 'nullable|exists:year_levels,id',
+            'role'      => ['required', 'in:admin,teacher'],
+            'year_level_id' => ['required_if:role,teacher', 'exists:year_levels,id'],
             'school_info_id' => 'nullable|exists:school_infos,id',
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $teacher->name = $validated['name'];
-        $teacher->section = $validated['section'];
+        $teacher->section = $validated['section'] ?? null;
         $teacher->email = $validated['email'];
         $teacher->role = $validated['role'];
         $teacher->year_level_id = $validated['year_level_id'];

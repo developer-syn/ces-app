@@ -8,12 +8,14 @@
     <div class="py-12">
         <div class="bg-white overflow-hidden sm:rounded-lg shadow-xl mx-8 h-auto">
             <div class="p-6 text-gray-900 h-full">
-                <div class="mb-4">
-                    <a href="{{ route('teacher.class-records.create') }}"
-                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                        + Create New Class Record
-                    </a>
-                </div>
+                @if (auth()->user()->role === 'teacher')
+                    <div class="mb-4">
+                        <a href="{{ route('teacher.class-records.create') }}"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+                            + Create New Class Record
+                        </a>
+                    </div>
+                @endif
 
                 <!-- Search and Filters -->
                 <div class="mb-4 grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -147,24 +149,26 @@
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     School Year
                                 </th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
+                                @if (auth()->user()->role === 'teacher')
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @php
                                 // Group the records so that each unique combination of subject, quarter, grade_section, school_year
                                 // becomes a single group. We'll display only the first record from each group.
-                                $groupedRecords = $classRecords->groupBy(function ($rec) {
-                                    return $rec->subject_id .
-                                        '|' .
-                                        $rec->quarter .
-                                        '|' .
-                                        $rec->grade_section .
-                                        '|' .
-                                    $rec->school_year_id;
+$groupedRecords = $classRecords->groupBy(function ($rec) {
+    return $rec->subject_id .
+        '|' .
+        $rec->quarter .
+        '|' .
+        $rec->grade_section .
+        '|' .
+                                        $rec->school_year_id;
                                 });
                             @endphp
 
@@ -186,49 +190,50 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         {{ $record->schoolYear->name }}
                                     </td>
-                                    <td width="24" class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <!-- Alpine.js dropdown -->
-                                        <div x-data="{ open: false }" class="relative inline-block text-left">
-                                            <!-- Dropdown toggle button -->
-                                            <button @click="open = !open"
-                                                class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none">
-                                                Actions
-                                                <svg class="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 01.02-1.06z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
+                                    @if (auth()->user()->role === 'teacher')
+                                        <td width="24" class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <!-- Alpine.js dropdown -->
+                                            <div x-data="{ open: false }" class="relative inline-block text-left">
+                                                <!-- Dropdown toggle button -->
+                                                <button @click="open = !open"
+                                                    class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none">
+                                                    Actions
+                                                    <svg class="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd"
+                                                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 01.02-1.06z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                </button>
 
-                                            <!-- Dropdown menu -->
-                                            <div x-show="open" @click.away="open = false"
-                                                class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                                                style="overflow: visible;">
-                                                <div class="py-1">
-                                                    <!-- Edit link -->
-                                                    <a href="{{ route('teacher.class-records.edit', $record) }}"
-                                                        class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
-                                                        Update Record
-                                                    </a>
+                                                <!-- Dropdown menu -->
+                                                <div x-show="open" @click.away="open = false"
+                                                    class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                                                    style="overflow: visible;">
+                                                    <div class="py-1">
+                                                        <!-- Edit link -->
+                                                        <a href="{{ route('teacher.class-records.edit', $record) }}"
+                                                            class="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
+                                                            Update Record
+                                                        </a>
 
-                                                    <!-- Delete form -->
-                                                    <form
-                                                        action="{{ route('teacher.class-records.destroy', $record) }}"
-                                                        method="POST" class="block"
-                                                        onsubmit="return confirm('Are you sure you want to delete this record?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
-                                                            Delete Record
-                                                        </button>
-                                                    </form>
+                                                        <!-- Delete form -->
+                                                        <form
+                                                            action="{{ route('teacher.class-records.destroy', $record) }}"
+                                                            method="POST" class="block"
+                                                            onsubmit="return confirm('Are you sure you want to delete this record?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
+                                                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
+                                                                Delete Record
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

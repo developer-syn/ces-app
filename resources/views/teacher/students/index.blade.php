@@ -11,35 +11,37 @@
                 <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <!-- Left side - Add Button and Bulk Actions -->
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="{{ route('teacher.students.create') }}"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
-                            </svg>
-                            Register student
-                        </a>
-                        <!-- Bulk Actions -->
-                        <div class="flex gap-2">
-                            <div class="hidden">
-                                <button id="exportCsvButton"
-                                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Export CSV
-                                </button>
-                            </div>
-                            <button id="deleteSelectedButton"
-                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 flex items-center gap-2">
+                        @if (auth()->user()->role === 'teacher')
+                            <a href="{{ route('teacher.students.create') }}"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        d="M12 4v16m8-8H4" />
                                 </svg>
-                                Delete Selected
-                            </button>
-                        </div>
+                                Register student
+                            </a>
+                            <!-- Bulk Actions -->
+                            <div class="flex gap-2">
+                                <div class="hidden">
+                                    <button id="exportCsvButton"
+                                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                </div>
+                                <button id="deleteSelectedButton"
+                                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Selected
+                                </button>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Right side - Search and Filters -->
@@ -203,50 +205,51 @@
                                                 x-transition:leave-start="opacity-100 scale-100"
                                                 x-transition:leave-end="opacity-0 scale-95"
                                                 class="origin-top-right absolute right-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 divide-y divide-gray-100">
-
-                                                <!-- Basic Actions -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <a href="{{ route('teacher.students.edit', $student->id) }}"
-                                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
-                                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                        </svg>
-                                                        Edit Student
-                                                    </a>
-                                                </div>
-
-                                                <!-- Attendance & Core Values -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <div
-                                                        class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                                        Attendance & Core Values
-                                                    </div>
-                                                    @foreach ($student->enrollments->sortBy('school_year_id') as $enrollment)
-                                                        <a href="{{ route('teacher.attendance-core-values.create', [
-                                                            'enrollment' => $enrollment->id,
-                                                            'year_level' => $enrollment->year_level_id,
-                                                            'school_year' => $enrollment->school_year_id,
-                                                        ]) }}"
-                                                            class="flex items-center justify-between px-4 py-2 text-sm hover:bg-blue-50 rounded-md group">
-                                                            <span
-                                                                class="{{ $enrollment->attendanceCoreValues()->exists() ? 'text-green-700' : 'text-gray-700' }}">
-                                                                {{ $enrollment->yearLevel->name }}
-                                                                ({{ $enrollment->schoolYear->name }})
-                                                            </span>
-                                                            @if ($enrollment->attendanceCoreValues()->exists())
-                                                                <svg class="w-4 h-4 text-green-500" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M5 13l4 4L19 7" />
-                                                                </svg>
-                                                            @endif
+                                                @if (auth()->user()->role === 'teacher')
+                                                    <!-- Basic Actions -->
+                                                    <div class="py-2 px-1 space-y-1">
+                                                        <a href="{{ route('teacher.students.edit', $student->id) }}"
+                                                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
+                                                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                            </svg>
+                                                            Edit Student
                                                         </a>
-                                                    @endforeach
-                                                </div>
+                                                    </div>
+
+                                                    <!-- Attendance & Core Values -->
+                                                    <div class="py-2 px-1 space-y-1">
+                                                        <div
+                                                            class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                                            Attendance & Core Values
+                                                        </div>
+                                                        @foreach ($student->enrollments->sortBy('school_year_id') as $enrollment)
+                                                            <a href="{{ route('teacher.attendance-core-values.create', [
+                                                                'enrollment' => $enrollment->id,
+                                                                'year_level' => $enrollment->year_level_id,
+                                                                'school_year' => $enrollment->school_year_id,
+                                                            ]) }}"
+                                                                class="flex items-center justify-between px-4 py-2 text-sm hover:bg-blue-50 rounded-md group">
+                                                                <span
+                                                                    class="{{ $enrollment->attendanceCoreValues()->exists() ? 'text-green-700' : 'text-gray-700' }}">
+                                                                    {{ $enrollment->yearLevel->name }}
+                                                                    ({{ $enrollment->schoolYear->name }})
+                                                                </span>
+                                                                @if ($enrollment->attendanceCoreValues()->exists())
+                                                                    <svg class="w-4 h-4 text-green-500" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                @endif
+                                                            </a>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
 
                                                 <!-- Academic Records -->
                                                 <div class="py-2 px-1 space-y-1">
@@ -281,38 +284,40 @@
                                                         SF10 Records
                                                     </a>
                                                 </div>
-
-                                                <!-- Administrative Actions -->
-                                                <div class="py-2 px-1 space-y-1">
-                                                    <button @click="showPromoteModal = true"
-                                                        class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
-                                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                                        </svg>
-                                                        Promote Student
-                                                    </button>
-
-                                                    <form
-                                                        action="{{ route('teacher.students.destroy', $student->id) }}"
-                                                        method="POST"
-                                                        @submit.prevent="if(confirm('Are you sure you want to delete this student?')) $el.submit()"
-                                                        class="w-full">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md group">
-                                                            <svg class="w-5 h-5 mr-2 text-red-600" fill="none"
+                                                @if (auth()->user()->role === 'teacher')
+                                                    <!-- Administrative Actions -->
+                                                    <div class="py-2 px-1 space-y-1">
+                                                        <button @click="showPromoteModal = true"
+                                                            class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md group">
+                                                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
                                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                                             </svg>
-                                                            Delete Student
+                                                            Promote Student
                                                         </button>
-                                                    </form>
-                                                </div>
+
+                                                        <form
+                                                            action="{{ route('teacher.students.destroy', $student->id) }}"
+                                                            method="POST"
+                                                            @submit.prevent="if(confirm('Are you sure you want to delete this student?')) $el.submit()"
+                                                            class="w-full">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
+                                                                class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md group">
+                                                                <svg class="w-5 h-5 mr-2 text-red-600" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                                Delete Student
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             <!-- Promote Modal -->

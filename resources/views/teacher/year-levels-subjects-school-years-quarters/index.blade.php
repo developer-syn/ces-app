@@ -708,11 +708,11 @@
                                                     <form id="delete-quarterly-{{ $quarter->id }}"
                                                         action="{{ route('teacher.quarters.destroy', $quarter->id) }}"
                                                         method="POST" class="flex gap-4">
-                                                      @csrf
-                                                      @method('DELETE')
-                                                      <button type="button"
-                                                          class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                                                          onclick="showDeleteModal(
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="button"
+                                                            class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                                            onclick="showDeleteModal(
                                                               'delete-quarterly-{{ $quarter->id }}',
                                                               'Delete Quarterly',
                                                               'WARNING: This will permanently delete the quarterly period and ALL associated grades. This action cannot be undone.'

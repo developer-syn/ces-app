@@ -20,11 +20,13 @@
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <div>
-                            <x-input-label for="role" :value="__('Role')" class="mt-4" />
-                            <select id="role" name="role" class="block mt-1 w-full rounded-md" required
-                                autofocus>
-                                <option value="" disabled selected>Select a role</option>
+                        <!-- Role Field -->
+                        <div class="mt-4">
+                            <x-input-label for="role" :value="__('Role')" />
+                            <select id="role" name="role"
+                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                required autofocus onchange="toggleTeacherFields()">
+                                <option value="" disabled>Select a role</option>
                                 <option value="admin" {{ old('role', $teacher->role) == 'admin' ? 'selected' : '' }}>
                                     Admin</option>
                                 <option value="teacher"
@@ -33,15 +35,17 @@
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />
                         </div>
 
-                        <!-- Year Level Field -->
-                        <div>
-                            <x-input-label for="year_level_id" :value="__('Year Level Assigned')" class="mt-4" />
-                            <select id="year_level_id" name="year_level_id" class="block mt-1 w-full rounded-md"
-                                required>
+                        <!-- Year Level Field (Conditional) -->
+                        <div id="yearLevelField" class="mt-4"
+                            style="{{ old('role', $teacher->role) == 'teacher' ? '' : 'display: none;' }}">
+                            <x-input-label for="year_level_id" :value="__('Year Level Assigned')" />
+                            <select id="year_level_id" name="year_level_id"
+                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                {{ old('role', $teacher->role) == 'teacher' ? 'required' : '' }}>
                                 <option value="" disabled selected>Select a Year Level</option>
                                 @foreach ($yearLevels as $yearLevel)
                                     <option value="{{ $yearLevel->id }}"
-                                        {{ old('year_level_id', $teacher->year_level_id ?? '') == $yearLevel->id ? 'selected' : '' }}>
+                                        {{ old('year_level_id', $teacher->year_level_id) == $yearLevel->id ? 'selected' : '' }}>
                                         {{ $yearLevel->name }}
                                     </option>
                                 @endforeach
@@ -50,14 +54,15 @@
                         </div>
 
                         <!-- School Information Field -->
-                        <div>
-                            <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
-                            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md"
+                        <div class="mt-4">
+                            <x-input-label for="school_info_id" :value="__('School Name')" />
+                            <select id="school_info_id" name="school_info_id"
+                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                 required>
                                 <option value="" disabled selected>Select a School Name</option>
                                 @foreach ($school_infos as $school_info)
                                     <option value="{{ $school_info->id }}"
-                                        {{ old('school_info_id', $teacher->school_info_id ?? '') == $school_info->id ? 'selected' : '' }}>
+                                        {{ old('school_info_id', $teacher->school_info_id) == $school_info->id ? 'selected' : '' }}>
                                         {{ $school_info->school_name }}
                                     </option>
                                 @endforeach
@@ -65,11 +70,11 @@
                             <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
                         </div>
 
-                        <!-- section -->
-                        <div>
+                        <!-- Section Field (Conditional) -->
+                        <div id="sectionField" class="mt-4" style="display: none;">
                             <x-input-label for="section" :value="__('Section')" />
                             <x-text-input id="section" class="block mt-1 w-full" type="text" name="section"
-                                :value="old('section', $teacher->section)" required autofocus autocomplete="section" />
+                                :value="old('section', $teacher->section)" autocomplete="section" />
                             <x-input-error :messages="$errors->get('section')" class="mt-2" />
                         </div>
 
@@ -103,7 +108,8 @@
                                 href="{{ route('admin.teachers.index') }}">
                                 {{ __('Cancel') }}
                             </a>
-                            <x-primary-button class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200">
+                            <x-primary-button
+                                class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200">
                                 {{ __('Update') }}
                             </x-primary-button>
                         </div>
@@ -112,4 +118,36 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleTeacherFields() {
+            const roleSelect = document.getElementById('role');
+            const yearLevelField = document.getElementById('yearLevelField');
+            const sectionField = document.getElementById('sectionField');
+            const yearLevelInput = document.getElementById('year_level_id');
+            const sectionInput = document.getElementById('section');
+
+            if (roleSelect.value === 'teacher') {
+                yearLevelField.style.display = 'block';
+                sectionField.style.display = 'block';
+                yearLevelInput.required = true;
+                sectionInput.required = true;
+
+                // Optional: Focus on section field when shown
+                if (sectionField.style.display === 'block') {
+                    sectionInput.focus();
+                }
+            } else {
+                yearLevelField.style.display = 'none';
+                sectionField.style.display = 'none';
+                yearLevelInput.required = false;
+                sectionInput.required = false;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleTeacherFields();
+        });
+    </script>
 </x-app-layout>

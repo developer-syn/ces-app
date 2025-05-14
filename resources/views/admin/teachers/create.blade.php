@@ -19,48 +19,52 @@
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <div>
-                            <x-input-label for="role" :value="__('Role')" class="mt-4" />
-                            <select id="role" name="role" class="block mt-1 w-full rounded-md" required
-                                autofocus>
+                        <!-- Role Field -->
+                        <div class="mt-4">
+                            <x-input-label for="role" :value="__('Role')" />
+                            <select id="role" name="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    required onchange="toggleTeacherFields()">
                                 <option value="" disabled selected>Select a role</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher
-                                </option>
+                                <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
                             </select>
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />
                         </div>
 
-                        <!-- Year Level Field -->
-                        <div>
-                            <x-input-label for="year_level_id" :value="__('Year Level Assigned')" class="mt-4" />
-                            <select id="year_level_id" name="year_level_id" class="block mt-1 w-full rounded-md"
-                                autofocus>
+                        <!-- Year Level Field (Conditional) -->
+                        <div id="yearLevelField" class="mt-4" style="display: none;">
+                            <x-input-label for="year_level_id" :value="__('Year Level Assigned')" />
+                            <select id="year_level_id" name="year_level_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                 <option value="" disabled selected>Select a Year Level</option>
                                 @foreach ($yearLevels as $yearLevel)
-                                    <option value="{{ $yearLevel->id }}">{{ $yearLevel->name }}</option>
+                                    <option value="{{ $yearLevel->id }}" {{ old('year_level_id') == $yearLevel->id ? 'selected' : '' }}>
+                                        {{ $yearLevel->name }}
+                                    </option>
                                 @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('year_level_id')" class="mt-2" />
                         </div>
 
                         <!-- School Information Field -->
-                        <div>
-                            <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
-                            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md"
-                                autofocus>
+                        <div class="mt-4">
+                            <x-input-label for="school_info_id" :value="__('School Name')" />
+                            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    required>
                                 <option value="" disabled selected>Select a School Name</option>
                                 @foreach ($school_infos as $school_info)
-                                    <option value="{{ $school_info->id }}">{{ $school_info->school_name }}</option>
+                                    <option value="{{ $school_info->id }}" {{ old('school_info_id') == $school_info->id ? 'selected' : '' }}>
+                                        {{ $school_info->school_name }}
+                                    </option>
                                 @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('school_info_id')" class="mt-2" />
                         </div>
 
-                        <div>
+                        <!-- Section Field (Conditional) -->
+                        <div id="sectionField" class="mt-4" style="display: none;">
                             <x-input-label for="section" :value="__('Section')" />
                             <x-text-input id="section" class="block mt-1 w-full" type="text" name="section"
-                                :value="old('section')" autofocus autocomplete="name" />
+                                :value="old('section')" autocomplete="section" />
                             <x-input-error :messages="$errors->get('section')" class="mt-2" />
                         </div>
 
@@ -75,20 +79,16 @@
                         <!-- Password -->
                         <div class="mt-4">
                             <x-input-label for="password" :value="__('Password')" />
-
                             <x-text-input id="password" class="block mt-1 w-full" type="password" name="password"
                                 required autocomplete="new-password" />
-
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="mt-4">
                             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
                             <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
                                 name="password_confirmation" required autocomplete="new-password" />
-
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                         </div>
 
@@ -101,10 +101,42 @@
                                 {{ __('Register') }}
                             </x-primary-button>
                         </div>
-                        
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleTeacherFields() {
+            const roleSelect = document.getElementById('role');
+            const yearLevelField = document.getElementById('yearLevelField');
+            const sectionField = document.getElementById('sectionField');
+            const yearLevelInput = document.getElementById('year_level_id');
+            const sectionInput = document.getElementById('section');
+
+            if (roleSelect.value === 'teacher') {
+                yearLevelField.style.display = 'block';
+                sectionField.style.display = 'block';
+                yearLevelInput.required = true;
+                sectionInput.required = true;
+            } else {
+                yearLevelField.style.display = 'none';
+                sectionField.style.display = 'none';
+                yearLevelInput.required = false;
+                sectionInput.required = false;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleTeacherFields();
+
+            // If there are old values and role was teacher, show fields
+            if (document.getElementById('role').value === 'teacher') {
+                document.getElementById('yearLevelField').style.display = 'block';
+                document.getElementById('sectionField').style.display = 'block';
+            }
+        });
+    </script>
 </x-app-layout>

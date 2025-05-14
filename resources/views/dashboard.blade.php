@@ -37,20 +37,23 @@
             </div>
 
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Total Teachers -->
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-sm">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            @include('components.svg.multi-user-icon')
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold">Total Teachers</h3>
-                            <p class="text-2xl font-bold">{{ $totalTeachers ?? 0 }}</p>
+            @if (auth()->user()->role === 'admin')
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <!-- Total Teachers -->
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @include('components.svg.multi-user-icon')
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Total Teachers</h3>
+                                <p class="text-2xl font-bold">{{ $totalTeachers ?? 0 }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-
+            @endif
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <!-- Total Class Records -->
                 <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-sm">
                     <div class="flex items-center">
@@ -80,6 +83,7 @@
                         <div class="ml-4">
                             <h3 class="text-lg font-semibold">Total Subjects</h3>
                             <p class="text-2xl font-bold">{{ $totalSubjects ?? 0 }}</p>
+                            <p class="text-sm text-gray-600">You are viewing all the subjects added.</p>
                         </div>
                     </div>
                 </div>
@@ -92,7 +96,8 @@
                     <ul class="list-disc pl-5 space-y-2">
                         @forelse ($recentActivities as $activity)
                             <li class="text-gray-700">
-                                <strong>{{ $activity->user->name }}</strong> {{ $activity->action }} - {{ $activity->description }}
+                                <strong>{{ $activity->user->name }}</strong> {{ $activity->action }} -
+                                {{ $activity->description }}
                                 <span class="text-gray-500 text-sm">{{ $activity->created_at->diffForHumans() }}</span>
                             </li>
                         @empty
@@ -107,28 +112,53 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-4">
-                        <a href="{{ route('teacher.students.index') }}"
-                            class="bg-blue-500 text-white p-4 rounded-lg shadow hover:bg-blue-600">
-                            Manage Students
-                        </a>
-                        <a href="{{ route('admin.teachers.index') }}"
-                            class="bg-green-500 text-white p-4 rounded-lg shadow hover:bg-green-600">
-                            Manage Teachers
-                        </a>
-                        <a href="{{ route('teacher.class-records.index') }}"
-                            class="bg-yellow-500 text-white p-4 rounded-lg shadow hover:bg-yellow-600">
-                            Manage Class Records
-                        </a>
-                        <a href="{{ route('teacher.summary_quarterly_grades.index') }}"
-                            class="bg-purple-500 text-white p-4 rounded-lg shadow hover:bg-purple-600">
-                            View Reports
-                        </a>
-                        <a href="{{ route('admin.school-infos.index') }}"
-                            class="bg-gray-500 text-white p-4 rounded-lg shadow hover:bg-gray-600">
-                            Manage School Info
-                        </a>
-                    </div>
+                    @if (auth()->user()->role == 'admin')
+                        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-4">
+                            <a href="{{ route('admin.teachers.index') }}"
+                                class="bg-green-500 text-white p-4 rounded-lg shadow hover:bg-green-600">
+                                Manage Teachers
+                            </a>
+                            <a href="{{ route('admin.school-infos.index') }}"
+                                class="bg-gray-500 text-white p-4 rounded-lg shadow hover:bg-gray-600">
+                                Manage School Info
+                            </a>
+                            <a href="{{ route('teacher.students.index') }}"
+                                class="bg-blue-500 text-white p-4 rounded-lg shadow hover:bg-blue-600">
+                                Manage Students
+                            </a>
+                            <a href="{{ route('teacher.class-records.index') }}"
+                                class="bg-yellow-500 text-white p-4 rounded-lg shadow hover:bg-yellow-600">
+                                Manage Class Records
+                            </a>
+                            <a href="{{ route('teacher.summary_quarterly_grades.index') }}"
+                                class="bg-purple-500 text-white p-4 rounded-lg shadow hover:bg-purple-600">
+                                View Quarterly Grades
+                            </a>
+                            <a href="{{ route('teacher.reports.students-report') }}"
+                                class="bg-red-500 text-white p-4 rounded-lg shadow hover:bg-red-600">
+                                View Reports
+                            </a>
+                        </div>
+                    @else
+                        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 gap-4">
+                            <a href="{{ route('teacher.students.index') }}"
+                                class="bg-blue-500 text-white p-4 rounded-lg shadow hover:bg-blue-600">
+                                Manage Students
+                            </a>
+                            <a href="{{ route('teacher.class-records.index') }}"
+                                class="bg-yellow-500 text-white p-4 rounded-lg shadow hover:bg-yellow-600">
+                                Manage Class Records
+                            </a>
+                            <a href="{{ route('teacher.summary_quarterly_grades.index') }}"
+                                class="bg-purple-500 text-white p-4 rounded-lg shadow hover:bg-purple-600">
+                                View Quarterly Grades
+                            </a>
+                            <a href="{{ route('teacher.reports.students-report') }}"
+                                class="bg-red-500 text-white p-4 rounded-lg shadow hover:bg-red-600">
+                                View Reports
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

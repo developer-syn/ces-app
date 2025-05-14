@@ -36,12 +36,14 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('admin.school-infos.index')">
-                                {{ __('School Information') }}
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('admin.teachers.index')">
-                                {{ __('Teachers lists') }}
-                            </x-dropdown-link>
+                            @if (auth()->user()->role == 'admin')
+                                <x-dropdown-link :href="route('admin.school-infos.index')">
+                                    {{ __('School Information') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.teachers.index')">
+                                    {{ __('Teachers lists') }}
+                                </x-dropdown-link>
+                            @endif
                             <x-dropdown-link :href="route('teacher.students.index')">
                                 {{ __('Students lists') }}
                             </x-dropdown-link>
@@ -77,10 +79,13 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <div class="fixed top-20 right-4 z-50 space-y-4">
                     @if (session('success'))
-                        <div id="success-alert" class="flex items-center p-4 max-w-md bg-green-50 border-l-4 border-green-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
+                        <div id="success-alert"
+                            class="flex items-center p-4 max-w-md bg-green-50 border-l-4 border-green-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <div class="ml-3">
@@ -90,10 +95,13 @@
                     @endif
 
                     @if (session('error'))
-                        <div id="error-alert" class="flex items-center p-4 max-w-md bg-red-50 border-l-4 border-red-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
+                        <div id="error-alert"
+                            class="flex items-center p-4 max-w-md bg-red-50 border-l-4 border-red-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <div class="ml-3">
@@ -103,10 +111,13 @@
                     @endif
 
                     @if ($errors->any())
-                        <div id="validation-alert" class="flex items-center p-4 max-w-md bg-red-50 border-l-4 border-red-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
+                        <div id="validation-alert"
+                            class="flex items-center p-4 max-w-md bg-red-50 border-l-4 border-red-500 rounded-r shadow-lg transform transition-all duration-500 animate__animated animate__fadeInRight">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <div class="ml-3">
@@ -181,19 +192,25 @@
 
             <!-- School Management Dropdown -->
             <div class="px-4">
-                <button @click="schoolManagementOpen = !schoolManagementOpen" class="w-full flex justify-between items-center py-2 text-left text-gray-600 hover:text-gray-900">
+                <button @click="schoolManagementOpen = !schoolManagementOpen"
+                    class="w-full flex justify-between items-center py-2 text-left text-gray-600 hover:text-gray-900">
                     <span>{{ __('School Management') }}</span>
-                    <svg class="h-4 w-4" :class="{ 'transform rotate-180': schoolManagementOpen }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    <svg class="h-4 w-4" :class="{ 'transform rotate-180': schoolManagementOpen }"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
                     </svg>
                 </button>
                 <div x-show="schoolManagementOpen" class="pl-4 space-y-1">
-                    <x-responsive-nav-link :href="route('admin.school-infos.index')">
-                        {{ __('School Information') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('admin.teachers.index')">
-                        {{ __('Teachers lists') }}
-                    </x-responsive-nav-link>
+                    @if (auth()->user()->role == 'admin')
+                        <x-responsive-nav-link :href="route('admin.school-infos.index')">
+                            {{ __('School Information') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('admin.teachers.index')">
+                            {{ __('Teachers lists') }}
+                        </x-responsive-nav-link>
+                    @endif
                     <x-responsive-nav-link :href="route('teacher.students.index')">
                         {{ __('Students lists') }}
                     </x-responsive-nav-link>
