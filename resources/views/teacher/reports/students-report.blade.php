@@ -54,25 +54,16 @@
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                                                 {{ $student->lastname }}, {{ $student->firstname }}
                                             </td>
-                                            @php
-                                                // Calculate the average grade for the student
-                                                $average = optional($student->classRecords->first())->average_grade;
-                                            @endphp
-
-                                            <td class="px-6 py-4 whitespace-nowrap bg-blue-50">
-                                                <div class="text-sm font-semibold text-gray-900 text-center">
-                                                    @if ($average !== null)
-                                                        <span
-                                                            class="@if ($average < 75) text-red-600 @elseif($average >= 90) text-green-600 @endif">
-                                                            {{ number_format($average) }}
-                                                        </span>
-                                                    @else
-                                                        <span class="text-gray-900">-</span>
-                                                    @endif
-                                                </div>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                @php
+                                                    $average = $student->classRecords->isNotEmpty()
+                                                        ? $student->classRecords->avg('quarterly_grade')
+                                                        : 0;
+                                                @endphp
+                                                {{ number_format($average, 2) }}
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                                {{ $student->grade_level }}
+                                                <strong>{{ $student->yearLevel->name }}</strong>
                                             </td>
                                         </tr>
                                     @endforeach
