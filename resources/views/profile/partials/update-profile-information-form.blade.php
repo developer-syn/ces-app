@@ -20,7 +20,7 @@
         <!-- School Information Field -->
         <div>
             <x-input-label for="school_info_id" :value="__('School Name')" class="mt-4" />
-            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md" required disabled>
+            <select id="school_info_id" name="school_info_id" class="block mt-1 w-full rounded-md" required>
                 <option value="" disabled selected>Select a School Name</option>
                 @foreach ($school_infos as $school_info)
                     <option value="{{ $school_info->id }}"
