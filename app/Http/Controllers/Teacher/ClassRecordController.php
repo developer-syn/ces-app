@@ -235,7 +235,8 @@ class ClassRecordController extends Controller
 
             // Compute final grades.
             $initialGrade = round($wsWrittenWorks + $wsPerformanceTasks + $wsQuarterlyAssessment, 2);
-            $quarterlyGrade = round($initialGrade);
+
+            $quarterlyGrade = $this->getTransmutedGrade($initialGrade);
 
             // Build data array.
             $data = [
@@ -532,7 +533,6 @@ class ClassRecordController extends Controller
                 'quarterly_assessment_ws' => $wsQA,
                 'initial_grade'           => $initialGrade,
                 'quarterly_grade'         => $quarterlyGrade,
-                // Also update the global arrays in each row if needed:
                 'hww'                     => $hwwArray,
                 'hpt'                     => $hptArray,
                 'global_hqa'              => $globalHqa,
