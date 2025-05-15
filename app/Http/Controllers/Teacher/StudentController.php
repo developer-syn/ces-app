@@ -70,12 +70,11 @@ class StudentController extends Controller
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('firstname', 'like', "%{$searchTerm}%")
+                $q->whereRaw("CONCAT(lastname, ', ', firstname, ', ', COALESCE(middlename, '-'), ', ', COALESCE(suffix, '-')) LIKE ?", ["%{$searchTerm}%"])
                     ->orWhere('LRN_num', 'like', "%{$searchTerm}%")
-                    ->orWhere('middlename', 'like', "%{$searchTerm}%")
-                    ->orWhere('lastname', 'like', "%{$searchTerm}%")
-                    ->orWhere('suffix', 'like', "%{$searchTerm}%")
-                    ->orWhere('gender', 'like', "%{$searchTerm}%");
+                    ->orWhere('gender', 'like', "%{$searchTerm}%")
+                    ->orWhere('age', 'like', "%{$searchTerm}%")
+                    ->orWhere('section', 'like', "%{$searchTerm}%");
             });
         }
 

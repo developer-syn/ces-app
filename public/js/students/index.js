@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let filterTimeout;
     searchInput.addEventListener('input', () => {
         clearTimeout(filterTimeout);
-        filterTimeout = setTimeout(filterTable, 1000); // Debounce search
+        filterTimeout = setTimeout(filterTable, 1000);
     });
 
     // Add event listeners for filters
