@@ -51,43 +51,80 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Total Class Records -->
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @include('components.svg.subject-icon')
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Total Class Records</h3>
+                                <p class="text-2xl font-bold">{{ $totalClasses ?? 0 }}</p>
+
+                                @if (auth()->user()->role === 'admin')
+                                    <p class="text-sm text-gray-600">You are viewing all class records.</p>
+                                @else
+                                    <p class="text-sm text-gray-600">You are viewing only your assigned class records.
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Total Subjects -->
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @include('components.svg.subject-icon')
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Total Subjects</h3>
+                                <p class="text-2xl font-bold">{{ $totalSubjects ?? 0 }}</p>
+                                <p class="text-sm text-gray-600">You are viewing all the subjects added.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Total Class Records -->
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @include('components.svg.subject-icon')
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Total Class Records</h3>
+                                <p class="text-2xl font-bold">{{ $totalClasses ?? 0 }}</p>
+
+                                @if (auth()->user()->role === 'admin')
+                                    <p class="text-sm text-gray-600">You are viewing all class records.</p>
+                                @else
+                                    <p class="text-sm text-gray-600">You are viewing only your assigned class records.
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Total Subjects -->
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @include('components.svg.subject-icon')
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Total Subjects</h3>
+                                <p class="text-2xl font-bold">{{ $totalSubjects ?? 0 }}</p>
+                                <p class="text-sm text-gray-600">You are viewing all the subjects added.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- Total Class Records -->
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-sm">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            @include('components.svg.subject-icon')
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold">Total Class Records</h3>
-                            <p class="text-2xl font-bold">{{ $totalClasses ?? 0 }}</p>
-
-                            @if (auth()->user()->role === 'admin')
-                                <p class="text-sm text-gray-600">You are viewing all class records.</p>
-                            @else
-                                <p class="text-sm text-gray-600">You are viewing only your assigned class records.</p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Total Subjects -->
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            @include('components.svg.subject-icon')
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold">Total Subjects</h3>
-                            <p class="text-2xl font-bold">{{ $totalSubjects ?? 0 }}</p>
-                            <p class="text-sm text-gray-600">You are viewing all the subjects added.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Recent Activities Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
