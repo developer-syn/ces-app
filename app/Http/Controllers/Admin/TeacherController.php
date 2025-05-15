@@ -97,9 +97,14 @@ class TeacherController extends Controller
     }
 
     public function destroy(User $teacher)
-    {
-        $teacher->delete();
-        return redirect()->route('admin.teachers.index')
-            ->with('success', 'Teacher deleted successfully.');
-    }
+{
+    // Delete related student enrollments
+    $teacher->studentEnrollments()->delete();
+
+    // Now delete the teacher
+    $teacher->delete();
+
+    return redirect()->route('admin.teachers.index')
+        ->with('success', 'Teacher deleted successfully.');
+}
 }

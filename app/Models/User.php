@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
 
-     protected $fillable = [
+    protected $fillable = [
         'name',
         'section',
         'email',
@@ -47,6 +47,11 @@ class User extends Authenticatable
     public function schoolInfo()
     {
         return $this->belongsTo(SchoolInfo::class);
+    }
+
+    public function studentEnrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class, 'user_id');
     }
 
     /**
