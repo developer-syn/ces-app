@@ -13,11 +13,11 @@
                     <div class="flex gap-4">
                         <input type="text" placeholder="Search..."
                             class="px-4 py-2 rounded-lg border focus:outline-none">
-                        <select class=" py-2 rounded-lg border focus:outline-none">
+                        {{-- <select class=" py-2 rounded-lg border focus:outline-none">
                             <option value="">All Roles</option>
                             <option value="teacher">Teacher</option>
                             <option value="admin">Admin</option>
-                        </select>
+                        </select> --}}
                     </div>
                     <a href="{{ route('admin.teachers.create') }}"
                         class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg group flex items-center gap-3">

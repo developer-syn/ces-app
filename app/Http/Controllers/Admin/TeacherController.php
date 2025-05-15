@@ -18,7 +18,7 @@ class TeacherController extends Controller
     {
         $teachers = User::with('yearLevel','schoolInfo')
                             ->where('role', 'teacher')
-                            ->where('created_by', auth()->id()) // Filter by admin
+                            ->where('created_by', auth()->id())
                             ->get();
 
         return view('admin.teachers.index', compact('teachers'));
