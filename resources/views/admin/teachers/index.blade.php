@@ -11,13 +11,18 @@
                 <!-- Search and Filter Section -->
                 <div class="mb-4 flex justify-between items-center">
                     <div class="flex gap-4">
-                        <input type="text" placeholder="Search..."
-                            class="px-4 py-2 rounded-lg border focus:outline-none">
-                        {{-- <select class=" py-2 rounded-lg border focus:outline-none">
-                            <option value="">All Roles</option>
-                            <option value="teacher">Teacher</option>
-                            <option value="admin">Admin</option>
-                        </select> --}}
+                        <form method="GET" action="{{ url()->current() }}" class="flex gap-4">
+                            <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}"
+                                class="px-4 py-2 rounded-lg border focus:outline-none">
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                                Search
+                            </button>
+                            @if (request('search'))
+                                <a href="{{ url()->current() }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg">
+                                    Clear
+                                </a>
+                            @endif
+                        </form>
                     </div>
                     <a href="{{ route('admin.teachers.create') }}"
                         class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg group flex items-center gap-3">
@@ -131,6 +136,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="mt-4">
+                        {{ $teachers->links() }}
+                    </div>
                 </div>
             </div>
         </div>

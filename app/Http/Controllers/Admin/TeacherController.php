@@ -12,14 +12,27 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use App\Rules\StrongPassword;
 
+
 class TeacherController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
-        $teachers = User::with('yearLevel','schoolInfo')
-                            ->where('role', 'teacher')
-                            ->where('created_by', auth()->id())
-                            ->get();
+        $search = $request->input('search');
+
+        $teachers = User::with('yearLevel', 'schoolInfo')
+            ->where('role', 'teacher')
+            ->where('created_by', auth()->id())
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhereHas('schoolInfo', function ($q) use ($search) {
+                            $q->where('name', 'like', '%' . $search . '%');
+                        });
+                });
+            })
+            ->paginate(25);
 
         return view('admin.teachers.index', compact('teachers'));
     }
@@ -97,14 +110,14 @@ class TeacherController extends Controller
     }
 
     public function destroy(User $teacher)
-{
-    // Delete related student enrollments
-    $teacher->studentEnrollments()->delete();
+    {
+        // Delete related student enrollments
+        $teacher->studentEnrollments()->delete();
 
-    // Now delete the teacher
-    $teacher->delete();
+        // Now delete the teacher
+        $teacher->delete();
 
-    return redirect()->route('admin.teachers.index')
-        ->with('success', 'Teacher deleted successfully.');
-}
+        return redirect()->route('admin.teachers.index')
+            ->with('success', 'Teacher deleted successfully.');
+    }
 }
