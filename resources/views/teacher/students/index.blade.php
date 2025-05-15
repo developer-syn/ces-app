@@ -107,10 +107,12 @@
                     <table class="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative">
                         <thead>
                             <tr class="text-left">
-                                <th
-                                    class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-                                    <input type="checkbox" id="selectAllCheckbox">
-                                </th>
+                                @if (auth()->user()->role === 'teacher')
+                                    <th
+                                        class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+                                        <input type="checkbox" id="selectAllCheckbox">
+                                    </th>
+                                @endif
                                 <th
                                     class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
                                     #
@@ -160,9 +162,11 @@
                                     $currentEnrollment = $student->latestEnrollment;
                                 @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="border-t px-6 py-4">
-                                        <input type="checkbox" class="studentCheckbox" value="{{ $student->id }}">
-                                    </td>
+                                    @if (auth()->user()->role === 'teacher')
+                                        <td class="border-t px-6 py-4">
+                                            <input type="checkbox" class="studentCheckbox" value="{{ $student->id }}">
+                                        </td>
+                                    @endif
                                     <td class="border-t px-6 py-4">{{ $loop->iteration }}</td>
                                     <td class="border-t px-6 py-4">{{ $student->LRN_num }}</td>
                                     <td class="border-t px-6 py-4">{{ ucwords(strtolower($student->lastname)) }},

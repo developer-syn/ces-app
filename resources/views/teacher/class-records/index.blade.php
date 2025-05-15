@@ -20,7 +20,7 @@
                 <!-- Search and Filters -->
                 <div class="mb-4 grid grid-cols-1 md:grid-cols-5 gap-4">
                     <!-- Search Input -->
-                    <div>
+                    {{-- <div>
                         <form action="{{ route('teacher.class-records.index') }}" method="GET" class="flex">
                             <!-- Keep the other filters in hidden inputs -->
                             <input type="hidden" name="subject_id" value="{{ request('subject_id') }}">
@@ -31,7 +31,7 @@
                                 value="{{ request('search') }}"
                                 class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block w-full">
                         </form>
-                    </div>
+                    </div> --}}
 
                     <!-- Subject Filter -->
                     <div>
