@@ -119,7 +119,7 @@ class ClassRecordController extends Controller
         $allSchoolYears = SchoolYear::all();
 
         // Get the selected school year id from the query string.
-        $selectedYear = $request->input('school_year'); // This will now be the school year's id
+        $selectedYear = $request->input('school_year');
 
         // If a school year is selected, filter students using school_year_id.
         $students = [];
@@ -569,7 +569,6 @@ class ClassRecordController extends Controller
                 $classRecord = ClassRecord::create($newData);
 
                 // Log the action for the newly created record
-                // Fixed activity log (auth()->user()->name instead of auth()->id()->name)
                 ActivityLogService::log(
                     'Updated Class Record',
                     "User: " . auth()->user()->name . " updated class record for " .
@@ -661,6 +660,6 @@ class ClassRecordController extends Controller
                         return $entry['grade'];
                     }
                 }
-                return 60; // Default
+                return 60;
             }
 }

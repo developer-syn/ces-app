@@ -119,35 +119,5 @@
         </div>
     </div>
 
-    <script>
-        function toggleTeacherFields() {
-            const roleSelect = document.getElementById('role');
-            const yearLevelField = document.getElementById('yearLevelField');
-            const sectionField = document.getElementById('sectionField');
-            const yearLevelInput = document.getElementById('year_level_id');
-            const sectionInput = document.getElementById('section');
-
-            if (roleSelect.value === 'teacher') {
-                yearLevelField.style.display = 'block';
-                sectionField.style.display = 'block';
-                yearLevelInput.required = true;
-                sectionInput.required = true;
-
-                // Optional: Focus on section field when shown
-                if (sectionField.style.display === 'block') {
-                    sectionInput.focus();
-                }
-            } else {
-                yearLevelField.style.display = 'none';
-                sectionField.style.display = 'none';
-                yearLevelInput.required = false;
-                sectionInput.required = false;
-            }
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            toggleTeacherFields();
-        });
-    </script>
+    <script src="{{ asset('js/teacher/edit.js') }}"></script>
 </x-app-layout>
