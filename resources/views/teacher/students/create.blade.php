@@ -13,12 +13,12 @@
                         @csrf
                         <!-- LRN Field -->
                         <div>
-                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN number</label>
+                            <label for="LRN_num" class="block text-sm font-medium text-gray-700">Student LRN
+                                number</label>
                             <div class="mt-1">
                                 <input type="number" id="LRN_num" name="LRN_num" required
                                     class="px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('LRN_num') border-red-500 @enderror"
-                                    placeholder="Enter LRN number"
-                                    value="{{ old('LRN_num') }}">
+                                    placeholder="Enter LRN number" value="{{ old('LRN_num') }}">
                                 @error('LRN_num')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -37,7 +37,8 @@
                                 @enderror
                             </div>
                             <div>
-                                <label for="firstname" class="block text-sm font-medium text-gray-700">First Name</label>
+                                <label for="firstname" class="block text-sm font-medium text-gray-700">First
+                                    Name</label>
                                 <input type="text" id="firstname" name="firstname" required
                                     class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('firstname') border-red-500 @enderror"
                                     value="{{ old('firstname') }}">
@@ -46,7 +47,8 @@
                                 @enderror
                             </div>
                             <div>
-                                <label for="middlename" class="block text-sm font-medium text-gray-700">Middle Name</label>
+                                <label for="middlename" class="block text-sm font-medium text-gray-700">Middle
+                                    Name</label>
                                 <input type="text" id="middlename" name="middlename"
                                     class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('middlename') border-red-500 @enderror"
                                     value="{{ old('middlename') }}">
@@ -74,8 +76,7 @@
                                 <input type="date" id="birthdate" name="birthdate" required
                                     class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('birthdate') border-red-500 @enderror"
                                     min="{{ date('Y-m-d', strtotime('-60 years')) }}"
-                                    max="{{ date('Y-m-d', strtotime('-5 years')) }}"
-                                    value="{{ old('birthdate') }}"
+                                    max="{{ date('Y-m-d', strtotime('-5 years')) }}" value="{{ old('birthdate') }}"
                                     onchange="calculateAge()">
                                 @error('birthdate')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -99,7 +100,8 @@
                                 class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('gender') border-red-500 @enderror">
                                 <option value="">Select Gender</option>
                                 <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female
+                                </option>
                             </select>
                             @error('gender')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -113,7 +115,8 @@
                                 class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('school_info_id') border-red-500 @enderror">
                                 <option value="">Select School</option>
                                 @foreach ($school_infos as $school)
-                                    <option value="{{ $school->id }}" {{ old('school_info_id') == $school->id ? 'selected' : '' }}>
+                                    <option value="{{ $school->id }}"
+                                        {{ old('school_info_id') == $school->id ? 'selected' : '' }}>
                                         {{ $school->school_name }}
                                     </option>
                                 @endforeach
@@ -125,12 +128,14 @@
 
                         <!-- Year Level -->
                         <div>
-                            <label for="year_level_id" class="block text-sm font-medium text-gray-700">Year Level</label>
+                            <label for="year_level_id" class="block text-sm font-medium text-gray-700">Year
+                                Level</label>
                             <select id="year_level_id" name="year_level_id" required
                                 class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('year_level_id') border-red-500 @enderror">
                                 <option value="">Select Year Level</option>
                                 @foreach ($yearLevels as $level)
-                                    <option value="{{ $level->id }}" {{ old('year_level_id') == $level->id ? 'selected' : '' }}>
+                                    <option value="{{ $level->id }}"
+                                        {{ old('year_level_id') == $level->id ? 'selected' : '' }}>
                                         {{ $level->name }}
                                     </option>
                                 @endforeach
@@ -142,12 +147,14 @@
 
                         <!-- School Year -->
                         <div>
-                            <label for="school_year_id" class="block text-sm font-medium text-gray-700">School Year</label>
+                            <label for="school_year_id" class="block text-sm font-medium text-gray-700">School
+                                Year</label>
                             <select id="school_year_id" name="school_year_id" required
                                 class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('school_year_id') border-red-500 @enderror">
                                 <option value="">Select School Year</option>
                                 @foreach ($schoolYears as $year)
-                                    <option value="{{ $year->id }}" {{ old('school_year_id') == $year->id ? 'selected' : '' }}>
+                                    <option value="{{ $year->id }}"
+                                        {{ old('school_year_id') == $year->id ? 'selected' : '' }}>
                                         {{ $year->name }}
                                     </option>
                                 @endforeach
@@ -168,6 +175,22 @@
                             @enderror
                         </div>
 
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select id="status" name="status" required
+                                class="mt-1 px-4 py-2 block w-full rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                                </option>
+                                <option value="graduated" {{ old('status') == 'graduated' ? 'selected' : '' }}>
+                                    Graduated</option>
+                                <option value="transferee" {{ old('status') == 'transferee' ? 'selected' : '' }}>
+                                    Transferee</option>
+                            </select>
+                        </div>
+
                         <div class="flex items-center justify-end gap-4 pt-4">
                             <a href="{{ route('teacher.students.index') }}"
                                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -184,69 +207,5 @@
         </div>
     </div>
 
-    <script>
-        // Calculate age from birthdate
-        function calculateAge() {
-            const birthdateInput = document.getElementById('birthdate');
-            const ageInput = document.getElementById('age');
-            const birthdate = birthdateInput.value;
-
-            if (!birthdate) {
-                ageInput.value = '';
-                return;
-            }
-
-            const birthDate = new Date(birthdate);
-            const today = new Date();
-
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDifference = today.getMonth() - birthDate.getMonth();
-
-            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-
-            ageInput.value = age;
-        }
-
-        // Form validation and error focus
-        document.addEventListener('DOMContentLoaded', function() {
-            // Focus on first error field if any
-            const firstErrorField = document.querySelector('.text-red-600');
-            if (firstErrorField) {
-                const inputId = firstErrorField.getAttribute('data-input-id') ||
-                               firstErrorField.previousElementSibling.querySelector('input, select')?.id;
-                if (inputId) {
-                    const inputElement = document.getElementById(inputId);
-                    if (inputElement) {
-                        inputElement.focus();
-                        inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            }
-
-            // Age validation on form submit
-            const form = document.getElementById('studentForm');
-            form.addEventListener('submit', function(event) {
-                const ageInput = document.getElementById('age');
-                const age = parseInt(ageInput.value);
-
-                if (age < 5 || age > 60) {
-                    event.preventDefault();
-                    const errorElement = document.querySelector('[data-input-id="age"]') ||
-                                        ageInput.nextElementSibling;
-                    if (errorElement) {
-                        errorElement.textContent = "Age must be between 5 and 60 years";
-                        errorElement.classList.remove('hidden');
-                    }
-                    ageInput.classList.add('border-red-500');
-                    ageInput.focus();
-                    ageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    return false;
-                }
-
-                return true;
-            });
-        });
-    </script>
+    <script src="{{ asset('js/students/create.js') }}"></script>
 </x-app-layout>

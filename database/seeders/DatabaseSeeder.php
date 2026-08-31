@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
          foreach ($yearLevelsOrder as $level) {
              YearLevel::firstOrCreate(['name' => $level]);
          }
-         $orderedYearLevels = YearLevel::orderBy('id')->get();
+         $orderedYearLevels = YearLevel::orderBy('id', 'ASC')->get();
 
         $sections = ['Honest', 'Integrity'];
 
@@ -82,7 +82,7 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('Password123'),
             'role' => 'admin',
             'school_info_id' => 1,
         ]);

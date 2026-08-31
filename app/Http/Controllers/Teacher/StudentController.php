@@ -67,22 +67,61 @@ class StudentController extends Controller
             });
 
         // Search filter
+        // if ($request->filled('search')) {
+        //     $searchTerm = strtolower($request->input('search'));
+        //     $query->where(function ($q) use ($searchTerm) {
+        //         $q->whereRaw("LOWER(
+        //                 CONCAT(
+        //                     TRIM(COALESCE(lastname, '')),
+        //                     ', ',
+        //                     TRIM(COALESCE(firstname, '')),
+        //                     ', ',
+        //                     TRIM(COALESCE(middlename, '-')),
+        //                     ', ',
+        //                     TRIM(COALESCE(suffix, '-'))
+        //                 )) LIKE ?", ["%{$searchTerm}%"])
+        //             ->orWhere('LRN_num', 'like', "%{$searchTerm}%")
+        //             ->orWhere('gender', 'like', "%{$searchTerm}%")
+        //             ->orWhere('age', 'like', "%{$searchTerm}%")
+        //             ->orWhere('status', 'like', "%{$searchTerm}%")
+        //             ->orWhere('section', 'like', "%{$searchTerm}%");
+        //     });
+        // }
+
+
+        // Search filter
         if ($request->filled('search')) {
             $searchTerm = strtolower($request->input('search'));
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereRaw("LOWER(
-                        CONCAT(
-                            TRIM(COALESCE(lastname, '')),
-                            ', ',
-                            TRIM(COALESCE(firstname, '')),
-                            ', ',
-                            TRIM(COALESCE(middlename, '-')),
-                            ', ',
-                            TRIM(COALESCE(suffix, '-'))
-                        )) LIKE ?", ["%{$searchTerm}%"])
+                $driver = DB::connection()->getDriverName();
+
+                if ($driver === 'sqlite' || $driver === 'pgsql') {
+                    $concatExpr = "LOWER(
+                    TRIM(COALESCE(lastname, '')) || ', ' ||
+                    TRIM(COALESCE(firstname, '')) || ', ' ||
+                    TRIM(COALESCE(middlename, '-')) || ', ' ||
+                    TRIM(COALESCE(suffix, '-'))
+                )";
+                } else {
+                    // mysql
+                    $concatExpr = "LOWER(
+                    CONCAT(
+                        TRIM(COALESCE(lastname, '')),
+                        ', ',
+                        TRIM(COALESCE(firstname, '')),
+                        ', ',
+                        TRIM(COALESCE(middlename, '-')),
+                        ', ',
+                        TRIM(COALESCE(suffix, '-'))
+                    )
+                )";
+                }
+
+                $q->whereRaw("$concatExpr LIKE ?", ["%{$searchTerm}%"])
                     ->orWhere('LRN_num', 'like', "%{$searchTerm}%")
                     ->orWhere('gender', 'like', "%{$searchTerm}%")
                     ->orWhere('age', 'like', "%{$searchTerm}%")
+                    ->orWhere('status', 'like', "%{$searchTerm}%")
                     ->orWhere('section', 'like', "%{$searchTerm}%");
             });
         }
@@ -163,6 +202,7 @@ class StudentController extends Controller
             'year_level_id'     => 'required|exists:year_levels,id',
             'school_year_id'    => 'required|exists:school_years,id',
             'school_info_id'    => 'required|exists:school_infos,id',
+            'status'            => 'required|in:active,inactive,graduated,transferee',
         ]);
 
         // Double-check age calculation from birthdate
@@ -189,6 +229,7 @@ class StudentController extends Controller
                 'year_level_id'     => $student->year_level_id,
                 'school_year_id'    => $student->school_year_id,
                 'school_info_id'    => $student->school_info_id,
+                'status'            => $student->status,
                 'user_id'           => Auth::id(),
             ]);
 
@@ -203,7 +244,8 @@ class StudentController extends Controller
                     $student->lastname,
                     $student->suffix,
                     $student->yearLevel->name,
-                    $student->section
+                    $student->section,
+                    $student->status
                 )
             );
 
@@ -259,6 +301,7 @@ class StudentController extends Controller
             'year_level_id'     => 'nullable|exists:year_levels,id',
             'school_year_id'    => 'nullable|exists:school_years,id',
             'school_info_id'    => 'nullable|exists:school_infos,id',
+            'status'            => 'nullable|in:active,inactive,graduated,transferee',
         ]);
 
         // Store old values for logging
@@ -278,6 +321,7 @@ class StudentController extends Controller
                 'year_level_id'     => $validated['year_level_id'],
                 'school_year_id'    => $validated['school_year_id'],
                 'school_info_id'    => $validated['school_info_id'],
+                'status'            => $validated['status'],
             ]);
         }
 

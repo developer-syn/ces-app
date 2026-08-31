@@ -82,6 +82,7 @@ return new class extends Migration
             $table->foreignId('year_level_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('school_year_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('school_info_id')->nullable()->contrained()->onDelete('set null');
+            $table->string('status')->default('active'); // active, inactive, graduated, transferred
             $table->timestamps();
         });
 
@@ -147,6 +148,7 @@ return new class extends Migration
             $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('school_info_id')->nullable()->contrained()->onDelete('set null');
+            $table->string('status')->default('active'); // active, inactive, graduated, transferred
             $table->timestamps();
         });
 
@@ -179,6 +181,8 @@ return new class extends Migration
 
             $table->timestamps();
         });
+
+        
     }
 
     public function down(): void

@@ -89,17 +89,41 @@
                         <!-- Password -->
                         <div class="mt-4">
                             <x-input-label for="password" :value="__('Password')" />
-                            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password"
-                                autocomplete="new-password" />
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                            <div class="relative">
+                                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password"
+                                    autocomplete="new-password" />
+                                <button type="button" onclick="togglePassword('password')"
+                                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none">
+                                    <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.274.832-.642 1.624-1.104 2.354M15.536 15.536A5.978 5.978 0 0112 17c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.54-3.536" />
+                                    </svg>
+                                </button>
+                            </div>
+                            </x-input-error :messages="$errors->get('password')" class="mt-2" />
                             <small class="text-gray-500">Leave blank to keep current password</small>
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="mt-4">
                             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
-                                name="password_confirmation" autocomplete="new-password" />
+                            <div class="relative">
+                                <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
+                                    name="password_confirmation" autocomplete="new-password" />
+                                <button type="button" onclick="togglePassword('password_confirmation')"
+                                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none">
+                                    <svg id="eye-password_confirmation" xmlns="http://www.w3.org/2000/svg"
+                                        class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.274.832-.642 1.624-1.104 2.354M15.536 15.536A5.978 5.978 0 0112 17c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.54-3.536" />
+                                    </svg>
+                                </button>
+                            </div>
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                         </div>
 

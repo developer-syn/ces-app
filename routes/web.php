@@ -20,6 +20,7 @@ use App\Http\Controllers\Teacher\PromoteStudentController;
 use App\Http\Controllers\Teacher\SchoolForm10Controller;
 use App\Http\Controllers\Teacher\AttendanceCoreValuesController;
 use App\Http\Controllers\Teacher\ReportController;
+use App\Http\Controllers\Teacher\TransferredStudentController;
 
 
 Route::get('/unauthorized', function () {
@@ -50,9 +51,15 @@ Route::middleware(['auth', 'role:admin|teacher'])->prefix('teacher', 'admin')->n
     Route::resource('attendance-core-values', AttendanceCoreValuesController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
     Route::get('attendance-core-values/create/{enrollment}', [AttendanceCoreValuesController::class, 'create'])->name('attendance-core-values.create');
     Route::get('attendance-core-values/{attendanceCoreValue}/edit', [AttendanceCoreValuesController::class, 'edit'])->name('attendance-core-values.edit');
-    Route::put('attendance-core-values/{attendanceCoreValue}',[AttendanceCoreValuesController::class, 'update'])->name('attendance-core-values.update');
+    Route::put('attendance-core-values/{attendanceCoreValue}', [AttendanceCoreValuesController::class, 'update'])->name('attendance-core-values.update');
     Route::get('reports/students-report', [ReportController::class, 'gradeReports'])->name('reports.students-report');
     Route::get('reports/download', [ReportController::class, 'downloadGradeReports'])->name('reports.download');
+    Route::resource('transfer-students', TransferredStudentController::class);
+    // Correct route definition with student ID
+    // Route::get('teacher/transfer-students/create/{student}', [TransferredStudentController::class, 'create'])
+    //     ->name('teacher.transfer-students.create');
+    // Route::post('teacher/transfer-students/store', [TransferredStudentController::class, 'store'])
+    //     ->name('teacher.transfer-students.store');
 });
 
 

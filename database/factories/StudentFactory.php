@@ -36,8 +36,10 @@ class StudentFactory extends Factory
             'age' => $age,
             'birthdate' => $birthdate,
             'section' => $teacher->section,
-            'year_level_id' => $teacher->year_level_id,
-            'school_year_id' => SchoolYear::inRandomOrder()->first()->id,
+            'year_level_id' => YearLevel::inRandomOrder()->first()?->id ?? YearLevel::factory()->create()->id,
+            'school_year_id' => SchoolYear::inRandomOrder()->first()?->id ?? SchoolYear::factory()->create()->id,
+            // 'year_level_id' => $teacher->yearLevels->id ?? YearLevel::inRandomOrder()->first()->id,
+            // 'school_year_id' => $teacher->schoolYears->id ?? SchoolYear::inRandomOrder()->first()->id,
             'school_info_id' => $teacher->school_info_id,
         ];
     }

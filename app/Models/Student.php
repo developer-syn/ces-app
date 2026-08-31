@@ -25,6 +25,7 @@ class Student extends Model
         'school_year_id',
         'user_id',
         'school_info_id',
+        'status',
     ];
 
     public function scopeWithAverageGrade($query)
@@ -82,7 +83,6 @@ class Student extends Model
         return $this->belongsTo(SchoolInfo::class);
     }
 
-    // app/Models/Student.php
     public function enrollment()
     {
         return $this->hasOne(StudentEnrollment::class);
